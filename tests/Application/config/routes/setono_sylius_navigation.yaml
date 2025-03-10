@@ -1,0 +1,2 @@
+setono_sylius_navigation:
+    resource: "@SetonoSyliusNavigationPlugin/Resources/config/routes.yaml"
