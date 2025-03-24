@@ -12,7 +12,7 @@ use Sylius\Resource\Model\TimestampableInterface;
 use Sylius\Resource\Model\ToggleableInterface;
 use Sylius\Resource\Model\TranslatableInterface;
 
-interface NavigationItemInterface extends
+interface ItemInterface extends
     ChannelsAwareInterface,
     PositionAwareInterface,
     ResourceInterface,
@@ -29,7 +29,7 @@ interface NavigationItemInterface extends
     public function getParent(): ?self;
 
     /**
-     * @return Collection<int, NavigationItemInterface>
+     * @return Collection<int, ItemInterface>
      */
     public function getChildren(): Collection;
 

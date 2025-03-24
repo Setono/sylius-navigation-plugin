@@ -19,7 +19,7 @@ class Navigation implements NavigationInterface
 
     protected ?string $code = null;
 
-    protected ?NavigationItemInterface $rootItem = null;
+    protected ?ItemInterface $rootItem = null;
 
     protected ?int $maxDepth = null;
 
@@ -46,12 +46,12 @@ class Navigation implements NavigationInterface
         $this->code = $code;
     }
 
-    public function getRootItem(): ?NavigationItemInterface
+    public function getRootItem(): ?ItemInterface
     {
         return $this->rootItem;
     }
 
-    public function setRootItem(?NavigationItemInterface $rootItem): void
+    public function setRootItem(?ItemInterface $rootItem): void
     {
         $this->rootItem = $rootItem;
     }

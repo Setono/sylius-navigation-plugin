@@ -17,9 +17,9 @@ interface NavigationInterface extends
     TimestampableInterface,
     ToggleableInterface
 {
-    public function getRootItem(): ?NavigationItemInterface;
+    public function getRootItem(): ?ItemInterface;
 
-    public function setRootItem(?NavigationItemInterface $rootItem): void;
+    public function setRootItem(?ItemInterface $rootItem): void;
 
     public function getMaxDepth(): ?int;
 

@@ -8,12 +8,12 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Setono\CompositeCompilerPass\CompositeService;
-use Setono\SyliusNavigationPlugin\Model\NavigationItemInterface;
+use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 
 /**
- * @extends CompositeService<NavigationItemRendererInterface>
+ * @extends CompositeService<ItemRendererInterface>
  */
-final class CompositeNavigationItemRenderer extends CompositeService implements NavigationItemRendererInterface, LoggerAwareInterface
+final class CompositeItemRenderer extends CompositeService implements ItemRendererInterface, LoggerAwareInterface
 {
     private LoggerInterface $logger;
 
@@ -22,7 +22,7 @@ final class CompositeNavigationItemRenderer extends CompositeService implements 
         $this->logger = new NullLogger();
     }
 
-    public function render(NavigationItemInterface $item): string
+    public function render(ItemInterface $item): string
     {
         foreach ($this->services as $service) {
             if ($service->supports($item)) {
@@ -37,7 +37,7 @@ final class CompositeNavigationItemRenderer extends CompositeService implements 
         return '';
     }
 
-    public function supports(NavigationItemInterface $item): bool
+    public function supports(ItemInterface $item): bool
     {
         foreach ($this->services as $service) {
             if ($service->supports($item)) {

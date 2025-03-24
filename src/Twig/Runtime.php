@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Twig;
 
-use Setono\SyliusNavigationPlugin\Model\NavigationItemInterface;
-use Setono\SyliusNavigationPlugin\Renderer\Item\NavigationItemRendererInterface;
+use Setono\SyliusNavigationPlugin\Model\ItemInterface;
+use Setono\SyliusNavigationPlugin\Renderer\Item\ItemRendererInterface;
 use Setono\SyliusNavigationPlugin\Renderer\NavigationRendererInterface;
-use Setono\SyliusNavigationPlugin\Renderer\NavigationTreeRendererInterface;
+use Setono\SyliusNavigationPlugin\Renderer\TreeRendererInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
 final class Runtime implements RuntimeExtensionInterface
 {
     public function __construct(
         private readonly NavigationRendererInterface $navigationRenderer,
-        private readonly NavigationTreeRendererInterface $navigationTreeRenderer,
-        private readonly NavigationItemRendererInterface $navigationItemRenderer,
+        private readonly TreeRendererInterface $navigationTreeRenderer,
+        private readonly ItemRendererInterface $navigationItemRenderer,
     ) {
     }
 
@@ -24,12 +24,12 @@ final class Runtime implements RuntimeExtensionInterface
         return $this->navigationRenderer->render($code);
     }
 
-    public function tree(NavigationItemInterface $item): string
+    public function tree(ItemInterface $item): string
     {
         return $this->navigationTreeRenderer->render($item);
     }
 
-    public function item(NavigationItemInterface $item): string
+    public function item(ItemInterface $item): string
     {
         return $this->navigationItemRenderer->render($item);
     }

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Renderer;
 
-use Setono\SyliusNavigationPlugin\Model\NavigationItemInterface;
+use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Twig\Environment;
 
-final class NavigationTreeRenderer implements NavigationTreeRendererInterface
+final class TreeRenderer implements TreeRendererInterface
 {
     public function __construct(
         private readonly ChannelContextInterface $channelContext,
@@ -20,7 +20,7 @@ final class NavigationTreeRenderer implements NavigationTreeRendererInterface
     ) {
     }
 
-    public function render(NavigationItemInterface $item, ChannelInterface $channel = null, string $localeCode = null): string
+    public function render(ItemInterface $item, ChannelInterface $channel = null, string $localeCode = null): string
     {
         $maxDepth = $item->getNavigation()?->getMaxDepth();
         if (null !== $maxDepth && $item->getLevel() > $maxDepth) {
