@@ -12,7 +12,7 @@
         </id>
 
         <field name="code" type="string" unique="true"/>
-        <field name="maxDepth" type="integer"/>
+        <field name="maxDepth" type="integer" nullable="true"/>
         <field name="enabled" type="boolean"/>
 
         <field name="createdAt" column="created_at" type="datetime">
