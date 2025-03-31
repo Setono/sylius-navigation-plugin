@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<constraint-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns="http://symfony.com/schema/dic/constraint-mapping"
+                    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping
+        https://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd">
+    <class name="Setono\SyliusNavigationPlugin\Model\Navigation">
+        <constraint name="Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity">
+            <option name="fields">
+                <value>code</value>
+            </option>
+            <option name="groups">
+                <value>setono_sylius_navigation</value>
+            </option>
+        </constraint>
+        <property name="code">
+            <constraint name="NotBlank">
+                <option name="groups">
+                    <value>setono_sylius_navigation</value>
+                </option>
+            </constraint>
+        </property>
+        <property name="maxDepth">
+            <constraint name="NotBlank">
+                <option name="groups">
+                    <value>setono_sylius_navigation</value>
+                </option>
+            </constraint>
+            <constraint name="GreaterThanOrEqual">
+                <option name="groups">
+                    <value>setono_sylius_navigation</value>
+                </option>
+                <option name="value">0</option>
+            </constraint>
+        </property>
+    </class>
+</constraint-mapping>

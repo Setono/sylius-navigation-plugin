@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\DependencyInjection;
 
+use Setono\SyliusNavigationPlugin\Form\Type\NavigationType;
+use Setono\SyliusNavigationPlugin\Model\Closure;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemTranslation;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
@@ -37,6 +39,22 @@ final class Configuration implements ConfigurationInterface
                 ->arrayNode('resources')
                     ->addDefaultsIfNotSet()
                     ->children()
+                        ->arrayNode('closure')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->variableNode('options')->end()
+                                ->arrayNode('classes')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('model')->defaultValue(Closure::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->cannotBeEmpty()->end()
+                                        ->scalarNode('form')->defaultValue(DefaultResourceType::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
                         ->arrayNode('item')
                             ->addDefaultsIfNotSet()
                             ->children()
@@ -79,7 +97,7 @@ final class Configuration implements ConfigurationInterface
                                         ->scalarNode('model')->defaultValue(Navigation::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
-                                        ->scalarNode('form')->defaultValue(DefaultResourceType::class)->end()
+                                        ->scalarNode('form')->defaultValue(NavigationType::class)->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
         ;
     }

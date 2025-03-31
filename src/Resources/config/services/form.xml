@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="setono_sylius_navigation.form_type.navigation.validation_groups" type="collection">
+            <parameter>setono_sylius_navigation</parameter>
+        </parameter>
+    </parameters>
+    <services>
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\NavigationType">
+            <argument>%setono_sylius_navigation.model.navigation.class%</argument>
+            <argument>%setono_sylius_navigation.form_type.navigation.validation_groups%</argument>
+            <tag name="form.type"/>
+        </service>
+    </services>
+</container>

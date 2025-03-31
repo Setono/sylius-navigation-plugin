@@ -1,1 +1,16 @@
-# TODO Add your admin routes here
+setono_sylius_navigation_admin_navigation:
+    resource: |
+        section: admin
+        alias: setono_sylius_navigation.navigation
+        permission: true
+        templates: '@SyliusAdmin\\Crud'
+        redirect: update
+        grid: setono_sylius_navigation_admin_navigation
+        vars:
+            all:
+                subheader: setono_sylius_navigation.ui.manage_navigations
+                templates:
+                    form: "@SetonoSyliusNavigationPlugin/navigation/_form.html.twig"
+            index:
+                icon: 'align justify'
+    type: sylius.resource

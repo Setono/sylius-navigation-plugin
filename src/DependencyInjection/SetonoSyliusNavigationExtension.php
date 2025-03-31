@@ -8,9 +8,10 @@ use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceE
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-final class SetonoSyliusNavigationExtension extends AbstractResourceExtension
+final class SetonoSyliusNavigationExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -25,5 +26,48 @@ final class SetonoSyliusNavigationExtension extends AbstractResourceExtension
         $this->registerResources('setono_sylius_navigation', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
 
         $loader->load('services.xml');
+    }
+
+    public function prepend(ContainerBuilder $container): void
+    {
+        $container->prependExtensionConfig('sylius_grid', [
+            'grids' => [
+                'setono_sylius_navigation_admin_navigation' => [
+                    'driver' => [
+                        'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+                        'options' => [
+                            'class' => '%setono_sylius_navigation.model.navigation.class%',
+                        ],
+                    ],
+                    'limits' => [100, 250, 500, 1000],
+                    'fields' => [
+                        'code' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.code',
+                        ],
+                    ],
+                    'actions' => [
+                        'main' => [
+                            'create' => [
+                                'type' => 'create',
+                            ],
+                        ],
+                        'item' => [
+                            'update' => [
+                                'type' => 'update',
+                            ],
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                        'bulk' => [
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
     }
 }

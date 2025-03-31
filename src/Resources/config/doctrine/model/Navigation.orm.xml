@@ -22,5 +22,9 @@
         <field name="updatedAt" column="updated_at" type="datetime" nullable="true">
             <gedmo:timestampable on="update"/>
         </field>
+
+        <many-to-one field="rootItem" target-entity="Setono\SyliusNavigationPlugin\Model\ItemInterface">
+            <join-column name="root_item_id" referenced-column-name="id" on-delete="RESTRICT"/>
+        </many-to-one>
     </mapped-superclass>
 </doctrine-mapping>
