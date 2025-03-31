@@ -9,19 +9,18 @@ use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
+use Sylius\Component\Resource\Model\TranslatableTrait;
 
-class Navigation implements NavigationInterface
+/**
+ * @method ItemTranslationInterface getTranslation(?string $locale = null)
+ */
+class Item implements ItemInterface
 {
     use TimestampableTrait;
     use ToggleableTrait;
+    use TranslatableTrait;
 
     protected ?int $id = null;
-
-    protected ?string $code = null;
-
-    protected ?ItemInterface $rootItem = null;
-
-    protected ?int $maxDepth = null;
 
     /** @var Collection<array-key, ChannelInterface> */
     protected Collection $channels;
@@ -36,34 +35,14 @@ class Navigation implements NavigationInterface
         return $this->id;
     }
 
-    public function getCode(): ?string
+    public function getLabel(): ?string
     {
-        return $this->code;
+        return $this->getTranslation()->getLabel();
     }
 
-    public function setCode(?string $code): void
+    public function setLabel(?string $label): void
     {
-        $this->code = $code;
-    }
-
-    public function getRootItem(): ?ItemInterface
-    {
-        return $this->rootItem;
-    }
-
-    public function setRootItem(?ItemInterface $rootItem): void
-    {
-        $this->rootItem = $rootItem;
-    }
-
-    public function getMaxDepth(): ?int
-    {
-        return $this->maxDepth;
-    }
-
-    public function setMaxDepth(?int $maxDepth): void
-    {
-        $this->maxDepth = $maxDepth;
+        $this->getTranslation()->setLabel($label);
     }
 
     public function getChannels(): Collection
@@ -88,5 +67,10 @@ class Navigation implements NavigationInterface
     public function hasChannel(ChannelInterface $channel): bool
     {
         return $this->channels->contains($channel);
+    }
+
+    protected function createTranslation(): ItemTranslation
+    {
+        return new ItemTranslation();
     }
 }

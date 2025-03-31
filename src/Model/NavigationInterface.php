@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin\Model;
 
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
-use Sylius\Resource\Model\CodeAwareInterface;
-use Sylius\Resource\Model\ResourceInterface;
-use Sylius\Resource\Model\TimestampableInterface;
-use Sylius\Resource\Model\ToggleableInterface;
+use Sylius\Component\Resource\Model\CodeAwareInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\TimestampableInterface;
+use Sylius\Component\Resource\Model\ToggleableInterface;
 
 interface NavigationInterface extends
     ChannelsAwareInterface,
