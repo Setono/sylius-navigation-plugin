@@ -16,7 +16,7 @@ interface ClosureInterface extends ResourceInterface
 
     public function setDescendant(?ItemInterface $descendant): void;
 
-    public function getDepth(): ?int;
+    public function getDepth(): int;
 
-    public function setDepth(?int $depth): void;
+    public function setDepth(int $depth): void;
 }

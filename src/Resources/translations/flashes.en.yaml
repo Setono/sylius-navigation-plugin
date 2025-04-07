@@ -1,3 +1,4 @@
 setono_sylius_navigation:
     navigation_already_built: The navigation you are trying to build already has a root item
     navigation_not_found: Navigation not found
+    navigation_built: Navigation was built

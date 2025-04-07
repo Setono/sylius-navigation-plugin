@@ -9,6 +9,7 @@ use Setono\SyliusNavigationPlugin\Model\Closure;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemTranslation;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
+use Setono\SyliusNavigationPlugin\Repository\ClosureRepository;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType;
@@ -49,7 +50,7 @@ final class Configuration implements ConfigurationInterface
                                     ->children()
                                         ->scalarNode('model')->defaultValue(Closure::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('repository')->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(ClosureRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('form')->defaultValue(DefaultResourceType::class)->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
                                     ->end()

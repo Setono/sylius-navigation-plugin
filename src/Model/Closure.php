@@ -12,7 +12,7 @@ class Closure implements ClosureInterface
 
     protected ?ItemInterface $descendant = null;
 
-    protected ?int $depth = null;
+    protected int $depth = 0;
 
     public function getId(): ?int
     {
@@ -39,12 +39,12 @@ class Closure implements ClosureInterface
         $this->descendant = $descendant;
     }
 
-    public function getDepth(): ?int
+    public function getDepth(): int
     {
         return $this->depth;
     }
 
-    public function setDepth(?int $depth): void
+    public function setDepth(int $depth): void
     {
         $this->depth = $depth;
     }
