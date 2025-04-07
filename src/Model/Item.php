@@ -31,6 +31,11 @@ class Item implements ItemInterface
         $this->translations = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return (string) $this->getLabel();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

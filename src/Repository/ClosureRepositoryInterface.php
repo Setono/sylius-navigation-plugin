@@ -19,4 +19,11 @@ interface ClosureRepositoryInterface extends RepositoryInterface
      * @return list<ClosureInterface>
      */
     public function findAncestors(ItemInterface $item): array;
+
+    /**
+     * Will return the whole graph for the given $root
+     *
+     * @return list<ClosureInterface>
+     */
+    public function findGraph(ItemInterface $root): array;
 }

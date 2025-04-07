@@ -13,7 +13,6 @@ class Extension extends AbstractExtension
     {
         return [
             new TwigFunction('ssn_navigation', [Runtime::class, 'navigation'], ['is_safe' => ['html']]),
-            new TwigFunction('ssn_tree', [Runtime::class, 'tree'], ['is_safe' => ['html']]),
             new TwigFunction('ssn_item', [Runtime::class, 'item'], ['is_safe' => ['html']]),
         ];
     }

@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Setono\SyliusNavigationPlugin\Graph\GraphBuilderInterface;
+use Setono\SyliusNavigationPlugin\Graph\Node;
+use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
 use Setono\SyliusNavigationPlugin\Renderer\NavigationRenderer;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
@@ -25,6 +28,9 @@ final class NavigationRendererTest extends TestCase
     /** @var ObjectProphecy<NavigationRepositoryInterface> */
     private ObjectProphecy $navigationRepository;
 
+    /** @var ObjectProphecy<GraphBuilderInterface> */
+    private ObjectProphecy $graphBuilder;
+
     /** @var ObjectProphecy<ChannelContextInterface> */
     private ObjectProphecy $channelContext;
 
@@ -37,6 +43,9 @@ final class NavigationRendererTest extends TestCase
     {
         $this->navigationRepository = $this->prophesize(NavigationRepositoryInterface::class);
 
+        $this->graphBuilder = $this->prophesize(GraphBuilderInterface::class);
+        $this->graphBuilder->build(Argument::type(Navigation::class))->willReturn(new Node(new Item()));
+
         $channel = new Channel();
         $channel->setCode('WEB');
 
@@ -48,6 +57,7 @@ final class NavigationRendererTest extends TestCase
 
         $this->renderer = new NavigationRenderer(
             $this->navigationRepository->reveal(),
+            $this->graphBuilder->reveal(),
             $this->channelContext->reveal(),
             $this->localeContext->reveal(),
             new Environment(new ArrayLoader([

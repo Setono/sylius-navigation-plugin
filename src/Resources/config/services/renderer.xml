@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Setono\SyliusNavigationPlugin\Renderer\Item\ItemRendererInterface"
+                 alias="Setono\SyliusNavigationPlugin\Renderer\Item\CompositeItemRenderer"/>
+
+        <service id="Setono\SyliusNavigationPlugin\Renderer\Item\CompositeItemRenderer"/>
+
+        <service id="Setono\SyliusNavigationPlugin\Renderer\Item\DefaultItemRenderer">
+            <argument type="service" id="twig"/>
+
+            <tag name="setono_sylius_navigation.item_renderer"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Renderer\NavigationRendererInterface"
+                 alias="Setono\SyliusNavigationPlugin\Renderer\NavigationRenderer"/>
+
+        <service id="Setono\SyliusNavigationPlugin\Renderer\NavigationRenderer">
+            <argument type="service" id="setono_sylius_navigation.repository.navigation"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Graph\GraphBuilderInterface"/>
+            <argument type="service" id="sylius.context.channel"/>
+            <argument type="service" id="sylius.context.locale"/>
+            <argument type="service" id="twig"/>
+        </service>
+    </services>
+</container>

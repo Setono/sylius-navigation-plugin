@@ -7,6 +7,7 @@ namespace Setono\SyliusNavigationPlugin\Renderer;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Setono\SyliusNavigationPlugin\Graph\GraphBuilderInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -21,6 +22,7 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
 
     public function __construct(
         private readonly NavigationRepositoryInterface $navigationRepository,
+        private readonly GraphBuilderInterface $graphBuilder,
         private readonly ChannelContextInterface $channelContext,
         private readonly LocaleContextInterface $localeContext,
         private readonly Environment $twig,
@@ -51,6 +53,7 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
 
         return $this->twig->render($this->template, [
             'navigation' => $navigation,
+            'graph' => $this->graphBuilder->build($navigation),
             'channel' => $channel,
             'localeCode' => $localeCode,
         ]);

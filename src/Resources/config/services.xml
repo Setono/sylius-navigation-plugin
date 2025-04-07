@@ -6,6 +6,9 @@
         <import resource="services/event_subscriber.xml"/>
         <import resource="services/factory.xml"/>
         <import resource="services/form.xml"/>
+        <import resource="services/graph.xml"/>
         <import resource="services/manager.xml"/>
+        <import resource="services/renderer.xml"/>
+        <import resource="services/twig.xml"/>
     </imports>
 </container>
