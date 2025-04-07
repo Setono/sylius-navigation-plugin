@@ -23,7 +23,7 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
 
     public function __toString(): string
     {
-        return (string) $this->item;
+        return (string) $this->item->getLabel();
     }
 
     public function getParents(): array
@@ -62,7 +62,11 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
 
     public function count(int $mode = \COUNT_NORMAL): int
     {
-        return count($this->children, $mode);
+        if ($mode === \COUNT_RECURSIVE) {
+            return count($this->children) + array_sum(array_map(static fn (Node $node): int => $node->count($mode), $this->children));
+        }
+
+        return count($this->children);
     }
 
     public function getIterator(): \ArrayIterator
