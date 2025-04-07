@@ -23,7 +23,17 @@ final class BuildFromTaxonController extends AbstractController
     {
         $navigation = $this->navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
+            $this->addFlash('error', 'setono_sylius_navigation.navigation_not_found');
+
             return $this->redirectToRoute('setono_sylius_navigation_admin_navigation_index');
+        }
+
+        if ($navigation->getRootItem() !== null) {
+            $this->addFlash('error', 'setono_sylius_navigation.navigation_already_built');
+
+            return $this->redirectToRoute('setono_sylius_navigation_admin_navigation_update', [
+                'id' => $navigation->getId(),
+            ]);
         }
 
         $form = $this->createForm(BuildFromTaxonType::class);
