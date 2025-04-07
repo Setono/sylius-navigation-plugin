@@ -2,8 +2,6 @@ setono_sylius_navigation:
     form:
         build_from_taxon:
             taxon: Taxon
-        navigation:
-            max_depth: Max depth
     ui:
         edit_navigation: Edit navigation
         manage_navigations: Manage navigations

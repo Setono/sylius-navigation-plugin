@@ -16,10 +16,6 @@ final class NavigationType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('maxDepth', IntegerType::class, [
-                'label' => 'setono_sylius_navigation.form.navigation.max_depth',
-                'required' => false,
-            ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'sylius.ui.enabled',
                 'required' => false,

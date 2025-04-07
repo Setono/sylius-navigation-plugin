@@ -19,13 +19,5 @@
                 </option>
             </constraint>
         </property>
-        <property name="maxDepth">
-            <constraint name="GreaterThanOrEqual">
-                <option name="groups">
-                    <value>setono_sylius_navigation</value>
-                </option>
-                <option name="value">0</option>
-            </constraint>
-        </property>
     </class>
 </constraint-mapping>

@@ -21,8 +21,6 @@ class Navigation implements NavigationInterface
 
     protected ?ItemInterface $rootItem = null;
 
-    protected ?int $maxDepth = null;
-
     /** @var Collection<array-key, ChannelInterface> */
     protected Collection $channels;
 
@@ -54,16 +52,6 @@ class Navigation implements NavigationInterface
     public function setRootItem(?ItemInterface $rootItem): void
     {
         $this->rootItem = $rootItem;
-    }
-
-    public function getMaxDepth(): ?int
-    {
-        return $this->maxDepth;
-    }
-
-    public function setMaxDepth(?int $maxDepth): void
-    {
-        $this->maxDepth = $maxDepth;
     }
 
     public function getChannels(): Collection

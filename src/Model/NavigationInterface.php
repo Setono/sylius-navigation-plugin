@@ -20,8 +20,4 @@ interface NavigationInterface extends
     public function getRootItem(): ?ItemInterface;
 
     public function setRootItem(?ItemInterface $rootItem): void;
-
-    public function getMaxDepth(): ?int;
-
-    public function setMaxDepth(?int $maxDepth): void;
 }
