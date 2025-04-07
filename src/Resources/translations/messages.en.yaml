@@ -1,5 +1,7 @@
 setono_sylius_navigation:
     form:
+        build_from_taxon:
+            taxon: Taxon
         navigation:
             max_depth: Max depth
     ui:
@@ -8,3 +10,4 @@ setono_sylius_navigation:
         navigation: Navigation
         navigations: Navigations
         new_navigation: New navigation
+        build_from_taxon: Build from taxon

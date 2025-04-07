@@ -28,6 +28,7 @@ class Item implements ItemInterface
     public function __construct()
     {
         $this->channels = new ArrayCollection();
+        $this->translations = new ArrayCollection();
     }
 
     public function getId(): ?int

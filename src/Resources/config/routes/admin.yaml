@@ -14,3 +14,10 @@ setono_sylius_navigation_admin_navigation:
             index:
                 icon: 'align justify'
     type: sylius.resource
+
+setono_sylius_navigation_admin_navigation_build_from_taxon:
+    path: /navigations/{id}/build-from-taxon
+    methods: [ GET,POST ]
+    controller: Setono\SyliusNavigationPlugin\Controller\BuildFromTaxonController
+    requirements:
+        id: ^\d+$

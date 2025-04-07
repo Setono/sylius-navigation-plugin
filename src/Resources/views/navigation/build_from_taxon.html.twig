@@ -1,0 +1,49 @@
+{% extends '@SyliusAdmin/layout.html.twig' %}
+
+{% import '@SyliusAdmin/Macro/breadcrumb.html.twig' as breadcrumb %}
+{% import '@SyliusUi/Macro/headers.html.twig' as headers %}
+
+{% set updateUrl = path('setono_sylius_navigation_admin_navigation_update', { 'id': navigation.id }) %}
+
+{% set breadcrumbs = [
+    { label: 'sylius.ui.administration'|trans, url: path('sylius_admin_dashboard') },
+    { label: 'setono_sylius_navigation.ui.navigations'|trans, url: path('setono_sylius_navigation_admin_navigation_index') },
+    { label: navigation.code, url: updateUrl },
+    { label: 'setono_sylius_navigation.ui.build_from_taxon'|trans }
+]
+%}
+
+{% form_theme form '@SyliusAdmin/Form/theme.html.twig' %}
+
+{% block title %}{{ 'setono_sylius_navigation.ui.build_from_taxon'|trans }} {{ parent() }}{% endblock %}
+
+{% block content %}
+    <div class="ui stackable two column grid">
+        <div class="column">
+            {{ headers.default('setono_sylius_navigation.ui.build_from_taxon'|trans, 'wrench') }}
+            {{ breadcrumb.crumble(breadcrumbs) }}
+        </div>
+    </div>
+
+    <div class="ui segment">
+        <div class="ui stackable two column grid">
+            <div class="column">
+                {{ form_start(form) }}
+                    {{ form_row(form.taxon) }}
+
+                    <div class="ui hidden divider"></div>
+                    <div class="ui buttons">
+                        <button class="ui labeled icon primary button" type="submit"><i class="wrench icon"></i>{{- 'setono_sylius_navigation.ui.build_from_taxon'|trans -}}</button>
+                        {% include '@SyliusUi/Form/Buttons/_cancel.html.twig' with {'path': sylius_generate_redirect_path(updateUrl)} %}
+                    </div>
+                {{ form_end(form) }}
+            </div>
+            <div class="column">
+                <h4 class="ui large header">{{ 'setono_sylius_navigation.ui.build_from_taxon'|trans }}</h4>
+                {# todo translate #}
+                <p>When you build a navigation from an existing taxon, you select a taxon from your taxonomy tree, and all taxons beneath that taxon will be automatically added to your navigation.</p>
+                <p>The taxon you select will be the root item of your navigation.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
