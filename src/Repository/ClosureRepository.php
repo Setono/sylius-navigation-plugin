@@ -22,19 +22,13 @@ class ClosureRepository extends EntityRepository implements ClosureRepositoryInt
         return $objs;
     }
 
-    public function findGraph(ItemInterface $root, int $maxDepth = null): array
+    public function findGraph(ItemInterface $root): array
     {
         $qb = $this->createQueryBuilder('o')
             ->join($this->getClassName(), 'root', 'WITH', 'root.descendant = o.ancestor')
             ->andWhere('root.ancestor = :root')
             ->setParameter('root', $root)
         ;
-
-        if (null !== $maxDepth) {
-            $qb->andWhere('o.depth <= :maxDepth')
-                ->setParameter('maxDepth', $maxDepth)
-            ;
-        }
 
         $objs = $qb->getQuery()->getResult();
 

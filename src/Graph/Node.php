@@ -6,7 +6,10 @@ namespace Setono\SyliusNavigationPlugin\Graph;
 
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 
-final class Node implements \Stringable
+/**
+ * @implements \IteratorAggregate<int, Node>
+ */
+final class Node implements \Stringable, \Countable, \IteratorAggregate
 {
     /** @var list<Node> */
     private array $parents = [];
@@ -55,5 +58,15 @@ final class Node implements \Stringable
 
         // get the highest possible depth
         return max(array_map(static fn (Node $node): int => $node->getDepth() + 1, $this->parents));
+    }
+
+    public function count(int $mode = \COUNT_NORMAL): int
+    {
+        return count($this->children, $mode);
+    }
+
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->children);
     }
 }

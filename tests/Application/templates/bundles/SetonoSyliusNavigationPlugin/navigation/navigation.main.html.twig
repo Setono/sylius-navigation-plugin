@@ -1,0 +1,30 @@
+{#
+    The logic here copies what you find inside vendor/sylius/sylius/src/Sylius/Bundle/ShopBundle/Resources/views/Taxon/_horizontalMenu.html.twig
+#}
+
+{# @var graoh \Setono\SyliusNavigationPlugin\Graph\Node #}
+
+{% if graph|length > 0 %}
+    <div class="ui large stackable menu">
+        {% for node in graph %}
+            {{ _self.render_node(node) }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% macro render_node(node) %}
+    {# @var node \Setono\SyliusNavigationPlugin\Graph\Node #}
+    {% if node.children is not empty %}
+        <div class="ui dropdown item">
+            <span class="text">{{ node }}</span>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                {% for child in node.children %}
+                    {{ _self.render_node(child) }}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <a href="#" class="item">{{ node }}</a>
+    {% endif %}
+{% endmacro %}

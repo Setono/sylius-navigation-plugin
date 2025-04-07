@@ -26,7 +26,7 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
         private readonly ChannelContextInterface $channelContext,
         private readonly LocaleContextInterface $localeContext,
         private readonly Environment $twig,
-        private readonly string $template = '@SetonoSyliusNavigationPlugin/navigation/navigation.html.twig',
+        private readonly string $defaultTemplate = '@SetonoSyliusNavigationPlugin/navigation/navigation.html.twig',
     ) {
         $this->logger = new NullLogger();
     }
@@ -51,7 +51,12 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
             }
         }
 
-        return $this->twig->render($this->template, [
+        $template = $this->twig->resolveTemplate([
+            sprintf('@SetonoSyliusNavigationPlugin/navigation/navigation.%s.html.twig', (string) $navigation->getCode()),
+            $this->defaultTemplate,
+        ]);
+
+        return $this->twig->render($template, [
             'navigation' => $navigation,
             'graph' => $this->graphBuilder->build($navigation),
             'channel' => $channel,
