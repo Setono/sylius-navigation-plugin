@@ -1,2 +1,3 @@
 {# @var item \Setono\SyliusNavigationPlugin\Model\ItemInterface #}
-<span>{{ item.label }}</span>
+{# @var attributes \Setono\SyliusNavigationPlugin\Renderer\Item\ItemAttributes #}
+<span{{ attributes }}>{{ item.label }}</span>

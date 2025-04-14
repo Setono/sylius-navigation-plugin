@@ -10,6 +10,7 @@ use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
 use Sylius\Component\Resource\Model\TranslatableTrait;
+use function Symfony\Component\String\u;
 
 /**
  * @method ItemTranslationInterface getTranslation(?string $locale = null)
@@ -34,6 +35,18 @@ class Item implements ItemInterface
     public function __toString(): string
     {
         return (string) $this->getLabel();
+    }
+
+    /**
+     * @param class-string|ItemInterface|null $item
+     */
+    public static function getType(string|ItemInterface $item = null): string
+    {
+        if (null === $item) {
+            $item = static::class;
+        }
+
+        return u((new \ReflectionClass($item))->getShortName())->snake()->toString();
     }
 
     public function getId(): ?int

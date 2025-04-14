@@ -12,5 +12,10 @@
 
             <tag name="twig.runtime"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Twig\TwigEnvironmentConfigurator"
+                 decorates="twig.configurator.environment">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Twig\TwigEnvironmentConfigurator.inner"/>
+        </service>
     </services>
 </container>

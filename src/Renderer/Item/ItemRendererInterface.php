@@ -8,7 +8,10 @@ use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 
 interface ItemRendererInterface
 {
-    public function render(ItemInterface $item): string;
+    /**
+     * @param array<string, scalar|\Stringable> $attributes
+     */
+    public function render(ItemInterface $item, array $attributes = []): string;
 
     public function supports(ItemInterface $item): bool;
 }

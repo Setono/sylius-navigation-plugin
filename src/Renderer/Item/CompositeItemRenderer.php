@@ -22,11 +22,11 @@ final class CompositeItemRenderer extends CompositeService implements ItemRender
         $this->logger = new NullLogger();
     }
 
-    public function render(ItemInterface $item): string
+    public function render(ItemInterface $item, array $attributes = []): string
     {
         foreach ($this->services as $service) {
             if ($service->supports($item)) {
-                return $service->render($item);
+                return $service->render($item, $attributes);
             }
         }
 

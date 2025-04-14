@@ -22,8 +22,11 @@ final class Runtime implements RuntimeExtensionInterface
         return $this->navigationRenderer->render($code);
     }
 
-    public function item(ItemInterface $item): string
+    /**
+     * @param array<string, scalar|\Stringable> $attributes
+     */
+    public function item(ItemInterface $item, array $attributes = []): string
     {
-        return $this->navigationItemRenderer->render($item);
+        return $this->navigationItemRenderer->render($item, $attributes);
     }
 }

@@ -25,6 +25,6 @@
             </div>
         </div>
     {% else %}
-        <a href="#" class="item">{{ node }}</a>
+        {{ ssn_item(node.item, {'class': 'item'}) }}
     {% endif %}
 {% endmacro %}
