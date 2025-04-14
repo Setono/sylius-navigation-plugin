@@ -11,5 +11,10 @@
                  decorates="setono_sylius_navigation.factory.item" decoration-priority="64">
             <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\ItemFactory.inner"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactory"
+                 decorates="setono_sylius_navigation.factory.taxon_item" decoration-priority="64">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactory.inner"/>
+        </service>
     </services>
 </container>

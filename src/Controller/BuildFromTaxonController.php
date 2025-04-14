@@ -6,11 +6,12 @@ namespace Setono\SyliusNavigationPlugin\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
-use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
+use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Form\Type\BuildFromTaxonType;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
+use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +25,7 @@ final class BuildFromTaxonController extends AbstractController
 
     public function __construct(
         private readonly NavigationRepositoryInterface $navigationRepository,
-        private readonly ItemFactoryInterface $itemFactory,
+        private readonly TaxonItemFactoryInterface $taxonItemFactory,
         private readonly ClosureManagerInterface $closureManager,
         ManagerRegistry $managerRegistry,
     ) {
@@ -104,12 +105,13 @@ final class BuildFromTaxonController extends AbstractController
         $this->getManager($navigation)->flush();
     }
 
-    private function createItemFromTaxon(TaxonInterface $taxon): ItemInterface
+    private function createItemFromTaxon(TaxonInterface $taxon): TaxonItemInterface
     {
-        $item = $this->itemFactory->createNew();
+        $item = $this->taxonItemFactory->createNew();
 
         // todo should be set for each locale
         $item->setLabel($taxon->getName());
+        $item->setTaxon($taxon);
 
         return $item;
     }

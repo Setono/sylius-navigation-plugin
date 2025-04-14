@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Model;
 
-use Sylius\Component\Core\Model\TaxonInterface;
+use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
 interface TaxonItemInterface extends ItemInterface
 {
