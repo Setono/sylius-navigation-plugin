@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin;
 
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
+use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\ResolveTargetEntitiesPass;
 use Setono\SyliusNavigationPlugin\Renderer\Item\CompositeItemRenderer;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
@@ -23,6 +24,8 @@ final class SetonoSyliusNavigationPlugin extends AbstractResourceBundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        $container->addCompilerPass(new ResolveTargetEntitiesPass());
 
         $container->addCompilerPass(new CompositeCompilerPass(
             CompositeItemRenderer::class,
