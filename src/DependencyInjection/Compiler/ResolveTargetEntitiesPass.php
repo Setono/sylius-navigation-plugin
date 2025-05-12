@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Webmozart\Assert\Assert;
 
 /**
- * This will make sure Doctrine can resolve child interfaces of the SlideInterface to concrete entities
+ * This will make sure Doctrine can resolve child interfaces of the ItemInterface to concrete entities
  */
 final class ResolveTargetEntitiesPass implements CompilerPassInterface
 {
