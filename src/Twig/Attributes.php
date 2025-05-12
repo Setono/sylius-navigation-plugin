@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Twig;
 
-use Stringable as scalar;
-
 /**
  * Much of this code has been copied from \Symfony\UX\TwigComponent\ComponentAttributes
  *
@@ -39,6 +37,8 @@ final class Attributes implements \Stringable, \IteratorAggregate, \Countable
                 false => '',
                 default => \sprintf(' %s="%s"', $key, (string) $value),
             };
+
+            $this->rendered[$key] = true;
         }
 
         return $attributes;
