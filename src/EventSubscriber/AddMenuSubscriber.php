@@ -10,8 +10,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class AddMenuSubscriber implements EventSubscriberInterface
 {
-    public const MENU_ITEM_KEY = 'setono_sylius_meilisearch';
-
     public static function getSubscribedEvents(): array
     {
         return [
