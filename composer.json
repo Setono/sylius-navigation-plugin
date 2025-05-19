@@ -1,6 +1,6 @@
 {
     "name": "setono/sylius-navigation-plugin",
-    "description": "Setono example plugin for Sylius.",
+    "description": "Navigation plugin for Sylius",
     "license": "MIT",
     "type": "sylius-plugin",
     "keywords": [
