@@ -11,6 +11,7 @@ class Extension extends AbstractExtension
 {
     public function getFunctions(): array
     {
+        /** @psalm-suppress InvalidArgument */
         return [
             new TwigFunction('ssn_navigation', [Runtime::class, 'navigation'], ['is_safe' => ['html']]),
             new TwigFunction('ssn_item', [Runtime::class, 'item'], ['is_safe' => ['html']]),
