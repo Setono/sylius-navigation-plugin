@@ -45,6 +45,10 @@ final class SetonoSyliusNavigationExtension extends AbstractResourceExtension im
                             'type' => 'string',
                             'label' => 'sylius.ui.code',
                         ],
+                        'description' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.description',
+                        ],
                     ],
                     'actions' => [
                         'main' => [
