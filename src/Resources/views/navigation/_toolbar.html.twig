@@ -1,0 +1,6 @@
+<div class="middle aligned column">
+    <div class="ui right floated buttons">
+        {% set menu = knp_menu_get('setono_sylius_navigation.admin.navigation.update', [], {'navigation': navigation}) %}
+        {{ knp_menu_render(menu, {'template': '@SyliusUi/Menu/top.html.twig'}) }}
+    </div>
+</div>
