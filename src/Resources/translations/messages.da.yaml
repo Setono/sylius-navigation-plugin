@@ -1,13 +1,13 @@
 setono_sylius_navigation:
     form:
-        navigation:
-            description: Beskrivelse
         build_from_taxon:
             taxon: Taksonomi
+        navigation:
+            description: Beskrivelse (kun brugt internt)
     ui:
+        build_from_taxon: Byg fra taksonomi
         edit_navigation: Rediger navigation
         manage_navigations: Administrer navigationer
         navigation: Navigation
         navigations: Navigationer
         new_navigation: Ny navigation
-        build_from_taxon: Byg fra taksonomi

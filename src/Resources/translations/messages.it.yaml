@@ -1,13 +1,13 @@
 setono_sylius_navigation:
     form:
-        navigation:
-            description: Descrizione
         build_from_taxon:
             taxon: Taxon
+        navigation:
+            description: Descrizione (solo uso interno)
     ui:
+        build_from_taxon: Costruisci da taxon
         edit_navigation: Modifica navigazione
         manage_navigations: Gestisci navigazioni
         navigation: Navigazione
         navigations: Navigazioni
         new_navigation: Nuova navigazione
-        build_from_taxon: Costruisci da taxon
