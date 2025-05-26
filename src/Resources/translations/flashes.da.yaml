@@ -1,4 +1,3 @@
 setono_sylius_navigation:
-    navigation_already_built: Navigationen, du forsøger at bygge, har allerede et rodelement
     navigation_built: Navigation blev bygget
     navigation_not_found: Navigation ikke fundet

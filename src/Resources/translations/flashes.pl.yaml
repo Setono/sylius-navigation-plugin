@@ -1,4 +1,3 @@
 setono_sylius_navigation:
-    navigation_already_built: Nawigacja, którą próbujesz zbudować, ma już element główny
     navigation_built: Nawigacja została zbudowana
     navigation_not_found: Nie znaleziono nawigacji

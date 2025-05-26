@@ -1,4 +1,3 @@
 setono_sylius_navigation:
-    navigation_already_built: Navigasjonen du prøver å bygge har allerede et rotpunkt
     navigation_built: Navigasjon ble bygget
     navigation_not_found: Navigasjon ikke funnet

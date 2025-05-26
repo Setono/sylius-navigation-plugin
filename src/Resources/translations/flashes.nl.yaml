@@ -1,4 +1,3 @@
 setono_sylius_navigation:
-    navigation_already_built: De navigatie die u probeert te bouwen heeft al een hoofditem
     navigation_built: Navigatie is gebouwd
     navigation_not_found: Navigatie niet gevonden
