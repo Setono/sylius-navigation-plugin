@@ -19,6 +19,8 @@ class Navigation implements NavigationInterface
 
     protected ?string $code = null;
 
+    protected ?string $description = null;
+
     protected ?ItemInterface $rootItem = null;
 
     /** @var Collection<array-key, ChannelInterface> */
@@ -42,6 +44,16 @@ class Navigation implements NavigationInterface
     public function setCode(?string $code): void
     {
         $this->code = $code;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     public function getRootItem(): ?ItemInterface

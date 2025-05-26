@@ -1,0 +1,13 @@
+setono_sylius_navigation:
+    form:
+        navigation:
+            description: Beschrijving
+        build_from_taxon:
+            taxon: Taxon
+    ui:
+        edit_navigation: Navigatie bewerken
+        manage_navigations: Navigaties beheren
+        navigation: Navigatie
+        navigations: Navigaties
+        new_navigation: Nieuwe navigatie
+        build_from_taxon: Bouwen van taxon

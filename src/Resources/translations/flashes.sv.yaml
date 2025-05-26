@@ -1,0 +1,4 @@
+setono_sylius_navigation:
+    navigation_already_built: Navigeringen du försöker bygga har redan ett rotelement
+    navigation_built: Navigering byggdes
+    navigation_not_found: Navigering hittades inte

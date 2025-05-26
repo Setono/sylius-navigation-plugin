@@ -1,0 +1,4 @@
+setono_sylius_navigation:
+    navigation_already_built: La navegación que estás intentando construir ya tiene un elemento raíz
+    navigation_built: La navegación fue construida
+    navigation_not_found: Navegación no encontrada

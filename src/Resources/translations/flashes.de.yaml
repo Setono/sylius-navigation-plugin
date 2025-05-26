@@ -1,0 +1,4 @@
+setono_sylius_navigation:
+    navigation_already_built: Die Navigation, die Sie erstellen möchten, hat bereits ein Wurzelelement
+    navigation_built: Navigation wurde erstellt
+    navigation_not_found: Navigation nicht gefunden
