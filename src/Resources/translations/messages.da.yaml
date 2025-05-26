@@ -3,6 +3,7 @@ setono_sylius_navigation:
         build_from_taxon:
             taxon: Taksonomi
         navigation:
+            channels: Begræns til kanaler
             description: Beskrivelse (kun brugt internt)
     ui:
         build_from_taxon: Byg fra taksonomi

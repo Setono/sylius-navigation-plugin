@@ -27,7 +27,8 @@ final class NavigationType extends AbstractResourceType
             ->add('channels', ChannelChoiceType::class, [
                 'multiple' => true,
                 'expanded' => true,
-                'label' => 'sylius.ui.channels',
+                'label' => 'setono_sylius_navigation.form.navigation.channels',
+                'required' => false,
             ])
             ->addEventSubscriber(new AddCodeFormSubscriber())
         ;

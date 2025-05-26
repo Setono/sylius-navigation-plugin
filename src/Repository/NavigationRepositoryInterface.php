@@ -13,5 +13,5 @@ use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
  */
 interface NavigationRepositoryInterface extends RepositoryInterface
 {
-    public function findOneEnabledByCode(string $code, ChannelInterface $channel): ?NavigationInterface;
+    public function findOneEnabledByCode(string $code, ChannelInterface $channel = null): ?NavigationInterface;
 }

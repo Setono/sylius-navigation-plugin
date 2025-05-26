@@ -8,10 +8,23 @@
         {{ form_row(form.channels) }}
     </div>
     <div class="six wide column">
-        <h4>TODO</h4>
-        <ul>
-            <li>Build from an existing taxon tree</li>
-            <li>Build from scratch</li>
-        </ul>
+        {# todo translate #}
+        <h4>Help</h4>
+        {% if resource.id is null %}
+            <p>Start off by creating your navigation entity. After you have created this entity, you will be able to build the navigation structure.</p>
+        {% endif %}
+        <p>The <code>code</code> is used to reference the navigation in your application templates, e.g., by calling the Twig function <code>ssn_navigation('your_code')</code>.</p>
+        <p>The <code>description</code> is only used internally. Use this to explain to your team what this navigation holds and where it's supposed to be rendered.</p>
+        <p>The <code>enabled</code> flag is used to disable the navigation. This is useful if you want to temporarily disable the navigation entity without deleting it.</p>
+        <p>The <code>channels</code> field is used to limit the navigation to certain channels. If you leave this field empty, the navigation will be available on all channels.</p>
     </div>
 </div>
+
+<style>
+    code {
+        background: #eee;
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+</style>
