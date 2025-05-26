@@ -11,7 +11,9 @@
         {# todo translate #}
         <h4>Help</h4>
         {% if resource.id is null %}
-            <p>Start off by creating your navigation entity. After you have created this entity, you will be able to build the navigation structure.</p>
+            <p>Start off by creating your navigation entity. After you've created this entity, you will be able to build the navigation structure.</p>
+        {% elseif resource.rootItem is null %}
+            <p>Now that you've created a navigation entity, you can build your navigation structure. If you want to recreate your existing taxon navigation, the easiest thing is to build your navigation based on an existing taxon.</p>
         {% endif %}
         <p>The <code>code</code> is used to reference the navigation in your application templates, e.g., by calling the Twig function <code>ssn_navigation('your_code')</code>.</p>
         <p>The <code>description</code> is only used internally. Use this to explain to your team what this navigation holds and where it's supposed to be rendered.</p>
