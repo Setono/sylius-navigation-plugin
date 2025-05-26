@@ -44,4 +44,31 @@ final class ClosureManager implements ClosureManagerInterface
 
         $manager->flush();
     }
+
+    public function removeTree(ItemInterface $root): void
+    {
+        $closures = $this->closureRepository->findGraph($root);
+
+        if ([] === $closures) {
+            return;
+        }
+
+        $manager = $this->getManager($closures[0]);
+
+        foreach ($closures as $closure) {
+            $ancestor = $closure->getAncestor();
+            if (null !== $ancestor) {
+                $manager->remove($ancestor);
+            }
+
+            $descendant = $closure->getDescendant();
+            if (null !== $descendant) {
+                $manager->remove($descendant);
+            }
+
+            $manager->remove($closure);
+        }
+
+        $manager->flush();
+    }
 }

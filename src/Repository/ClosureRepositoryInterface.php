@@ -21,7 +21,7 @@ interface ClosureRepositoryInterface extends RepositoryInterface
     public function findAncestors(ItemInterface $item): array;
 
     /**
-     * Will return the whole graph for the given $root. Optionally, you can limit the graph with a max depth
+     * Will return the whole graph for the given $root
      *
      * @return list<ClosureInterface>
      */

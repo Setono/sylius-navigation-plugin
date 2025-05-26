@@ -69,6 +69,12 @@ final class BuildFromTaxonController extends AbstractController
 
     private function build(NavigationInterface $navigation, TaxonInterface $root): void
     {
+        $rootItem = $navigation->getRootItem();
+        if (null !== $rootItem) {
+            $navigation->setRootItem(null);
+            $this->closureManager->removeTree($rootItem);
+        }
+
         /** @var \SplObjectStorage<TaxonInterface, ItemInterface> $taxonToItemStorage */
         $taxonToItemStorage = new \SplObjectStorage();
 
