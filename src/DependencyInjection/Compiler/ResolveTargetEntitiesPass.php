@@ -38,9 +38,7 @@ final class ResolveTargetEntitiesPass implements CompilerPassInterface
                 $interfaces = array_diff($interfaces, class_implements($parent));
             }
 
-            $interfaces = array_values(array_filter($interfaces, static function (string $interface): bool {
-                return is_a($interface, ItemInterface::class, true);
-            }));
+            $interfaces = array_values(array_filter($interfaces, static fn (string $interface): bool => is_a($interface, ItemInterface::class, true)));
 
             Assert::count($interfaces, 1);
 

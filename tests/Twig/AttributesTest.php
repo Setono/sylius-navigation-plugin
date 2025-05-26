@@ -47,14 +47,14 @@ final class AttributesTest extends TestCase
 
         $filtered = $attributes->only('class', 'id');
         self::assertCount(2, $filtered);
-        self::assertTrue($filtered->has('class'));
-        self::assertTrue($filtered->has('id'));
-        self::assertFalse($filtered->has('data-id'));
+        self::assertArrayHasKey('class', $filtered->all());
+        self::assertArrayHasKey('id', $filtered->all());
+        self::assertArrayNotHasKey('data-id', $filtered->all());
 
         $without = $attributes->without('class');
         self::assertCount(2, $without);
-        self::assertFalse($without->has('class'));
-        self::assertTrue($without->has('id'));
-        self::assertTrue($without->has('data-id'));
+        self::assertArrayNotHasKey('class', $without->all());
+        self::assertArrayHasKey('id', $without->all());
+        self::assertArrayHasKey('data-id', $without->all());
     }
 }

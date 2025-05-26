@@ -36,8 +36,8 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
         ChannelInterface $channel = null,
         string $localeCode = null,
     ): string {
-        $channel = $channel ?? $this->channelContext->getChannel();
-        $localeCode = $localeCode ?? $this->localeContext->getLocaleCode();
+        $channel ??= $this->channelContext->getChannel();
+        $localeCode ??= $this->localeContext->getLocaleCode();
 
         if (is_string($navigation)) {
             $navigation = $this->navigationRepository->findOneEnabledByCode($navigation, $channel);
