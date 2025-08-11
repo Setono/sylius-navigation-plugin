@@ -1,0 +1,137 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Sylius plugin that provides navigation functionality independent of the default taxonomy system.
+The plugin allows creating flexible navigation structures with custom menu items that can be built manually or generated from existing taxon structures.
+
+## Code Standards
+
+Follow clean code principles and SOLID design patterns when working with this codebase:
+- Write clean, readable, and maintainable code
+- Apply SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)
+- Use meaningful variable and method names
+- Keep methods and classes focused on a single responsibility
+- Favor composition over inheritance
+- Write code that is easy to test and extend
+
+### Testing Requirements
+- Write unit tests for all new functionality (if it makes sense)
+- Follow the BDD-style naming convention for test methods (e.g., `it_should_do_something_when_condition_is_met`)
+- Use the ProphecyTrait for mocking when needed
+- Ensure tests are isolated and don't depend on external state
+- Test both happy path and edge cases
+
+## Development Commands
+
+Based on the `composer.json` scripts section:
+
+### Code Quality & Testing
+- `composer analyse` - Run Psalm static analysis
+- `composer check-style` - Check code style with ECS (Easy Coding Standard)
+- `composer fix-style` - Fix code style issues automatically with ECS
+- `composer phpunit` - Run PHPUnit tests
+
+### Additional Quality Tools
+- `vendor/bin/infection` - Run mutation testing (configured in infection.json.dist)
+- `vendor/bin/rector process` - Run automated refactoring
+
+### Test Application
+The plugin includes a test Symfony application in `tests/Application/` for development and testing:
+- Navigate to `tests/Application/` directory
+- Run `yarn install && yarn build` to build assets
+- Use standard Symfony commands for the test app
+
+## Architecture Overview
+
+### Core Models
+- **Navigation**: Main entity representing a navigation menu with code, description, and root item
+- **Item**: Base navigation item with label and hierarchical structure  
+- **TaxonItem**: Specialized item linked to Sylius taxon entities
+- **Closure**: Manages hierarchical relationships between items using closure table pattern
+
+### Key Components
+
+#### Graph System
+- **GraphBuilder**: Converts navigation structure into a graph representation
+- **Node**: Represents nodes in the navigation graph
+
+#### Rendering System  
+- **NavigationRenderer**: Main service for rendering navigation HTML
+- **CompositeItemRenderer**: Composite pattern for rendering different item types
+- **ItemRendererInterface**: Contract for individual item renderers
+
+#### Factory System
+- **ItemFactory**: Creates basic navigation items
+- **TaxonItemFactory**: Creates taxon-linked navigation items  
+- **ClosureFactory**: Creates closure table entries
+
+#### Management
+- **ClosureManager**: Handles hierarchical operations (create, move, remove items from tree)
+
+### Key Features
+- **Build from Taxon**: Controller and form to automatically generate navigation from existing Sylius taxon tree
+- **Channel & Locale Support**: Navigation items support multiple channels and locales
+- **Twig Integration**: Runtime and extensions for rendering in templates
+- **Admin Integration**: Sylius admin panel integration with CRUD operations
+
+### Directory Structure
+- `src/Model/` - Core entities and interfaces
+- `src/Factory/` - Entity factories
+- `src/Repository/` - Doctrine repositories  
+- `src/Renderer/` - Navigation rendering logic
+- `src/Graph/` - Graph building for navigation structure
+- `src/Manager/` - Business logic managers
+- `src/Controller/` - Symfony controllers
+- `src/Form/` - Symfony form types
+- `src/Resources/config/` - Symfony services, routes, validation
+- `src/Resources/views/` - Twig templates
+- `src/Twig/` - Twig extensions and runtime
+
+### Plugin Integration
+- Extends `AbstractResourceBundle` for Sylius resource management
+- Uses `SyliusPluginTrait` for plugin functionality  
+- Registers custom compiler passes for dependency injection
+- Implements Doctrine ORM entity resolution
+
+### Translations
+The plugin provides multilingual support through translation files in `src/Resources/translations/`:
+
+- **Translation Files**: Available in 10 languages (en, da, de, es, fr, it, nl, no, pl, sv)
+- **Translation Domains**:
+  - `messages.*` - General UI translations (form labels, navigation terms)
+  - `flashes.*` - Flash message translations (success/error messages)
+
+Key translation keys:
+- `setono_sylius_navigation.ui.*` - UI labels and navigation terms
+- `setono_sylius_navigation.form.*` - Form field labels
+- `setono_sylius_navigation.navigation_built` - Success message for building navigation
+- `setono_sylius_navigation.navigation_not_found` - Error message for missing navigation
+
+### Templates
+Navigation rendering templates in `src/Resources/views/navigation/`:
+
+#### Core Navigation Templates
+- **`navigation.html.twig`** - Main navigation rendering template with recursive macro for hierarchical structure
+- **`_form.html.twig`** - Form components for navigation CRUD operations
+- **`_toolbar.html.twig`** - Admin toolbar for navigation management
+- **`build_from_taxon.html.twig`** - Admin form for building navigation from taxon tree
+
+#### Item Rendering Templates (`item/` directory)
+- **`default.html.twig`** - Default item renderer (renders as `<span>` with label)
+- **`taxon_item.html.twig`** - Specialized renderer for taxon items (renders as `<a>` link to product listing)
+
+#### Template Features
+- Uses Twig macros for recursive navigation rendering
+- Supports CSS classes with depth levels (`level-{depth}`)
+- Integrates with Sylius admin theme (`@SyliusAdmin/layout.html.twig`)
+- Uses custom Twig function `ssn_item()` for item rendering
+- Supports item attributes through `ItemAttributes` helper class
+
+## Testing Notes
+- Tests are in `tests/` directory
+- Test application in `tests/Application/` provides full Sylius environment
+- Use `composer phpunit` to run tests
+- Psalm configuration excludes test application from analysis
