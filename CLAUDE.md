@@ -96,6 +96,36 @@ The plugin includes a test Symfony application in `tests/Application/` for devel
 - Registers custom compiler passes for dependency injection
 - Implements Doctrine ORM entity resolution
 
+### CRUD Pages Generation
+The admin CRUD pages are automatically generated using the Sylius Resource Bundle in combination with the Sylius Grid Bundle:
+
+#### Resource Configuration
+- **Resource Definition**: Resources are configured in `src/DependencyInjection/Configuration.php`
+- **Model Classes**: Navigation, Item, ItemTranslation, TaxonItem, and Closure entities
+- **Controllers**: Uses Sylius `ResourceController` for standard CRUD operations
+- **Forms**: Custom `NavigationType` for navigation, `DefaultResourceType` for other entities
+- **Repositories**: Custom repositories where needed, otherwise uses standard Doctrine repositories
+
+#### Grid Configuration
+- **Grid Definition**: Admin grid is configured in `\Setono\SyliusNavigationPlugin\DependencyInjection\SetonoSyliusNavigationExtension::prepend()` method
+- **Configuration Method**: Uses `$container->prependExtensionConfig('sylius_grid', [...])` to add grid configuration
+- **Grid Name**: `setono_sylius_navigation_admin_navigation`
+- **Fields**: Shows `code` and `description` columns
+- **Actions**: Standard create, update, delete operations with bulk delete support
+- **Limits**: Configurable pagination (100, 250, 500, 1000 items per page)
+
+#### Route Configuration
+- **Admin Routes**: Defined in `src/Resources/config/routes/admin.yaml`
+- **Route Type**: Uses `sylius.resource` type for automatic CRUD route generation
+- **Base Path**: `/admin/navigations/` with standard RESTful endpoints
+- **Templates**: Uses `@SyliusAdmin\Crud` templates with custom overrides
+- **Custom Routes**: Additional route for "build from taxon" functionality
+
+#### Admin Integration
+- **Menu Integration**: Navigation menu item added via `AddMenuSubscriber`
+- **Permissions**: Permission-based access control enabled
+- **Templates**: Custom form and toolbar templates in plugin's views directory
+
 ### Translations
 The plugin provides multilingual support through translation files in `src/Resources/translations/`:
 
