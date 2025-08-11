@@ -2,5 +2,12 @@
     <div class="ui right floated buttons">
         {% set menu = knp_menu_get('setono_sylius_navigation.admin.navigation.update', [], {'navigation': navigation}) %}
         {{ knp_menu_render(menu, {'template': '@SyliusUi/Menu/top.html.twig'}) }}
+        
+        <div class="or"></div>
+        
+        <a href="{{ path('setono_sylius_navigation_admin_navigation_build', {'id': navigation.id}) }}" class="ui labeled icon green button">
+            <i class="sitemap icon"></i>
+            {{ 'setono_sylius_navigation.ui.build_manually'|trans }}
+        </a>
     </div>
 </div>

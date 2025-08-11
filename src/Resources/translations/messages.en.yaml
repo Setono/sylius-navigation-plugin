@@ -6,9 +6,37 @@ setono_sylius_navigation:
             channels: Restrict to channels
             description: Description (only used internally)
     ui:
+        add_first_item: Add first item
+        add_items: Add items
+        add_new_item: Add new item
         build_from_taxon: Build from taxon
+        build_manually: Build manually
+        build_navigation: Build navigation
+        delete_item: Delete item
+        delete_item_confirmation: Are you sure you want to delete this item and all its children?
+        delete_items: Delete items
+        edit_item: Edit item
+        edit_items: Edit items
         edit_navigation: Edit navigation
+        empty_navigation: This navigation is empty
+        help:
+            add_items: Click the plus button to add new items to any level of the navigation
+            delete_items: Click the trash button to remove items and their children permanently
+            edit_items: Click on any item to edit its properties in a modal dialog
+            reorder_items: Drag and drop items to reorder them within the navigation structure
+        item: Item
+        item_type: Item type
+        items: Items
+        manage_items: Manage items
         manage_navigations: Manage navigations
         navigation: Navigation
+        navigation_info: Navigation information
+        navigation_tree: Navigation tree
         navigations: Navigations
+        new_item: New item
         new_navigation: New navigation
+        reorder_items: Reorder items
+        select_taxon: Select a taxon
+        simple_item: Simple item
+        taxon: Taxon
+        taxon_item: Taxon item

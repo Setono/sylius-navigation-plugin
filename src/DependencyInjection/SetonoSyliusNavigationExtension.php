@@ -71,6 +71,43 @@ final class SetonoSyliusNavigationExtension extends AbstractResourceExtension im
                         ],
                     ],
                 ],
+                'setono_sylius_navigation_admin_item' => [
+                    'driver' => [
+                        'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+                        'options' => [
+                            'class' => '%setono_sylius_navigation.model.item.class%',
+                        ],
+                    ],
+                    'limits' => [100, 250, 500, 1000],
+                    'fields' => [
+                        'label' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.name',
+                        ],
+                        'enabled' => [
+                            'type' => 'twig',
+                            'label' => 'sylius.ui.enabled',
+                            'options' => [
+                                'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                            ],
+                        ],
+                    ],
+                    'actions' => [
+                        'item' => [
+                            'update' => [
+                                'type' => 'update',
+                            ],
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                        'bulk' => [
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ]);
     }
