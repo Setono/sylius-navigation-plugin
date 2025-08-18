@@ -68,7 +68,7 @@ setono_sylius_navigation_admin_navigation_build_update_item:
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::updateItemAction
     requirements:
         id: ^\d+$
-        itemId: ^\d+$
+        itemId: ^(\d+|__ITEM_ID__)$
 
 setono_sylius_navigation_admin_navigation_build_delete_item:
     path: /navigations/{id}/build/items/{itemId}
@@ -76,7 +76,7 @@ setono_sylius_navigation_admin_navigation_build_delete_item:
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::deleteItemAction
     requirements:
         id: ^\d+$
-        itemId: ^\d+$
+        itemId: ^(\d+|__ITEM_ID__)$
 
 setono_sylius_navigation_admin_navigation_build_reorder_item:
     path: /navigations/{id}/build/items/reorder

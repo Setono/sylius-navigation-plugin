@@ -22,16 +22,16 @@
                 <i class="sitemap icon"></i>
                 {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
             </h3>
-            
+
             <div id="navigation-tree-container">
                 <div id="navigation-tree" class="ui relaxed divided list">
                     <!-- Tree will be loaded here via JavaScript -->
                 </div>
-                
+
                 <div id="tree-loading" class="ui active centered inline loader" style="display: none;">
                     {{ 'sylius.ui.loading'|trans }}
                 </div>
-                
+
                 <div id="empty-tree" class="ui placeholder segment" style="display: none;">
                     <div class="ui icon header">
                         <i class="sitemap icon"></i>
@@ -47,14 +47,14 @@
             </div>
         </div>
     </div>
-    
+
     <div class="six wide column">
         <div class="ui segment">
             <h3 class="ui dividing header">
                 <i class="info circle icon"></i>
                 {{ 'sylius.ui.help'|trans }}
             </h3>
-            
+
             <div class="ui relaxed list">
                 <div class="item">
                     <i class="plus circle icon"></i>
@@ -86,7 +86,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="ui segment">
             <h4 class="ui header">{{ 'setono_sylius_navigation.ui.navigation_info'|trans }}</h4>
             <div class="ui relaxed list">
@@ -124,12 +124,12 @@
                     <option value="taxon">{{ 'setono_sylius_navigation.ui.taxon_item'|trans }}</option>
                 </select>
             </div>
-            
+
             <div class="field">
                 <label>{{ 'sylius.ui.name'|trans }}</label>
                 <input type="text" name="label" required>
             </div>
-            
+
             <div class="field" id="taxon-field" style="display: none;">
                 <label>{{ 'setono_sylius_navigation.ui.taxon'|trans }}</label>
                 <select name="taxon_id" class="ui search dropdown">
@@ -137,14 +137,14 @@
                     <!-- Taxon options will be loaded via JavaScript -->
                 </select>
             </div>
-            
+
             <div class="field">
                 <div class="ui checkbox">
                     <input type="checkbox" name="enabled" checked>
                     <label>{{ 'sylius.ui.enabled'|trans }}</label>
                 </div>
             </div>
-            
+
             <input type="hidden" name="parent_id" id="parent-id-field">
         </form>
     </div>
@@ -170,7 +170,7 @@
                 <label>{{ 'sylius.ui.name'|trans }}</label>
                 <input type="text" name="label" required>
             </div>
-            
+
             <div class="field" id="edit-taxon-field" style="display: none;">
                 <label>{{ 'setono_sylius_navigation.ui.taxon'|trans }}</label>
                 <select name="taxon_id" class="ui search dropdown">
@@ -178,14 +178,14 @@
                     <!-- Taxon options will be loaded via JavaScript -->
                 </select>
             </div>
-            
+
             <div class="field">
                 <div class="ui checkbox">
                     <input type="checkbox" name="enabled">
                     <label>{{ 'sylius.ui.enabled'|trans }}</label>
                 </div>
             </div>
-            
+
             <input type="hidden" name="item_id" id="edit-item-id">
         </form>
     </div>

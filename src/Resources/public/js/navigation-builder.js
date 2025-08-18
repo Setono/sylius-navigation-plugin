@@ -86,13 +86,17 @@ class NavigationBuilder {
         
         loadingElement.style.display = 'none';
         
-        if (!tree || tree.length === 0) {
+        // Handle both empty arrays and null/undefined
+        if (!tree || (Array.isArray(tree) && tree.length === 0)) {
             container.style.display = 'none';
             emptyElement.style.display = 'block';
             return;
         }
         
-        container.innerHTML = this.renderTreeItems(tree);
+        // If tree is not an array, convert it to one
+        const items = Array.isArray(tree) ? tree : [tree];
+        
+        container.innerHTML = this.renderTreeItems(items);
         container.style.display = 'block';
         emptyElement.style.display = 'none';
         
@@ -357,13 +361,16 @@ class NavigationBuilder {
     }
 
     showMessage(message, type) {
-        // Create toast message using Semantic UI
-        $('body').toast({
-            message: message,
-            class: type,
-            displayTime: 3000,
-            position: 'top right'
-        });
+        // For now, just log to console and show alert
+        // TODO: Implement proper Semantic UI toast when available
+        console.log(`${type.toUpperCase()}: ${message}`);
+        
+        // Show browser alert for now
+        if (type === 'error') {
+            alert(`Error: ${message}`);
+        } else {
+            console.log(`Success: ${message}`);
+        }
     }
 
     escapeHtml(text) {

@@ -232,18 +232,15 @@ final class BuildController extends AbstractController
 
     private function buildItemTree(ItemInterface $item): array
     {
-        $children = [];
-        foreach ($item->getChildren() as $child) {
-            $children[] = $this->buildItemTree($child);
-        }
-
+        // For now, return a simple structure without children
+        // TODO: Implement proper tree traversal using closure table
         return [
             'id' => $item->getId(),
             'label' => $item->getLabel(),
             'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
             'enabled' => $item->isEnabled(),
             'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
-            'children' => $children,
+            'children' => [], // TODO: Get children from closure table
         ];
     }
 
