@@ -1,7 +1,8 @@
 /**
- * Navigation Builder JavaScript
+ * Navigation Builder JavaScript ES6 Module
  * Provides interactive tree building functionality for Sylius Navigation Plugin
  */
+
 class NavigationBuilder {
     constructor() {
         this.config = window.NavigationBuilderConfig || {};
@@ -380,42 +381,43 @@ class NavigationBuilder {
     }
 }
 
-// Global instance and functions for onclick handlers
-let NavigationBuilderInstance;
-
-window.NavigationBuilder = {
-    init() {
-        NavigationBuilderInstance = new NavigationBuilder();
-    },
+// Module initialization - automatically runs after DOM is loaded
+if (window.NavigationBuilderConfig) {
+    const NavigationBuilderInstance = new NavigationBuilder();
     
-    showAddItemModal(parentId) {
-        NavigationBuilderInstance.showAddItemModal(parentId);
-    },
+    // Export global functions for onclick handlers
+    window.NavigationBuilder = {
+        showAddItemModal(parentId) {
+            NavigationBuilderInstance.showAddItemModal(parentId);
+        },
+        
+        showEditItemModal(itemId) {
+            NavigationBuilderInstance.showEditItemModal(itemId);
+        },
+        
+        showDeleteItemModal(itemId) {
+            NavigationBuilderInstance.showDeleteItemModal(itemId);
+        },
+        
+        addItem() {
+            NavigationBuilderInstance.addItem();
+        },
+        
+        updateItem() {
+            NavigationBuilderInstance.updateItem();
+        },
+        
+        deleteItem() {
+            NavigationBuilderInstance.deleteItem();
+        },
+        
+        // Expose instance for debugging
+        getInstance() {
+            return NavigationBuilderInstance;
+        }
+    };
     
-    showEditItemModal(itemId) {
-        NavigationBuilderInstance.showEditItemModal(itemId);
-    },
-    
-    showDeleteItemModal(itemId) {
-        NavigationBuilderInstance.showDeleteItemModal(itemId);
-    },
-    
-    addItem() {
-        NavigationBuilderInstance.addItem();
-    },
-    
-    updateItem() {
-        NavigationBuilderInstance.updateItem();
-    },
-    
-    deleteItem() {
-        NavigationBuilderInstance.deleteItem();
-    }
-};
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.NavigationBuilderConfig) {
-        window.NavigationBuilder.init();
-    }
-});
+    console.log('NavigationBuilder initialized as ES6 module');
+} else {
+    console.warn('NavigationBuilderConfig not found, NavigationBuilder not initialized');
+}

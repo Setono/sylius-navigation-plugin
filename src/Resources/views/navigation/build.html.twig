@@ -99,9 +99,9 @@
                 <div class="item">
                     <strong>{{ 'sylius.ui.enabled'|trans }}:</strong>
                     {% if navigation.enabled %}
-                        <i class="green check circle icon"></i> {{ 'sylius.ui.yes'|trans }}
+                        <i class="green check circle icon"></i> {{ 'sylius.ui.yes_label'|trans }}
                     {% else %}
-                        <i class="red times circle icon"></i> {{ 'sylius.ui.no'|trans }}
+                        <i class="red times circle icon"></i> {{ 'sylius.ui.no_label'|trans }}
                     {% endif %}
                 </div>
             </div>
@@ -244,5 +244,5 @@
             }
         };
     </script>
-    <script src="{{ asset('bundles/setonosyliusnavigationplugin/js/navigation-builder.js') }}"></script>
+    <script type="module" src="{{ asset('bundles/setonosyliusnavigationplugin/js/navigation-builder.js') }}"></script>
 {% endblock %}
