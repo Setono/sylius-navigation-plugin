@@ -262,15 +262,16 @@ final class BuildController extends AbstractController
             if ($label === null) {
                 throw new \RuntimeException('Translation returned null, using fallback');
             }
+
             return $label;
         } catch (\Throwable $e) {
             // Fallback: try to get label directly from database
             $stmt = $this->getManager($item)->getConnection()->prepare(
-                'SELECT label FROM setono_sylius_navigation__item_translation WHERE translatable_id = ? AND locale = ? LIMIT 1'
+                'SELECT label FROM setono_sylius_navigation__item_translation WHERE translatable_id = ? AND locale = ? LIMIT 1',
             );
             $result = $stmt->executeQuery([$item->getId(), 'en_US']);
             $row = $result->fetchAssociative();
-            
+
             return $row ? $row['label'] : 'Item #' . $item->getId();
         }
     }

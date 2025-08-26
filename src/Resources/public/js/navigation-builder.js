@@ -129,7 +129,7 @@ class NavigationBuilder {
                         ${typeIcon}
                         ${enabledIcon}
                         <span class="item-label">${this.escapeHtml(item.label)}</span>
-                        <div class="right floated">
+                        <span class="item-actions" style="margin-left: 8px;">
                             <button class="ui tiny icon button" onclick="NavigationBuilder.showAddItemModal(${item.id})" title="Add child item">
                                 <i class="plus icon"></i>
                             </button>
@@ -139,7 +139,7 @@ class NavigationBuilder {
                             <button class="ui tiny red icon button" onclick="NavigationBuilder.showDeleteItemModal(${item.id})" title="Delete item">
                                 <i class="trash icon"></i>
                             </button>
-                        </div>
+                        </span>
                     </div>
                 </div>
                 ${children}
