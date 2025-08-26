@@ -56,6 +56,7 @@ abstract class Item implements ItemInterface
 
     public function getLabel(): ?string
     {
+        dump($this->getTranslation());
         return $this->getTranslation()->getLabel();
     }
 

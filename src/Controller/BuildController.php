@@ -8,10 +8,12 @@ use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
+use Setono\SyliusNavigationPlugin\Factory\TextItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
+use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
@@ -19,7 +21,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webmozart\Assert\Assert;
 
 final class BuildController extends AbstractController
 {
@@ -29,7 +30,9 @@ final class BuildController extends AbstractController
         private readonly NavigationRepositoryInterface $navigationRepository,
         private readonly ItemFactoryInterface $itemFactory,
         private readonly TaxonItemFactoryInterface $taxonItemFactory,
+        private readonly TextItemFactoryInterface $textItemFactory,
         private readonly ClosureManagerInterface $closureManager,
+        private readonly ClosureRepositoryInterface $closureRepository,
         private readonly RepositoryInterface $taxonRepository,
         ManagerRegistry $managerRegistry,
     ) {
@@ -64,7 +67,7 @@ final class BuildController extends AbstractController
         }
 
         $tree = $this->buildTreeStructure($navigation);
-        
+
         return new JsonResponse($tree);
     }
 
@@ -86,7 +89,7 @@ final class BuildController extends AbstractController
         try {
             $item = $this->createItemFromData($data);
             $parentId = $data['parent_id'] ?? null;
-            
+
             $parent = null;
             if ($parentId) {
                 $parent = $this->getManager($item)->getRepository(ItemInterface::class)->find($parentId);
@@ -108,7 +111,6 @@ final class BuildController extends AbstractController
                 'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
                 'enabled' => $item->isEnabled(),
             ], Response::HTTP_CREATED);
-
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -144,7 +146,6 @@ final class BuildController extends AbstractController
                 'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
                 'enabled' => $item->isEnabled(),
             ]);
-
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -175,7 +176,6 @@ final class BuildController extends AbstractController
             $this->closureManager->removeTree($item);
 
             return new JsonResponse(['success' => true]);
-
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -214,7 +214,6 @@ final class BuildController extends AbstractController
             $this->closureManager->moveItem($item, $newParent, $position);
 
             return new JsonResponse(['success' => true]);
-
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -227,27 +226,85 @@ final class BuildController extends AbstractController
             return [];
         }
 
-        return $this->buildItemTree($rootItem);
+        // Ensure translations are loaded for the root item
+        $this->getManager($rootItem)->refresh($rootItem);
+
+        return [$this->buildItemTree($rootItem)];
     }
 
     private function buildItemTree(ItemInterface $item): array
     {
-        // For now, return a simple structure without children
-        // TODO: Implement proper tree traversal using closure table
+        $children = $this->getDirectChildren($item);
+        $childrenArray = [];
+
+        foreach ($children as $child) {
+            $childrenArray[] = $this->buildItemTree($child);
+        }
+
         return [
             'id' => $item->getId(),
-            'label' => $item->getLabel(),
+            'label' => $this->getItemLabel($item),
             'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
             'enabled' => $item->isEnabled(),
             'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
-            'children' => [], // TODO: Get children from closure table
+            'children' => $childrenArray,
         ];
+    }
+
+    /**
+     * Get item label with fallback handling for translation errors
+     */
+    private function getItemLabel(ItemInterface $item): ?string
+    {
+        try {
+            $label = $item->getLabel();
+            // If getLabel() returns null, use database fallback
+            if ($label === null) {
+                throw new \RuntimeException('Translation returned null, using fallback');
+            }
+            return $label;
+        } catch (\Throwable $e) {
+            // Fallback: try to get label directly from database
+            $stmt = $this->getManager($item)->getConnection()->prepare(
+                'SELECT label FROM setono_sylius_navigation__item_translation WHERE translatable_id = ? AND locale = ? LIMIT 1'
+            );
+            $result = $stmt->executeQuery([$item->getId(), 'en_US']);
+            $row = $result->fetchAssociative();
+            
+            return $row ? $row['label'] : 'Item #' . $item->getId();
+        }
+    }
+
+    /**
+     * Get direct children (depth = 1) of the given item
+     *
+     * @return ItemInterface[]
+     */
+    private function getDirectChildren(ItemInterface $item): array
+    {
+        // Find all closures where this item is the ancestor with depth = 1 (direct children)
+        $childClosures = $this->closureRepository->findBy([
+            'ancestor' => $item,
+            'depth' => 1,
+        ]);
+
+        $children = [];
+        foreach ($childClosures as $closure) {
+            $descendant = $closure->getDescendant();
+            if ($descendant !== null) {
+                // Ensure translations are loaded for the descendant
+                $this->getManager($descendant)->refresh($descendant);
+                $children[] = $descendant;
+            }
+        }
+
+        return $children;
     }
 
     private function createItemFromData(array $data): ItemInterface
     {
         $type = $data['type'] ?? 'simple';
-        
+
         if ($type === 'taxon') {
             $taxonId = $data['taxon_id'] ?? null;
             if (!$taxonId) {
@@ -263,7 +320,7 @@ final class BuildController extends AbstractController
             $item->setTaxon($taxon);
             $item->setLabel($data['label'] ?? $taxon->getName());
         } else {
-            $item = $this->itemFactory->createNew();
+            $item = $this->textItemFactory->createNew();
             $item->setLabel($data['label'] ?? 'New Item');
         }
 
