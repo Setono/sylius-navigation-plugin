@@ -121,33 +121,44 @@ final class BuildController extends AbstractController
      */
     public function updateItemAction(Request $request, int $id, int $itemId): JsonResponse
     {
-        $navigation = $this->navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $item = $this->getManager(ItemInterface::class)->getRepository(ItemInterface::class)->find($itemId);
-        if (!$item instanceof ItemInterface) {
-            return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        if (!is_array($data)) {
-            return new JsonResponse(['error' => 'Invalid JSON data'], Response::HTTP_BAD_REQUEST);
-        }
-
         try {
+            $navigation = $this->navigationRepository->find($id);
+            if (!$navigation instanceof NavigationInterface) {
+                return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $itemManager = $this->getManager($navigation);
+            $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
+            if (!$item instanceof ItemInterface) {
+                return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $data = json_decode($request->getContent(), true);
+            if (!is_array($data)) {
+                return new JsonResponse(['error' => 'Invalid JSON data'], Response::HTTP_BAD_REQUEST);
+            }
+
             $this->updateItemFromData($item, $data);
-            $this->getManager($item)->flush();
+            $itemManager->flush();
 
             return new JsonResponse([
                 'id' => $item->getId(),
-                'label' => $item->getLabel(),
+                'label' => $this->getItemLabel($item), // Use the safe label method
                 'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
                 'enabled' => $item->isEnabled(),
             ]);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        } catch (\Throwable $e) {
+            // Log the full error for debugging
+            error_log('UpdateItem Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            error_log('UpdateItem Stack trace: ' . $e->getTraceAsString());
+
+            return new JsonResponse([
+                'error' => 'Failed to update item: ' . $e->getMessage(),
+                'debug' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ],
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -161,7 +172,8 @@ final class BuildController extends AbstractController
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $item = $this->getManager(ItemInterface::class)->getRepository(ItemInterface::class)->find($itemId);
+        $itemManager = $this->getManager($navigation);
+        $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
         if (!$item instanceof ItemInterface) {
             return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
         }
@@ -201,14 +213,15 @@ final class BuildController extends AbstractController
             $newParentId = $data['new_parent_id'] ?? null;
             $position = $data['position'] ?? 0;
 
-            $item = $this->getManager(ItemInterface::class)->getRepository(ItemInterface::class)->find($itemId);
+            $itemManager = $this->getManager($navigation);
+            $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
             if (!$item instanceof ItemInterface) {
                 return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
             }
 
             $newParent = null;
             if ($newParentId) {
-                $newParent = $this->getManager(ItemInterface::class)->getRepository(ItemInterface::class)->find($newParentId);
+                $newParent = $itemManager->getRepository(ItemInterface::class)->find($newParentId);
             }
 
             $this->closureManager->moveItem($item, $newParent, $position);
@@ -225,9 +238,6 @@ final class BuildController extends AbstractController
         if (null === $rootItem) {
             return [];
         }
-
-        // Ensure translations are loaded for the root item
-        $this->getManager($rootItem)->refresh($rootItem);
 
         return [$this->buildItemTree($rootItem)];
     }
@@ -251,29 +261,9 @@ final class BuildController extends AbstractController
         ];
     }
 
-    /**
-     * Get item label with fallback handling for translation errors
-     */
     private function getItemLabel(ItemInterface $item): ?string
     {
-        try {
-            $label = $item->getLabel();
-            // If getLabel() returns null, use database fallback
-            if ($label === null) {
-                throw new \RuntimeException('Translation returned null, using fallback');
-            }
-
-            return $label;
-        } catch (\Throwable $e) {
-            // Fallback: try to get label directly from database
-            $stmt = $this->getManager($item)->getConnection()->prepare(
-                'SELECT label FROM setono_sylius_navigation__item_translation WHERE translatable_id = ? AND locale = ? LIMIT 1',
-            );
-            $result = $stmt->executeQuery([$item->getId(), 'en_US']);
-            $row = $result->fetchAssociative();
-
-            return $row ? $row['label'] : 'Item #' . $item->getId();
-        }
+        return $item->getLabel();
     }
 
     /**
@@ -293,8 +283,6 @@ final class BuildController extends AbstractController
         foreach ($childClosures as $closure) {
             $descendant = $closure->getDescendant();
             if ($descendant !== null) {
-                // Ensure translations are loaded for the descendant
-                $this->getManager($descendant)->refresh($descendant);
                 $children[] = $descendant;
             }
         }

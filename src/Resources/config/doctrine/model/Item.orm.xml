@@ -22,12 +22,6 @@
         </field>
         <field name="enabled" column="enabled" type="boolean" />
 
-        <one-to-many field="translations" target-entity="Setono\SyliusNavigationPlugin\Model\ItemTranslationInterface" mapped-by="translatable" orphan-removal="true">
-            <cascade>
-                <cascade-all/>
-            </cascade>
-        </one-to-many>
-
         <many-to-many field="channels" target-entity="Sylius\Component\Channel\Model\ChannelInterface">
             <join-table name="setono_sylius_navigation__item_channels">
                 <join-columns>
