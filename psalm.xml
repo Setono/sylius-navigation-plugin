@@ -25,9 +25,10 @@
     <forbiddenFunctions>
         <function name="dd"/>
         <function name="dump"/>
+        <function name="error_log"/>
         <function name="exit"/>
-        <function name="var_dump"/>
         <function name="print_r"/>
+        <function name="var_dump"/>
     </forbiddenFunctions>
     <issueHandlers>
         <PluginIssue name="QueryBuilderSetParameter" errorLevel="suppress"/>

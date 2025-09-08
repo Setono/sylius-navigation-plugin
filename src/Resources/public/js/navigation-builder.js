@@ -23,11 +23,6 @@ class NavigationBuilder {
         $('.ui.dropdown').dropdown();
         $('.ui.checkbox').checkbox();
         $('.ui.modal').modal();
-        
-        // Setup item type dropdown change handler
-        $('select[name="type"]').dropdown({
-            onChange: (value) => this.onItemTypeChange(value)
-        });
     }
 
     setupEventListeners() {
@@ -105,6 +100,27 @@ class NavigationBuilder {
         this.initializeSortable();
     }
 
+    updateTreeHTML(html) {
+        const container = document.getElementById('navigation-tree');
+        const loadingElement = document.getElementById('tree-loading');
+        const emptyElement = document.getElementById('empty-tree');
+        
+        loadingElement.style.display = 'none';
+        
+        if (!html || html.trim() === '') {
+            container.style.display = 'none';
+            emptyElement.style.display = 'block';
+            return;
+        }
+        
+        container.innerHTML = html;
+        container.style.display = 'block';
+        emptyElement.style.display = 'none';
+        
+        // Re-initialize sortable after rendering
+        this.initializeSortable();
+    }
+
     renderTreeItems(items, level = 0) {
         return items.map(item => this.renderTreeItem(item, level)).join('');
     }
@@ -147,12 +163,15 @@ class NavigationBuilder {
         `;
     }
 
-    showAddItemModal(parentId = null) {
+    async showAddItemModal(parentId = null) {
         this.currentParentId = parentId;
+        this.currentSelectedType = null;
         
-        // Reset form
-        document.getElementById('add-item-form').reset();
-        document.getElementById('parent-id-field').value = parentId || '';
+        // Reset modal to step 1 (type selection)
+        this.resetModalToTypeSelection();
+        
+        // Load available item types
+        await this.loadItemTypes();
         
         // Show modal
         $('#add-item-modal').modal('show');
@@ -169,17 +188,36 @@ class NavigationBuilder {
         const isEnabled = itemElement.querySelector('.green.check.circle.icon') !== null;
         const isTaxonItem = itemElement.querySelector('.tag.icon') !== null;
         
-        // Populate form
-        const form = document.getElementById('edit-item-form');
-        form.querySelector('input[name="label"]').value = label;
-        form.querySelector('input[name="enabled"]').checked = isEnabled;
-        document.getElementById('edit-item-id').value = itemId;
+        // Determine item type
+        const itemType = isTaxonItem ? 'taxon' : 'text';
         
-        // Show/hide taxon field based on item type
-        const taxonField = document.getElementById('edit-taxon-field');
-        taxonField.style.display = isTaxonItem ? 'block' : 'none';
+        // Store current values to populate after form loads
+        this.pendingEditValues = {
+            label: label,
+            enabled: isEnabled,
+            itemId: itemId
+        };
         
-        $('#edit-item-modal').modal('show');
+        // Load the appropriate form type
+        this.loadFormFields(itemType, 'edit').then(() => {
+            // Populate form after it's loaded
+            const formContainer = document.getElementById('edit-item-form-fields');
+            if (formContainer) {
+                const labelField = formContainer.querySelector('input[name="label"]');
+                if (labelField) labelField.value = this.pendingEditValues.label;
+                
+                const enabledField = formContainer.querySelector('input[name="enabled"]');
+                if (enabledField) enabledField.checked = this.pendingEditValues.enabled;
+                
+                const itemIdField = formContainer.querySelector('input[name="item_id"]');
+                if (itemIdField) itemIdField.value = this.pendingEditValues.itemId;
+            }
+            
+            document.getElementById('edit-item-id').value = itemId;
+            
+            // Show modal after form is loaded and populated
+            $('#edit-item-modal').modal('show');
+        });
     }
 
     showDeleteItemModal(itemId) {
@@ -191,28 +229,26 @@ class NavigationBuilder {
         const form = document.getElementById('add-item-form');
         const formData = new FormData(form);
         
-        const data = {
-            type: formData.get('type'),
-            label: formData.get('label'),
-            enabled: formData.has('enabled'),
-            parent_id: this.currentParentId
-        };
+        // Add the selected item type
+        if (this.currentSelectedType) {
+            formData.append('type', this.currentSelectedType);
+        }
         
-        if (data.type === 'taxon') {
-            data.taxon_id = formData.get('taxon_id');
-            if (!data.taxon_id) {
-                this.showError('Please select a taxon');
-                return;
-            }
+        // Add parent_id to the form data
+        if (this.currentParentId) {
+            formData.append('parent_id', this.currentParentId);
+        }
+        
+        // Validate taxon selection if needed
+        if (this.currentSelectedType === 'taxon' && !formData.get('taxon_id')) {
+            this.showError('Please select a taxon');
+            return;
         }
 
         try {
             const response = await fetch(this.config.routes.addItem, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
+                body: formData
             });
 
             if (!response.ok) {
@@ -220,9 +256,16 @@ class NavigationBuilder {
                 throw new Error(error.error || `HTTP ${response.status}`);
             }
 
-            $('#add-item-modal').modal('hide');
-            this.showSuccess('Item added successfully');
-            this.loadTree();
+            const result = await response.json();
+            
+            if (result.success && result.html) {
+                // Update the tree with rendered HTML
+                this.updateTreeHTML(result.html);
+                $('#add-item-modal').modal('hide');
+                this.showSuccess('Item added successfully');
+            } else {
+                throw new Error(result.error || 'Failed to add item');
+            }
             
         } catch (error) {
             console.error('Failed to add item:', error);
@@ -234,24 +277,12 @@ class NavigationBuilder {
         const form = document.getElementById('edit-item-form');
         const formData = new FormData(form);
         const itemId = document.getElementById('edit-item-id').value;
-        
-        const data = {
-            label: formData.get('label'),
-            enabled: formData.has('enabled')
-        };
-        
-        if (formData.has('taxon_id') && formData.get('taxon_id')) {
-            data.taxon_id = formData.get('taxon_id');
-        }
 
         try {
             const url = this.config.routes.updateItem.replace('__ITEM_ID__', itemId);
             const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
+                method: 'POST', // Use POST with form data instead of PUT with JSON
+                body: formData
             });
 
             if (!response.ok) {
@@ -259,9 +290,16 @@ class NavigationBuilder {
                 throw new Error(error.error || `HTTP ${response.status}`);
             }
 
-            $('#edit-item-modal').modal('hide');
-            this.showSuccess('Item updated successfully');
-            this.loadTree();
+            const result = await response.json();
+            
+            if (result.success && result.html) {
+                // Update the tree with rendered HTML
+                this.updateTreeHTML(result.html);
+                $('#edit-item-modal').modal('hide');
+                this.showSuccess('Item updated successfully');
+            } else {
+                throw new Error(result.error || 'Failed to update item');
+            }
             
         } catch (error) {
             console.error('Failed to update item:', error);
@@ -283,9 +321,16 @@ class NavigationBuilder {
                 throw new Error(error.error || `HTTP ${response.status}`);
             }
 
-            $('#delete-item-modal').modal('hide');
-            this.showSuccess('Item deleted successfully');
-            this.loadTree();
+            const result = await response.json();
+            
+            if (result.success && result.html) {
+                // Update the tree with rendered HTML
+                this.updateTreeHTML(result.html);
+                $('#delete-item-modal').modal('hide');
+                this.showSuccess('Item deleted successfully');
+            } else {
+                throw new Error(result.error || 'Failed to delete item');
+            }
             
         } catch (error) {
             console.error('Failed to delete item:', error);
@@ -327,14 +372,169 @@ class NavigationBuilder {
         }
     }
 
-    onItemTypeChange(value) {
-        const taxonField = document.getElementById('taxon-field');
-        taxonField.style.display = value === 'taxon' ? 'block' : 'none';
-        
-        // Load taxons if switching to taxon type
-        if (value === 'taxon') {
-            this.loadTaxons();
+    onItemTypeChange(value, modalType) {
+        // Load the appropriate form fields via AJAX
+        this.loadFormFields(value, modalType);
+    }
+    
+    async loadFormFields(itemType, modalType) {
+        const formContainer = modalType === 'add' 
+            ? document.getElementById('add-item-form-fields')
+            : document.getElementById('edit-item-form-fields');
+            
+        if (!formContainer) {
+            console.error(`Form container not found for ${modalType} modal`);
+            return;
         }
+        
+        // Show loading state
+        formContainer.innerHTML = '<div class="ui active inline loader">Loading form...</div>';
+        
+        try {
+            const response = await fetch(this.config.routes.getForm.replace('__TYPE__', itemType));
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || `HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.html) {
+                formContainer.innerHTML = result.html;
+                
+                // Re-initialize Semantic UI components in the new form
+                $(formContainer).find('.ui.dropdown').dropdown();
+                $(formContainer).find('.ui.checkbox').checkbox();
+                
+                // Store the current type in a hidden field
+                const typeField = document.createElement('input');
+                typeField.type = 'hidden';
+                typeField.name = 'type';
+                typeField.value = itemType;
+                formContainer.appendChild(typeField);
+                
+                // If edit modal, restore the parent_id and item_id
+                if (modalType === 'edit' && this.currentEditItemId) {
+                    const itemIdField = formContainer.querySelector('input[name="item_id"]');
+                    if (itemIdField) {
+                        itemIdField.value = this.currentEditItemId;
+                    }
+                }
+                
+                // If add modal, restore the parent_id
+                if (modalType === 'add' && this.currentParentId) {
+                    const parentIdField = formContainer.querySelector('input[name="parent_id"]');
+                    if (parentIdField) {
+                        parentIdField.value = this.currentParentId;
+                    }
+                }
+            } else {
+                throw new Error(result.error || 'Failed to load form');
+            }
+        } catch (error) {
+            console.error('Failed to load form fields:', error);
+            formContainer.innerHTML = `
+                <div class="ui negative message">
+                    <div class="header">Error loading form</div>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
+    }
+    
+    async loadItemTypes() {
+        const container = document.getElementById('item-type-buttons');
+        container.innerHTML = '<div class="ui active inline loader">Loading item types...</div>';
+        
+        try {
+            const response = await fetch(this.config.routes.getItemTypes);
+            const result = await response.json();
+            
+            if (result.success && result.itemTypes) {
+                const buttons = Object.entries(result.itemTypes).map(([type, label]) => {
+                    return `
+                        <button class="ui button" onclick="NavigationBuilder.selectItemType('${type}')">
+                            <i class="${this.getIconForType(type)} icon"></i>
+                            ${this.escapeHtml(label)}
+                        </button>
+                    `;
+                }).join('');
+                
+                container.innerHTML = buttons;
+            } else {
+                throw new Error(result.error || 'Failed to load item types');
+            }
+        } catch (error) {
+            console.error('Failed to load item types:', error);
+            container.innerHTML = `
+                <div class="ui negative message">
+                    <div class="header">Error loading item types</div>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
+    }
+    
+    getIconForType(type) {
+        switch (type) {
+            case 'taxon':
+                return 'tag';
+            case 'text':
+                return 'file text';
+            default:
+                return 'plus';
+        }
+    }
+    
+    async selectItemType(type) {
+        this.currentSelectedType = type;
+        
+        // Show form container and hide type selection
+        document.getElementById('item-type-selection').style.display = 'none';
+        document.getElementById('item-form-container').style.display = 'block';
+        document.getElementById('back-button').style.display = 'inline-block';
+        document.getElementById('create-button').style.display = 'inline-block';
+        
+        // Reset and set up form
+        const form = document.getElementById('add-item-form');
+        if (form) {
+            form.reset();
+        }
+        
+        const parentIdField = document.getElementById('parent-id-field');
+        if (parentIdField) {
+            parentIdField.value = this.currentParentId || '';
+        }
+        
+        // Load form fields for the selected type
+        await this.loadFormFields(type, 'add');
+    }
+    
+    goBackToTypeSelection() {
+        this.resetModalToTypeSelection();
+    }
+    
+    resetModalToTypeSelection() {
+        // Show type selection and hide form container
+        document.getElementById('item-type-selection').style.display = 'block';
+        document.getElementById('item-form-container').style.display = 'none';
+        document.getElementById('back-button').style.display = 'none';
+        document.getElementById('create-button').style.display = 'none';
+        
+        // Reset form
+        const form = document.getElementById('add-item-form');
+        if (form) {
+            form.reset();
+        }
+        
+        // Clear form fields container
+        const formFields = document.getElementById('add-item-form-fields');
+        if (formFields) {
+            formFields.innerHTML = '';
+        }
+        
+        this.currentSelectedType = null;
     }
 
     async loadTaxons() {
@@ -397,6 +597,14 @@ if (window.NavigationBuilderConfig) {
         
         showDeleteItemModal(itemId) {
             NavigationBuilderInstance.showDeleteItemModal(itemId);
+        },
+        
+        selectItemType(type) {
+            NavigationBuilderInstance.selectItemType(type);
+        },
+        
+        goBackToTypeSelection() {
+            NavigationBuilderInstance.goBackToTypeSelection();
         },
         
         addItem() {

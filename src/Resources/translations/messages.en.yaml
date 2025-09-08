@@ -2,11 +2,17 @@ setono_sylius_navigation:
     form:
         build_from_taxon:
             taxon: Taxon
+        item:
+            channels: Restrict to channels
+            label: Label
+            taxon: Taxon
+            translations: Translations
         navigation:
             channels: Restrict to channels
             description: Description (only used internally)
     ui:
         add_first_item: Add first item
+        add_item: Add item
         add_items: Add items
         add_new_item: Add new item
         build_from_taxon: Build from taxon
@@ -36,6 +42,7 @@ setono_sylius_navigation:
         new_item: New item
         new_navigation: New navigation
         reorder_items: Reorder items
+        select_item_type: Select item type
         select_taxon: Select a taxon
         simple_item: Simple item
         taxon: Taxon

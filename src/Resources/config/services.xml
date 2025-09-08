@@ -13,4 +13,11 @@
         <import resource="services/renderer.xml"/>
         <import resource="services/twig.xml"/>
     </imports>
+    
+    <services>
+        <service id="Setono\SyliusNavigationPlugin\Command\TestRegistryCommand">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Form\Registry\ItemFormRegistryInterface"/>
+            <tag name="console.command"/>
+        </service>
+    </services>
 </container>

@@ -1,0 +1,40 @@
+{% set level = level|default(0) %}
+{% set itemEntity = item.entity|default(item) %}
+<div class="item" data-item-id="{{ itemEntity.id }}" data-level="{{ level }}">
+    <div class="content">
+        <div class="header">
+            {% if itemEntity.taxon is defined and itemEntity.taxon %}
+                <i class="tag icon"></i>
+            {% else %}
+                <i class="file text icon"></i>
+            {% endif %}
+            
+            {% if itemEntity.enabled %}
+                <i class="green check circle icon"></i>
+            {% else %}
+                <i class="red times circle icon"></i>
+            {% endif %}
+            
+            <span class="item-label">{{ itemEntity.label ?? 'Untitled' }}</span>
+            <span class="item-actions" style="margin-left: 8px;">
+                <button class="ui tiny icon button" onclick="NavigationBuilder.showAddItemModal({{ itemEntity.id }})" title="{{ 'setono_sylius_navigation.ui.add_child_item'|trans }}">
+                    <i class="plus icon"></i>
+                </button>
+                <button class="ui tiny icon button" onclick="NavigationBuilder.showEditItemModal({{ itemEntity.id }})" title="{{ 'sylius.ui.edit'|trans }}">
+                    <i class="edit icon"></i>
+                </button>
+                <button class="ui tiny red icon button" onclick="NavigationBuilder.showDeleteItemModal({{ itemEntity.id }})" title="{{ 'sylius.ui.delete'|trans }}">
+                    <i class="trash icon"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+    {% set itemChildren = item.children|default([]) %}
+    {% if itemChildren|length > 0 %}
+        <div class="list" style="margin-left: 20px;">
+            {% for child in itemChildren %}
+                {% include '@SetonoSyliusNavigationPlugin/navigation/build/_tree_item.html.twig' with {'item': child, 'level': level + 1} %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

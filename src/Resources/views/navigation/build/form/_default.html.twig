@@ -1,0 +1,14 @@
+{# Default form template for navigation items #}
+<div class="ui form">
+    {% for field in form %}
+        {% if field.vars.block_prefixes[1] != 'hidden' %}
+            <div class="field">
+                {{ form_label(field) }}
+                {{ form_widget(field) }}
+                {{ form_errors(field) }}
+            </div>
+        {% else %}
+            {{ form_widget(field) }}
+        {% endif %}
+    {% endfor %}
+</div>

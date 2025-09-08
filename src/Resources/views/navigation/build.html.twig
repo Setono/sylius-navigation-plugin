@@ -21,6 +21,12 @@
             <h3 class="ui dividing header">
                 <i class="sitemap icon"></i>
                 {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
+                <div class="ui right floated">
+                    <button id="main-add-button" class="ui primary button" onclick="NavigationBuilder.showAddItemModal()">
+                        <i class="plus icon"></i>
+                        {{ 'setono_sylius_navigation.ui.add_item'|trans }}
+                    </button>
+                </div>
             </h3>
 
             <div id="navigation-tree-container">
@@ -116,43 +122,38 @@
         {{ 'setono_sylius_navigation.ui.add_new_item'|trans }}
     </div>
     <div class="content">
-        <form id="add-item-form" class="ui form">
-            <div class="field">
-                <label>{{ 'setono_sylius_navigation.ui.item_type'|trans }}</label>
-                <select name="type" class="ui dropdown">
-                    <option value="simple">{{ 'setono_sylius_navigation.ui.simple_item'|trans }}</option>
-                    <option value="taxon">{{ 'setono_sylius_navigation.ui.taxon_item'|trans }}</option>
-                </select>
-            </div>
-
-            <div class="field">
-                <label>{{ 'sylius.ui.name'|trans }}</label>
-                <input type="text" name="label" required>
-            </div>
-
-            <div class="field" id="taxon-field" style="display: none;">
-                <label>{{ 'setono_sylius_navigation.ui.taxon'|trans }}</label>
-                <select name="taxon_id" class="ui search dropdown">
-                    <option value="">{{ 'setono_sylius_navigation.ui.select_taxon'|trans }}</option>
-                    <!-- Taxon options will be loaded via JavaScript -->
-                </select>
-            </div>
-
-            <div class="field">
-                <div class="ui checkbox">
-                    <input type="checkbox" name="enabled" checked>
-                    <label>{{ 'sylius.ui.enabled'|trans }}</label>
+        <!-- Step 1: Select item type -->
+        <div id="item-type-selection" class="ui centered grid">
+            <div class="twelve wide column">
+                <div class="ui icon header">
+                    <i class="plus circle icon"></i>
+                    {{ 'setono_sylius_navigation.ui.select_item_type'|trans }}
+                </div>
+                <div id="item-type-buttons" class="ui fluid buttons">
+                    <!-- Item type buttons will be loaded dynamically -->
                 </div>
             </div>
-
-            <input type="hidden" name="parent_id" id="parent-id-field">
-        </form>
+        </div>
+        
+        <!-- Step 2: Fill form fields -->
+        <div id="item-form-container" style="display: none;">
+            <form id="add-item-form" class="ui form">
+                <div id="add-item-form-fields">
+                    <!-- Form fields will be loaded dynamically via AJAX -->
+                </div>
+                <input type="hidden" name="parent_id" id="parent-id-field">
+            </form>
+        </div>
     </div>
     <div class="actions">
         <div class="ui cancel button">
             {{ 'sylius.ui.cancel'|trans }}
         </div>
-        <div class="ui primary button" onclick="NavigationBuilder.addItem()">
+        <div id="back-button" class="ui button" style="display: none;" onclick="NavigationBuilder.goBackToTypeSelection()">
+            <i class="arrow left icon"></i>
+            {{ 'sylius.ui.back'|trans }}
+        </div>
+        <div id="create-button" class="ui primary button" style="display: none;" onclick="NavigationBuilder.addItem()">
             {{ 'sylius.ui.create'|trans }}
         </div>
     </div>
@@ -166,24 +167,8 @@
     </div>
     <div class="content">
         <form id="edit-item-form" class="ui form">
-            <div class="field">
-                <label>{{ 'sylius.ui.name'|trans }}</label>
-                <input type="text" name="label" required>
-            </div>
-
-            <div class="field" id="edit-taxon-field" style="display: none;">
-                <label>{{ 'setono_sylius_navigation.ui.taxon'|trans }}</label>
-                <select name="taxon_id" class="ui search dropdown">
-                    <option value="">{{ 'setono_sylius_navigation.ui.select_taxon'|trans }}</option>
-                    <!-- Taxon options will be loaded via JavaScript -->
-                </select>
-            </div>
-
-            <div class="field">
-                <div class="ui checkbox">
-                    <input type="checkbox" name="enabled">
-                    <label>{{ 'sylius.ui.enabled'|trans }}</label>
-                </div>
+            <div id="edit-item-form-fields">
+                <!-- Form fields will be loaded dynamically via AJAX -->
             </div>
 
             <input type="hidden" name="item_id" id="edit-item-id">
@@ -229,6 +214,8 @@
             navigationId: {{ navigation.id }},
             routes: {
                 getTree: '{{ path('setono_sylius_navigation_admin_navigation_build_get_tree', {'id': navigation.id}) }}',
+                getItemTypes: '{{ path('setono_sylius_navigation_admin_navigation_build_get_item_types') }}',
+                getForm: '{{ path('setono_sylius_navigation_admin_navigation_build_get_form', {'type': '__TYPE__'}) }}',
                 addItem: '{{ path('setono_sylius_navigation_admin_navigation_build_add_item', {'id': navigation.id}) }}',
                 updateItem: '{{ path('setono_sylius_navigation_admin_navigation_build_update_item', {'id': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
                 deleteItem: '{{ path('setono_sylius_navigation_admin_navigation_build_delete_item', {'id': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
