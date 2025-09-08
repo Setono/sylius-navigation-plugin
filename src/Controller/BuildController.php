@@ -287,10 +287,6 @@ final class BuildController extends AbstractController
                 ],
             ]);
         } catch (\Throwable $e) {
-            // Log the full error for debugging
-            error_log('UpdateItem Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
-            error_log('UpdateItem Stack trace: ' . $e->getTraceAsString());
-
             return new JsonResponse([
                 'error' => 'Failed to update item: ' . $e->getMessage(),
                 'debug' => [

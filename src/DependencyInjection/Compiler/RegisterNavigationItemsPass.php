@@ -38,9 +38,9 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
             }
 
             $reflectionClass = new \ReflectionClass($entity);
-            $attributes = $reflectionClass->getAttributes(ItemType::class);
+            $attributes = self::getItemTypeAttributeFromHierarchy($reflectionClass);
 
-            if (count($attributes) === 0) {
+            if ([] === $attributes) {
                 continue; // Skip entities without ItemType attribute
             }
 
@@ -51,10 +51,12 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
                 throw new ServiceNotFoundException($metadata->formType);
             }
 
+            $name = $metadata->name ?? Item::getType($entity);
+
             // Register the form type with the registry
             $registryDefinition->addMethodCall('register', [
-                self::resolveName($entity, $metadata),
-                self::resolveLabel($entity, $metadata),
+                $name,
+                $metadata->label ?? sprintf('setono_sylius_navigation.item_types.%s', $name),
                 $entity,
                 $metadata->formType,
                 $metadata->template ?? '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
@@ -63,18 +65,22 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
     }
 
     /**
-     * @param class-string<ItemInterface> $entity
+     * Get ItemType attributes from the class hierarchy, starting from the current class
+     * and walking up to parent classes until an attribute is found.
+     *
+     * @return list<\ReflectionAttribute<ItemType>>
      */
-    private static function resolveName(string $entity, ItemType $itemType): string
+    private static function getItemTypeAttributeFromHierarchy(\ReflectionClass $reflectionClass): array
     {
-        return $itemType->name ?? Item::getType($entity);
-    }
+        do {
+            $attributes = $reflectionClass->getAttributes(ItemType::class);
+            if (count($attributes) > 0) {
+                return $attributes;
+            }
 
-    /**
-     * @param class-string<ItemInterface> $entity
-     */
-    private static function resolveLabel(string $entity, ItemType $itemType): string
-    {
-        return $itemType->label ?? sprintf('setono_sylius_navigation.item_types.%s', self::resolveName($entity, $itemType));
+            $reflectionClass = $reflectionClass->getParentClass();
+        } while (false !== $reflectionClass);
+
+        return [];
     }
 }
