@@ -19,7 +19,7 @@ abstract class AbstractBuilderItemType extends AbstractType
             ->add('label', TextType::class, [
                 'label' => 'Name',
                 'required' => true,
-                'mapped' => false,
+                'mapped' => false, // Handle manually in controller since it goes to translation
             ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'Enabled',
@@ -38,10 +38,10 @@ abstract class AbstractBuilderItemType extends AbstractType
                 'required' => false,
             ])
         ;
-        
+
         $this->buildSpecificForm($builder, $options);
     }
-    
+
     /**
      * Override this method in child classes to add type-specific fields
      */
@@ -49,14 +49,14 @@ abstract class AbstractBuilderItemType extends AbstractType
     {
         // Default implementation does nothing
     }
-    
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'csrf_protection' => false,
+            'csrf_protection' => false, // For AJAX forms
         ]);
     }
-    
+
     public function getBlockPrefix(): string
     {
         return '';

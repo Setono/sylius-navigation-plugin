@@ -32,7 +32,7 @@ final class SetonoSyliusNavigationPlugin extends AbstractResourceBundle
             CompositeItemRenderer::class,
             'setono_sylius_navigation.item_renderer',
         ));
-        
-        $container->addCompilerPass(new RegisterNavigationItemsPass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_OPTIMIZATION);
+
+        $container->addCompilerPass(new RegisterNavigationItemsPass());
     }
 }

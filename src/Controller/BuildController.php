@@ -9,11 +9,11 @@ use Setono\Doctrine\ORMTrait;
 use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Factory\TextItemFactoryInterface;
-use Setono\SyliusNavigationPlugin\Form\Registry\ItemFormRegistryInterface;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
+use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -38,7 +38,7 @@ final class BuildController extends AbstractController
         private readonly ClosureRepositoryInterface $closureRepository,
         private readonly RepositoryInterface $taxonRepository,
         private readonly FormFactoryInterface $formFactory,
-        private readonly ItemFormRegistryInterface $itemFormRegistry,
+        private readonly ItemTypeRegistryInterface $itemTypeRegistry,
         private readonly Environment $twig,
         ManagerRegistry $managerRegistry,
     ) {
@@ -77,15 +77,14 @@ final class BuildController extends AbstractController
         return new JsonResponse($tree);
     }
 
-
     /**
      * Get available item types from registry (AJAX endpoint)
      */
     public function getItemTypesAction(): JsonResponse
     {
         try {
-            $itemTypes = $this->itemFormRegistry->getFormTypesForDropdown();
-            
+            $itemTypes = $this->itemTypeRegistry->getFormTypesForDropdown();
+
             return new JsonResponse(['success' => true, 'itemTypes' => $itemTypes]);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -98,37 +97,34 @@ final class BuildController extends AbstractController
     public function getFormAction(Request $request, string $type): Response
     {
         try {
-            if (!$this->itemFormRegistry->has($type)) {
+            if (!$this->itemTypeRegistry->has($type)) {
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_NOT_FOUND);
             }
-            
-            $formClass = $this->itemFormRegistry->getFormClass($type);
-            $metadata = $this->itemFormRegistry->getMetadata($type);
-            
+
+            $formClass = $this->itemTypeRegistry->getForm($type);
+            $metadata = $this->itemTypeRegistry->getType($type);
+
             // Create the appropriate item instance
             $item = match ($type) {
                 'taxon' => $this->taxonItemFactory->createNew(),
                 'text' => $this->textItemFactory->createNew(),
                 default => $this->itemFactory->createNew(),
             };
-            
+
             $form = $this->formFactory->create($formClass, $item);
-            
-            // Determine template to use
-            $template = $metadata->template ?? '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig';
-            
-            $html = $this->twig->render($template, [
+
+            $html = $this->twig->render($metadata['template'], [
                 'form' => $form->createView(),
                 'type' => $type,
                 'metadata' => $metadata,
             ]);
-            
+
             return new JsonResponse(['success' => true, 'html' => $html]);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * Add new item to navigation
      */
@@ -142,20 +138,20 @@ final class BuildController extends AbstractController
         try {
             // Determine item type from form data
             $type = $request->request->get('type', 'text');
-            
-            if (!$this->itemFormRegistry->has($type)) {
+
+            if (!$this->itemTypeRegistry->has($type)) {
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_BAD_REQUEST);
             }
-            
+
             // Create item based on type
             $item = match ($type) {
                 'taxon' => $this->taxonItemFactory->createNew(),
                 'text' => $this->textItemFactory->createNew(),
                 default => $this->itemFactory->createNew(),
             };
-            
+
             // Get the appropriate form type from registry
-            $formClass = $this->itemFormRegistry->getFormClass($type);
+            $formClass = $this->itemTypeRegistry->getForm($type);
             $form = $this->formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
@@ -166,16 +162,17 @@ final class BuildController extends AbstractController
                 foreach ($form->getErrors(true) as $error) {
                     $errors[] = $error->getMessage();
                 }
+
                 return new JsonResponse(['error' => 'Form validation failed', 'details' => $errors], Response::HTTP_BAD_REQUEST);
             }
 
             // The form automatically maps data to the entity when using handleRequest
-            
+
             // Handle label (unmapped field)
             if ($request->request->get('label')) {
                 $item->setLabel($request->request->get('label'));
             }
-            
+
             // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
                 $taxon = $this->taxonRepository->find($request->request->get('taxon_id'));
@@ -206,7 +203,7 @@ final class BuildController extends AbstractController
             $html = $this->twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
                 'items' => $tree,
             ]);
-            
+
             return new JsonResponse([
                 'success' => true,
                 'html' => $html,
@@ -215,7 +212,7 @@ final class BuildController extends AbstractController
                     'label' => $this->getItemLabel($item),
                     'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
                     'enabled' => $item->isEnabled(),
-                ]
+                ],
             ], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
@@ -241,7 +238,7 @@ final class BuildController extends AbstractController
 
             // Get the appropriate form type from registry based on item type
             $type = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
-            $formClass = $this->itemFormRegistry->getFormClass($type);
+            $formClass = $this->itemTypeRegistry->getForm($type);
             $form = $this->formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
@@ -252,16 +249,17 @@ final class BuildController extends AbstractController
                 foreach ($form->getErrors(true) as $error) {
                     $errors[] = $error->getMessage();
                 }
+
                 return new JsonResponse(['error' => 'Form validation failed', 'details' => $errors], Response::HTTP_BAD_REQUEST);
             }
 
             // The form automatically maps data to the entity when using handleRequest
-            
+
             // Handle label (unmapped field)
             if ($request->request->get('label')) {
                 $item->setLabel($request->request->get('label'));
             }
-            
+
             // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
                 $taxon = $this->taxonRepository->find($request->request->get('taxon_id'));
@@ -286,7 +284,7 @@ final class BuildController extends AbstractController
                     'label' => $this->getItemLabel($item),
                     'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
                     'enabled' => $item->isEnabled(),
-                ]
+                ],
             ]);
         } catch (\Throwable $e) {
             // Log the full error for debugging
@@ -394,7 +392,7 @@ final class BuildController extends AbstractController
 
         return [$this->buildItemTree($rootItem)];
     }
-    
+
     private function buildTreeStructureEntities(NavigationInterface $navigation): array
     {
         $rootItem = $navigation->getRootItem();
@@ -409,11 +407,11 @@ final class BuildController extends AbstractController
     {
         $children = $this->getDirectChildren($item);
         $childrenArray = [];
-        
+
         foreach ($children as $child) {
             $childrenArray[] = $this->buildItemTreeEntities($child);
         }
-        
+
         return [
             'entity' => $item,
             'children' => $childrenArray,
@@ -467,5 +465,4 @@ final class BuildController extends AbstractController
 
         return $children;
     }
-
 }

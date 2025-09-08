@@ -44,18 +44,11 @@
         
         <service id="Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType">
             <tag name="form.type"/>
-            <tag name="setono_sylius_navigation.item"/>
         </service>
 
         <service id="Setono\SyliusNavigationPlugin\Form\Type\BuilderTaxonItemType">
             <tag name="form.type"/>
-            <tag name="setono_sylius_navigation.item"/>
         </service>
-        
-        <!-- Form Registry -->
-        <service id="Setono\SyliusNavigationPlugin\Form\Registry\ItemFormRegistry"/>
-        
-        <service id="Setono\SyliusNavigationPlugin\Form\Registry\ItemFormRegistryInterface" alias="Setono\SyliusNavigationPlugin\Form\Registry\ItemFormRegistry"/>
 
     </services>
 </container>

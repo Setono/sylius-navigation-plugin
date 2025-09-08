@@ -44,6 +44,22 @@ The plugin includes a test Symfony application in `tests/Application/` for devel
 - Run `yarn install && yarn build` to build assets
 - Use standard Symfony commands for the test app
 
+## Bash Tools Recommendations
+
+Use the right tool for the right job when executing bash commands:
+
+- **Finding FILES?** → Use `fd` (fast file finder)
+- **Finding TEXT/strings?** → Use `rg` (ripgrep for text search)
+- **Finding CODE STRUCTURE?** → Use `ast-grep` (syntax-aware code search)
+- **SELECTING from multiple results?** → Pipe to `fzf` (interactive fuzzy finder)
+- **Interacting with JSON?** → Use `jq` (JSON processor)
+- **Interacting with YAML or XML?** → Use `yq` (YAML/XML processor)
+
+Examples:
+- `fd "*.php" | fzf` - Find PHP files and interactively select one
+- `rg "function.*validate" | fzf` - Search for validation functions and select
+- `ast-grep --lang php -p 'class $name extends $parent'` - Find class inheritance patterns
+
 ## Architecture Overview
 
 ### Core Models

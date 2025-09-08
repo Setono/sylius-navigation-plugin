@@ -24,7 +24,7 @@
             <argument type="service" id="setono_sylius_navigation.repository.closure"/>
             <argument type="service" id="sylius.repository.taxon"/>
             <argument type="service" id="form.factory"/>
-            <argument type="service" id="Setono\SyliusNavigationPlugin\Form\Registry\ItemFormRegistryInterface"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface"/>
             <argument type="service" id="twig"/>
             <argument type="service" id="doctrine"/>
 
