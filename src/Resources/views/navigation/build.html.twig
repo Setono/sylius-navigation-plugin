@@ -22,10 +22,14 @@
                 <i class="sitemap icon"></i>
                 {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
                 <div class="ui right floated">
-                    <button id="main-add-button" class="ui primary button" onclick="NavigationBuilder.showAddItemModal()">
+                    <div id="main-add-dropdown" class="ui primary button dropdown" onclick="NavigationBuilder.initDropdown(this, null)">
                         <i class="plus icon"></i>
                         {{ 'setono_sylius_navigation.ui.add_item'|trans }}
-                    </button>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <!-- Item types will be loaded dynamically -->
+                        </div>
+                    </div>
                 </div>
             </h3>
 
@@ -44,10 +48,14 @@
                         {{ 'setono_sylius_navigation.ui.empty_navigation'|trans }}
                     </div>
                     <div class="inline">
-                        <button class="ui primary button" onclick="NavigationBuilder.showAddItemModal()">
+                        <div class="ui primary button dropdown" onclick="NavigationBuilder.initDropdown(this, null)">
                             <i class="plus icon"></i>
                             {{ 'setono_sylius_navigation.ui.add_first_item'|trans }}
-                        </button>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <!-- Item types will be loaded dynamically -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,45 +123,26 @@
     </div>
 </div>
 
-<!-- Add Item Modal -->
+<!-- Add Item Modal (simplified - only shows form after type selection) -->
 <div id="add-item-modal" class="ui modal">
     <div class="header">
         <i class="plus icon"></i>
-        {{ 'setono_sylius_navigation.ui.add_new_item'|trans }}
+        <span id="add-item-modal-title">{{ 'setono_sylius_navigation.ui.add_new_item'|trans }}</span>
     </div>
     <div class="content">
-        <!-- Step 1: Select item type -->
-        <div id="item-type-selection" class="ui centered grid">
-            <div class="twelve wide column">
-                <div class="ui icon header">
-                    <i class="plus circle icon"></i>
-                    {{ 'setono_sylius_navigation.ui.select_item_type'|trans }}
-                </div>
-                <div id="item-type-buttons" class="ui fluid buttons">
-                    <!-- Item type buttons will be loaded dynamically -->
-                </div>
+        <form id="add-item-form" class="ui form">
+            <div id="add-item-form-fields">
+                <!-- Form fields will be loaded dynamically via AJAX -->
             </div>
-        </div>
-        
-        <!-- Step 2: Fill form fields -->
-        <div id="item-form-container" style="display: none;">
-            <form id="add-item-form" class="ui form">
-                <div id="add-item-form-fields">
-                    <!-- Form fields will be loaded dynamically via AJAX -->
-                </div>
-                <input type="hidden" name="parent_id" id="parent-id-field">
-            </form>
-        </div>
+            <input type="hidden" name="parent_id" id="parent-id-field">
+            <input type="hidden" name="type" id="item-type-field">
+        </form>
     </div>
     <div class="actions">
         <div class="ui cancel button">
             {{ 'sylius.ui.cancel'|trans }}
         </div>
-        <div id="back-button" class="ui button" style="display: none;" onclick="NavigationBuilder.goBackToTypeSelection()">
-            <i class="arrow left icon"></i>
-            {{ 'sylius.ui.back'|trans }}
-        </div>
-        <div id="create-button" class="ui primary button" style="display: none;" onclick="NavigationBuilder.addItem()">
+        <div class="ui primary button" onclick="NavigationBuilder.addItem()">
             {{ 'sylius.ui.create'|trans }}
         </div>
     </div>

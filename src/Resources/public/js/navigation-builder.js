@@ -146,9 +146,13 @@ class NavigationBuilder {
                         ${enabledIcon}
                         <span class="item-label">${this.escapeHtml(item.label)}</span>
                         <span class="item-actions" style="margin-left: 8px;">
-                            <button class="ui tiny icon button" onclick="NavigationBuilder.showAddItemModal(${item.id})" title="Add child item">
+                            <div class="ui tiny icon button dropdown" onclick="NavigationBuilder.initDropdown(this, ${item.id})" title="Add child item">
                                 <i class="plus icon"></i>
-                            </button>
+                                <i class="dropdown icon"></i>
+                                <div class="menu">
+                                    <!-- Item types will be loaded dynamically -->
+                                </div>
+                            </div>
                             <button class="ui tiny icon button" onclick="NavigationBuilder.showEditItemModal(${item.id})" title="Edit item">
                                 <i class="edit icon"></i>
                             </button>
@@ -163,17 +167,69 @@ class NavigationBuilder {
         `;
     }
 
-    async showAddItemModal(parentId = null) {
+    async initDropdown(dropdownElement, parentId = null) {
+        // Load item types if not already loaded
+        if (!this.itemTypes) {
+            await this.loadItemTypes();
+        }
+        
+        // Check if already initialized
+        const $dropdown = $(dropdownElement);
+        if ($dropdown.hasClass('initialized')) {
+            // If already initialized, just show it
+            $dropdown.dropdown('show');
+            return;
+        }
+        
+        // Populate dropdown menu
+        const menu = dropdownElement.querySelector('.menu');
+        menu.innerHTML = '';
+        
+        Object.entries(this.itemTypes).forEach(([type, label]) => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.setAttribute('data-value', type);
+            
+            // Add icon based on type
+            const icon = type === 'taxon' ? '<i class="tag icon"></i>' : '<i class="file text icon"></i>';
+            item.innerHTML = `${icon} ${this.escapeHtml(label)}`;
+            
+            menu.appendChild(item);
+        });
+        
+        // Initialize Semantic UI dropdown with proper settings
+        $dropdown.dropdown({
+            action: 'hide',
+            onChange: (value) => {
+                if (value) {
+                    this.selectItemTypeFromDropdown(value, parentId);
+                }
+            }
+        });
+        
+        $dropdown.addClass('initialized');
+        
+        // Show the dropdown immediately after initialization
+        $dropdown.dropdown('show');
+    }
+    
+    async selectItemTypeFromDropdown(type, parentId = null) {
         this.currentParentId = parentId;
-        this.currentSelectedType = null;
+        this.currentSelectedType = type;
         
-        // Reset modal to step 1 (type selection)
-        this.resetModalToTypeSelection();
+        // Load form for selected type
+        await this.loadFormFields(type, 'add');
         
-        // Load available item types
-        await this.loadItemTypes();
+        // Set the hidden fields
+        document.getElementById('parent-id-field').value = parentId || '';
+        document.getElementById('item-type-field').value = type;
         
-        // Show modal
+        // Update modal title based on type
+        const titleElement = document.getElementById('add-item-modal-title');
+        const typeLabel = this.itemTypes[type] || type;
+        titleElement.textContent = `Add ${typeLabel}`;
+        
+        // Show modal with form
         $('#add-item-modal').modal('show');
     }
 
@@ -229,15 +285,8 @@ class NavigationBuilder {
         const form = document.getElementById('add-item-form');
         const formData = new FormData(form);
         
-        // Add the selected item type
-        if (this.currentSelectedType) {
-            formData.append('type', this.currentSelectedType);
-        }
-        
-        // Add parent_id to the form data
-        if (this.currentParentId) {
-            formData.append('parent_id', this.currentParentId);
-        }
+        // The type is already in the hidden field, no need to append separately
+        // The parent_id is already in the hidden field, no need to append separately
         
         // Validate taxon selection if needed
         if (this.currentSelectedType === 'taxon' && !formData.get('taxon_id')) {
@@ -444,35 +493,25 @@ class NavigationBuilder {
     }
     
     async loadItemTypes() {
-        const container = document.getElementById('item-type-buttons');
-        container.innerHTML = '<div class="ui active inline loader">Loading item types...</div>';
+        // If already loaded, return cached types
+        if (this.itemTypes) {
+            return this.itemTypes;
+        }
         
         try {
             const response = await fetch(this.config.routes.getItemTypes);
             const result = await response.json();
             
             if (result.success && result.itemTypes) {
-                const buttons = Object.entries(result.itemTypes).map(([type, label]) => {
-                    return `
-                        <button class="ui button" onclick="NavigationBuilder.selectItemType('${type}')">
-                            <i class="${this.getIconForType(type)} icon"></i>
-                            ${this.escapeHtml(label)}
-                        </button>
-                    `;
-                }).join('');
-                
-                container.innerHTML = buttons;
+                this.itemTypes = result.itemTypes;
+                return this.itemTypes;
             } else {
                 throw new Error(result.error || 'Failed to load item types');
             }
         } catch (error) {
             console.error('Failed to load item types:', error);
-            container.innerHTML = `
-                <div class="ui negative message">
-                    <div class="header">Error loading item types</div>
-                    <p>${error.message}</p>
-                </div>
-            `;
+            this.showError('Failed to load item types: ' + error.message);
+            return {};
         }
     }
     
@@ -487,55 +526,6 @@ class NavigationBuilder {
         }
     }
     
-    async selectItemType(type) {
-        this.currentSelectedType = type;
-        
-        // Show form container and hide type selection
-        document.getElementById('item-type-selection').style.display = 'none';
-        document.getElementById('item-form-container').style.display = 'block';
-        document.getElementById('back-button').style.display = 'inline-block';
-        document.getElementById('create-button').style.display = 'inline-block';
-        
-        // Reset and set up form
-        const form = document.getElementById('add-item-form');
-        if (form) {
-            form.reset();
-        }
-        
-        const parentIdField = document.getElementById('parent-id-field');
-        if (parentIdField) {
-            parentIdField.value = this.currentParentId || '';
-        }
-        
-        // Load form fields for the selected type
-        await this.loadFormFields(type, 'add');
-    }
-    
-    goBackToTypeSelection() {
-        this.resetModalToTypeSelection();
-    }
-    
-    resetModalToTypeSelection() {
-        // Show type selection and hide form container
-        document.getElementById('item-type-selection').style.display = 'block';
-        document.getElementById('item-form-container').style.display = 'none';
-        document.getElementById('back-button').style.display = 'none';
-        document.getElementById('create-button').style.display = 'none';
-        
-        // Reset form
-        const form = document.getElementById('add-item-form');
-        if (form) {
-            form.reset();
-        }
-        
-        // Clear form fields container
-        const formFields = document.getElementById('add-item-form-fields');
-        if (formFields) {
-            formFields.innerHTML = '';
-        }
-        
-        this.currentSelectedType = null;
-    }
 
     async loadTaxons() {
         try {
@@ -587,8 +577,8 @@ if (window.NavigationBuilderConfig) {
     
     // Export global functions for onclick handlers
     window.NavigationBuilder = {
-        showAddItemModal(parentId) {
-            NavigationBuilderInstance.showAddItemModal(parentId);
+        initDropdown(element, parentId) {
+            NavigationBuilderInstance.initDropdown(element, parentId);
         },
         
         showEditItemModal(itemId) {
@@ -597,14 +587,6 @@ if (window.NavigationBuilderConfig) {
         
         showDeleteItemModal(itemId) {
             NavigationBuilderInstance.showDeleteItemModal(itemId);
-        },
-        
-        selectItemType(type) {
-            NavigationBuilderInstance.selectItemType(type);
-        },
-        
-        goBackToTypeSelection() {
-            NavigationBuilderInstance.goBackToTypeSelection();
         },
         
         addItem() {
