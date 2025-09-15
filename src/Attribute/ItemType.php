@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Attribute;
 
+use Symfony\Component\Form\FormTypeInterface;
+
 /**
  * Attribute to mark and configure navigation item entities
  */
@@ -19,6 +21,8 @@ final class ItemType
 
         /**
          * The form type class to use for this entity
+         *
+         * @var class-string<FormTypeInterface> $formType
          */
         public readonly string $formType,
 
@@ -33,11 +37,6 @@ final class ItemType
          * If null, will be generated from the name
          */
         public readonly ?string $label = null,
-
-        /**
-         * Priority for ordering in dropdowns (higher = first)
-         */
-        public readonly int $priority = 0,
     ) {
     }
 }
