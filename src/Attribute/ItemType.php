@@ -6,9 +6,6 @@ namespace Setono\SyliusNavigationPlugin\Attribute;
 
 use Symfony\Component\Form\FormTypeInterface;
 
-/**
- * Attribute to mark and configure navigation item entities
- */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class ItemType
 {
