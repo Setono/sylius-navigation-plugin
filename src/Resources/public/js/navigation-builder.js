@@ -22,7 +22,19 @@ class NavigationBuilder {
         // Initialize Semantic UI components
         $('.ui.dropdown').dropdown();
         $('.ui.checkbox').checkbox();
-        $('.ui.modal').modal();
+        
+        // Initialize modal with onHidden callback to reset dropdowns
+        $('#add-item-modal').modal({
+            onHidden: () => {
+                // Reset all dropdown states when modal is closed
+                $('.ui.button.dropdown.initialized').each(function() {
+                    $(this).removeClass('initialized');
+                });
+            }
+        });
+        
+        $('#edit-item-modal').modal();
+        $('#delete-item-modal').modal();
     }
 
     setupEventListeners() {
@@ -173,12 +185,13 @@ class NavigationBuilder {
             await this.loadItemTypes();
         }
         
-        // Check if already initialized
         const $dropdown = $(dropdownElement);
+        
+        // Check if already initialized
         if ($dropdown.hasClass('initialized')) {
-            // If already initialized, just show it
-            $dropdown.dropdown('show');
-            return;
+            // If already initialized, destroy and reinitialize to ensure proper state
+            $dropdown.dropdown('destroy');
+            $dropdown.removeClass('initialized');
         }
         
         // Populate dropdown menu
@@ -197,12 +210,18 @@ class NavigationBuilder {
             menu.appendChild(item);
         });
         
+        // Store parentId as data attribute for later use
+        $dropdown.data('parent-id', parentId);
+        
         // Initialize Semantic UI dropdown with proper settings
         $dropdown.dropdown({
             action: 'hide',
             onChange: (value) => {
                 if (value) {
-                    this.selectItemTypeFromDropdown(value, parentId);
+                    const storedParentId = $dropdown.data('parent-id');
+                    this.selectItemTypeFromDropdown(value, storedParentId);
+                    // Clear the dropdown value after selection
+                    $dropdown.dropdown('clear');
                 }
             }
         });

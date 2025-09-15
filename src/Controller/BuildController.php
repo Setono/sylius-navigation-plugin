@@ -186,17 +186,15 @@ final class BuildController extends AbstractController
             $parent = null;
             if ($parentId !== null) {
                 $parent = $this->getManager($item)->getRepository(ItemInterface::class)->find($parentId);
+            } else {
+                // If no parent specified, use the navigation's hidden root item as parent
+                $parent = $navigation->getRootItem();
             }
 
             $this->getManager($item)->persist($item);
             $this->getManager($item)->flush();
 
             $this->closureManager->createItem($item, $parent);
-
-            if (null === $navigation->getRootItem() && null === $parent) {
-                $navigation->setRootItem($item);
-                $this->getManager($navigation)->flush();
-            }
 
             // Return rendered tree HTML
             $tree = $this->buildTreeStructureEntities($navigation);
@@ -314,10 +312,9 @@ final class BuildController extends AbstractController
         }
 
         try {
-            // If this is the root item, clear it from navigation
+            // Don't allow deletion of the hidden root item
             if ($navigation->getRootItem() === $item) {
-                $navigation->setRootItem(null);
-                $this->getManager($navigation)->flush();
+                return new JsonResponse(['error' => 'Cannot delete the root item'], Response::HTTP_BAD_REQUEST);
             }
 
             $this->closureManager->removeTree($item);
@@ -386,7 +383,15 @@ final class BuildController extends AbstractController
             return [];
         }
 
-        return [$this->buildItemTree($rootItem)];
+        // Get direct children of the hidden root (these are the UI "root" items)
+        $children = $this->getDirectChildren($rootItem);
+        $childrenArray = [];
+
+        foreach ($children as $child) {
+            $childrenArray[] = $this->buildItemTree($child);
+        }
+
+        return $childrenArray;
     }
 
     private function buildTreeStructureEntities(NavigationInterface $navigation): array
@@ -396,7 +401,15 @@ final class BuildController extends AbstractController
             return [];
         }
 
-        return [$this->buildItemTreeEntities($rootItem)];
+        // Get direct children of the hidden root (these are the UI "root" items)
+        $children = $this->getDirectChildren($rootItem);
+        $childrenArray = [];
+
+        foreach ($children as $child) {
+            $childrenArray[] = $this->buildItemTreeEntities($child);
+        }
+
+        return $childrenArray;
     }
 
     private function buildItemTreeEntities(ItemInterface $item): array

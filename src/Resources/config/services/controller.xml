@@ -8,6 +8,7 @@
             <argument type="service" id="setono_sylius_navigation.repository.navigation"/>
             <argument type="service" id="setono_sylius_navigation.factory.taxon_item"/>
             <argument type="service" id="Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface"/>
+            <argument type="service" id="setono_sylius_navigation.repository.closure"/>
             <argument type="service" id="doctrine"/>
 
             <call method="setContainer">

@@ -17,9 +17,13 @@
             
             <span class="item-label">{{ itemEntity.label ?? 'Untitled' }}</span>
             <span class="item-actions" style="margin-left: 8px;">
-                <button class="ui tiny icon button" onclick="NavigationBuilder.showAddItemModal({{ itemEntity.id }})" title="{{ 'setono_sylius_navigation.ui.add_child_item'|trans }}">
+                <div class="ui tiny icon button dropdown" onclick="NavigationBuilder.initDropdown(this, {{ itemEntity.id }})" title="{{ 'setono_sylius_navigation.ui.add_child_item'|trans }}">
                     <i class="plus icon"></i>
-                </button>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <!-- Item types will be loaded dynamically -->
+                    </div>
+                </div>
                 <button class="ui tiny icon button" onclick="NavigationBuilder.showEditItemModal({{ itemEntity.id }})" title="{{ 'sylius.ui.edit'|trans }}">
                     <i class="edit icon"></i>
                 </button>
