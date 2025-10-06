@@ -94,7 +94,13 @@ class NavigationBuilder {
                 'show_only_matches': true,
                 'show_only_matches_children': true,
                 'case_sensitive': false,
-                'search_callback': false // Use default search
+                'ajax': {
+                    'url': this.config.routes.searchItems,
+                    'data': function(searchString) {
+                        return { 'q': searchString };
+                    },
+                    'dataType': 'json'
+                }
             },
             'dnd': {
                 'is_draggable': function() {

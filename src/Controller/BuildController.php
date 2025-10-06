@@ -99,6 +99,59 @@ final class BuildController extends AbstractController
     }
 
     /**
+     * Search navigation items by label (jsTree AJAX search)
+     * Returns array of node IDs that match the search term
+     */
+    public function searchItemsAction(Request $request, int $id): JsonResponse
+    {
+        $navigation = $this->navigationRepository->find($id);
+        if (!$navigation instanceof NavigationInterface) {
+            return new JsonResponse([]);
+        }
+
+        // jsTree sends 'str' by default, but also support 'q' for compatibility
+        $searchTerm = $request->query->get('str', $request->query->get('q', ''));
+        if (empty($searchTerm) || strlen($searchTerm) < 2) {
+            return new JsonResponse([]);
+        }
+
+        $rootItem = $navigation->getRootItem();
+        if (!$rootItem) {
+            return new JsonResponse([]);
+        }
+
+        $matchingItems = $this->searchItemsRecursive($rootItem, $searchTerm);
+
+        // jsTree expects an array of node IDs (as strings)
+        // We need to include both the matched nodes AND all their parent nodes
+        // so jsTree can load and expand the tree to show the results
+        $nodeIds = [];
+        foreach ($matchingItems as $item) {
+            // Add the matched node
+            $nodeIds[] = (string) $item->getId();
+
+            // Add all parent nodes up to the root using closure table
+            // Find closures where this item is the descendant (these give us ancestors/parents)
+            $parentClosures = $this->closureRepository->findBy([
+                'descendant' => $item,
+            ]);
+
+            foreach ($parentClosures as $closure) {
+                $ancestor = $closure->getAncestor();
+                // Don't include the hidden root or the item itself
+                if ($ancestor && $ancestor !== $rootItem && $ancestor !== $item) {
+                    $parentId = (string) $ancestor->getId();
+                    if (!in_array($parentId, $nodeIds, true)) {
+                        $nodeIds[] = $parentId;
+                    }
+                }
+            }
+        }
+
+        return new JsonResponse($nodeIds);
+    }
+
+    /**
      * Get available item types from registry (AJAX endpoint)
      */
     public function getItemTypesAction(): JsonResponse
@@ -522,5 +575,29 @@ final class BuildController extends AbstractController
         }
 
         return $children;
+    }
+
+    /**
+     * Search items recursively by label
+     *
+     * @return ItemInterface[]
+     */
+    private function searchItemsRecursive(ItemInterface $item, string $searchTerm): array
+    {
+        $matches = [];
+        $children = $this->getDirectChildren($item);
+
+        foreach ($children as $child) {
+            $label = $this->getItemLabel($child);
+            if ($label && stripos($label, $searchTerm) !== false) {
+                $matches[] = $child;
+            }
+
+            // Search in children recursively
+            $childMatches = $this->searchItemsRecursive($child, $searchTerm);
+            $matches = array_merge($matches, $childMatches);
+        }
+
+        return $matches;
     }
 }

@@ -216,6 +216,7 @@
             navigationId: {{ navigation.id }},
             routes: {
                 getTree: '{{ path('setono_sylius_navigation_admin_navigation_build_get_tree', {'id': navigation.id}) }}',
+                searchItems: '{{ path('setono_sylius_navigation_admin_navigation_build_search_items', {'id': navigation.id}) }}',
                 getItemTypes: '{{ path('setono_sylius_navigation_admin_navigation_build_get_item_types') }}',
                 getForm: '{{ path('setono_sylius_navigation_admin_navigation_build_get_form', {'type': '__TYPE__'}) }}',
                 addItem: '{{ path('setono_sylius_navigation_admin_navigation_build_add_item', {'id': navigation.id}) }}',
