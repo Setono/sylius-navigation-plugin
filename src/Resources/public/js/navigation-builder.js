@@ -401,8 +401,8 @@ class NavigationBuilder {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    itemId: itemId,
-                    parentId: parentId,
+                    item_id: itemId,
+                    new_parent_id: parentId,
                     position: position
                 })
             });
