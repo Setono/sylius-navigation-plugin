@@ -64,15 +64,36 @@ final class BuildController extends AbstractController
 
     /**
      * Load current tree structure as JSON
+     * Supports lazy loading: if node id is provided, returns only children of that node
      */
-    public function getTreeAction(int $id): JsonResponse
+    public function getTreeAction(Request $request, int $id): JsonResponse
     {
         $navigation = $this->navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $tree = $this->buildTreeStructure($navigation);
+        // Get node ID from request (for lazy loading)
+        $nodeId = $request->query->get('id', '#');
+
+        if ($nodeId === '#') {
+            // Load root level (first level items)
+            $tree = $this->buildTreeStructure($navigation, false); // false = don't load children recursively
+        } else {
+            // Load children of specific node
+            $itemManager = $this->getManager($navigation);
+            $parentItem = $itemManager->getRepository(ItemInterface::class)->find((int) $nodeId);
+
+            if (!$parentItem instanceof ItemInterface) {
+                return new JsonResponse(['error' => 'Parent item not found'], Response::HTTP_NOT_FOUND);
+            }
+
+            $children = $this->getDirectChildren($parentItem);
+            $tree = [];
+            foreach ($children as $child) {
+                $tree[] = $this->buildItemTree($child, false); // false = don't load children recursively
+            }
+        }
 
         return new JsonResponse($tree);
     }
@@ -376,7 +397,7 @@ final class BuildController extends AbstractController
         }
     }
 
-    private function buildTreeStructure(NavigationInterface $navigation): array
+    private function buildTreeStructure(NavigationInterface $navigation, bool $recursive = true): array
     {
         $rootItem = $navigation->getRootItem();
         if (null === $rootItem) {
@@ -388,7 +409,7 @@ final class BuildController extends AbstractController
         $childrenArray = [];
 
         foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTree($child);
+            $childrenArray[] = $this->buildItemTree($child, $recursive);
         }
 
         return $childrenArray;
@@ -427,25 +448,29 @@ final class BuildController extends AbstractController
         ];
     }
 
-    private function buildItemTree(ItemInterface $item): array
+    private function buildItemTree(ItemInterface $item, bool $recursive = true): array
     {
         $children = $this->getDirectChildren($item);
+        $hasChildren = count($children) > 0;
         $childrenArray = [];
 
-        foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTree($child);
+        if ($recursive) {
+            // Load all children recursively
+            foreach ($children as $child) {
+                $childrenArray[] = $this->buildItemTree($child, true);
+            }
         }
 
         // Determine the actual item type for form selection
         $itemType = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
 
         // jsTree-compatible format
-        return [
+        $node = [
             'id' => (string) $item->getId(), // jsTree expects string IDs
             'text' => $this->getItemLabel($item), // jsTree uses 'text' instead of 'label'
             'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'default', // jsTree types for icons
             'state' => [
-                'opened' => true, // Auto-expand all nodes
+                'opened' => false, // Don't auto-expand for lazy loading
                 'disabled' => !$item->isEnabled(), // Disabled state for jsTree
             ],
             'a_attr' => [
@@ -457,8 +482,17 @@ final class BuildController extends AbstractController
                 'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
                 'item_type' => $itemType, // Store actual item type
             ],
-            'children' => $childrenArray,
         ];
+
+        if ($recursive) {
+            // Include loaded children
+            $node['children'] = $childrenArray;
+        } else {
+            // Mark that this node has children for lazy loading
+            $node['children'] = $hasChildren;
+        }
+
+        return $node;
     }
 
     private function getItemLabel(ItemInterface $item): ?string

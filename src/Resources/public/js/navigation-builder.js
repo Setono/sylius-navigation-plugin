@@ -64,7 +64,11 @@ class NavigationBuilder {
                     'icons': true
                 }
             },
-            'plugins': ['dnd', 'contextmenu', 'types'],
+            'plugins': ['dnd', 'contextmenu', 'types', 'state'],
+            'state': {
+                'key': 'navigation-tree-' + this.config.navigationId, // Unique key per navigation
+                'preserve_loaded': false // Don't preserve loaded nodes, let lazy loading handle it
+            },
             'dnd': {
                 'is_draggable': function() {
                     return true;
