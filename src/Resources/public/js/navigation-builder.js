@@ -134,44 +134,42 @@ class NavigationBuilder {
     }
 
     renderTreeItems(items, level = 0) {
-        return items.map(item => this.renderTreeItem(item, level)).join('');
+        return items.map((item, index) => this.renderTreeItem(item, level, index, items.length)).join('');
     }
 
-    renderTreeItem(item, level = 0) {
+    renderTreeItem(item, level = 0, index = 0, totalSiblings = 1) {
         const children = item.children && item.children.length > 0 
-            ? `<div class="list" style="margin-left: 20px;">${this.renderTreeItems(item.children, level + 1)}</div>`
+            ? this.renderTreeItems(item.children, level + 1)
             : '';
             
         const enabledIcon = item.enabled 
-            ? '<i class="green check circle icon"></i>' 
-            : '<i class="red times circle icon"></i>';
+            ? '<i class="green check circle icon tree-item-enabled-icon"></i>' 
+            : '<i class="red times circle icon tree-item-enabled-icon"></i>';
             
         const typeIcon = item.type === 'taxon' 
-            ? '<i class="tag icon"></i>' 
-            : '<i class="file text icon"></i>';
+            ? '<i class="tag icon tree-item-type-icon"></i>' 
+            : '<i class="file text icon tree-item-type-icon"></i>';
 
         return `
-            <div class="item" data-item-id="${item.id}" data-level="${level}">
-                <div class="content">
-                    <div class="header">
-                        ${typeIcon}
-                        ${enabledIcon}
-                        <span class="item-label">${this.escapeHtml(item.label)}</span>
-                        <span class="item-actions" style="margin-left: 8px;">
-                            <div class="ui tiny icon button dropdown" onclick="NavigationBuilder.initDropdown(this, ${item.id})" title="Add child item">
-                                <i class="plus icon"></i>
-                                <i class="dropdown icon"></i>
-                                <div class="menu">
-                                    <!-- Item types will be loaded dynamically -->
-                                </div>
+            <div class="tree-item" data-item-id="${item.id}" data-level="${level}">
+                <div class="tree-item-content">
+                    ${typeIcon}
+                    ${enabledIcon}
+                    <span class="tree-item-label">${this.escapeHtml(item.label)}</span>
+                    <div class="tree-item-actions">
+                        <div class="ui tiny icon button dropdown" onclick="NavigationBuilder.initDropdown(this, ${item.id})" title="Add child item">
+                            <i class="plus icon"></i>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <!-- Item types will be loaded dynamically -->
                             </div>
-                            <button class="ui tiny icon button" onclick="NavigationBuilder.showEditItemModal(${item.id})" title="Edit item">
-                                <i class="edit icon"></i>
-                            </button>
-                            <button class="ui tiny red icon button" onclick="NavigationBuilder.showDeleteItemModal(${item.id})" title="Delete item">
-                                <i class="trash icon"></i>
-                            </button>
-                        </span>
+                        </div>
+                        <button class="ui tiny icon button" onclick="NavigationBuilder.showEditItemModal(${item.id})" title="Edit item">
+                            <i class="edit icon"></i>
+                        </button>
+                        <button class="ui tiny red icon button" onclick="NavigationBuilder.showDeleteItemModal(${item.id})" title="Delete item">
+                            <i class="trash icon"></i>
+                        </button>
                     </div>
                 </div>
                 ${children}
@@ -254,14 +252,15 @@ class NavigationBuilder {
 
     showEditItemModal(itemId) {
         this.currentEditItemId = itemId;
-        
-        // Find item data
-        const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
-        if (!itemElement) return;
-        
-        const label = itemElement.querySelector('.item-label').textContent;
-        const isEnabled = itemElement.querySelector('.green.check.circle.icon') !== null;
-        const isTaxonItem = itemElement.querySelector('.tag.icon') !== null;
+
+        // Find item data - the data-item-id is on the tree-item div
+        const treeItem = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (!treeItem) return;
+
+        // Get the label from within the tree-item-content
+        const label = treeItem.querySelector('.tree-item-label').textContent;
+        const isEnabled = treeItem.querySelector('.green.check.circle.icon') !== null;
+        const isTaxonItem = treeItem.querySelector('.tag.icon') !== null;
         
         // Determine item type
         const itemType = isTaxonItem ? 'taxon' : 'text';
@@ -326,9 +325,9 @@ class NavigationBuilder {
 
             const result = await response.json();
             
-            if (result.success && result.html) {
-                // Update the tree with rendered HTML
-                this.updateTreeHTML(result.html);
+            if (result.success) {
+                // Reload the tree to ensure consistent rendering
+                await this.loadTree();
                 $('#add-item-modal').modal('hide');
                 this.showSuccess('Item added successfully');
             } else {
@@ -360,9 +359,9 @@ class NavigationBuilder {
 
             const result = await response.json();
             
-            if (result.success && result.html) {
-                // Update the tree with rendered HTML
-                this.updateTreeHTML(result.html);
+            if (result.success) {
+                // Reload the tree to ensure consistent rendering
+                await this.loadTree();
                 $('#edit-item-modal').modal('hide');
                 this.showSuccess('Item updated successfully');
             } else {
@@ -391,9 +390,9 @@ class NavigationBuilder {
 
             const result = await response.json();
             
-            if (result.success && result.html) {
-                // Update the tree with rendered HTML
-                this.updateTreeHTML(result.html);
+            if (result.success) {
+                // Reload the tree to ensure consistent rendering  
+                await this.loadTree();
                 $('#delete-item-modal').modal('hide');
                 this.showSuccess('Item deleted successfully');
             } else {

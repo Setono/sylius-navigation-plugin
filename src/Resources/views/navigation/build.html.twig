@@ -196,6 +196,11 @@
 </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/setonosyliusnavigationplugin/css/navigation-builder.css') }}">
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     <script>
@@ -220,5 +225,5 @@
             }
         };
     </script>
-    <script type="module" src="{{ asset('bundles/setonosyliusnavigationplugin/js/navigation-builder.js') }}"></script>
+    <script type="module" src="{{ asset('bundles/setonosyliusnavigationplugin/js/navigation-builder.js') }}?v={{ 'now'|date('U') }}"></script>
 {% endblock %}
