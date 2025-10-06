@@ -22,12 +22,12 @@
                 <i class="sitemap icon"></i>
                 {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
                 <div class="ui right floated">
-                    <div id="main-add-dropdown" class="ui primary button dropdown" onclick="NavigationBuilder.initDropdown(this, null)">
+                    <div id="main-add-dropdown" class="ui primary button dropdown">
                         <i class="plus icon"></i>
                         {{ 'setono_sylius_navigation.ui.add_item'|trans }}
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <!-- Item types will be loaded dynamically -->
+                            <!-- Item types will be loaded dynamically by JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -48,12 +48,12 @@
                         {{ 'setono_sylius_navigation.ui.empty_navigation'|trans }}
                     </div>
                     <div class="inline">
-                        <div class="ui primary button dropdown" onclick="NavigationBuilder.initDropdown(this, null)">
+                        <div id="empty-add-dropdown" class="ui primary button dropdown">
                             <i class="plus icon"></i>
                             {{ 'setono_sylius_navigation.ui.add_first_item'|trans }}
                             <i class="dropdown icon"></i>
                             <div class="menu">
-                                <!-- Item types will be loaded dynamically -->
+                                <!-- Item types will be loaded dynamically by JavaScript -->
                             </div>
                         </div>
                     </div>
@@ -198,11 +198,13 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.16/themes/default/style.min.css" />
     <link rel="stylesheet" href="{{ asset('bundles/setonosyliusnavigationplugin/css/navigation-builder.css') }}">
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.16/jstree.min.js"></script>
     <script>
         window.NavigationBuilderConfig = {
             navigationId: {{ navigation.id }},

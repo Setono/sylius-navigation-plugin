@@ -436,12 +436,27 @@ final class BuildController extends AbstractController
             $childrenArray[] = $this->buildItemTree($child);
         }
 
+        // Determine the actual item type for form selection
+        $itemType = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
+
+        // jsTree-compatible format
         return [
-            'id' => $item->getId(),
-            'label' => $this->getItemLabel($item),
-            'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
-            'enabled' => $item->isEnabled(),
-            'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
+            'id' => (string) $item->getId(), // jsTree expects string IDs
+            'text' => $this->getItemLabel($item), // jsTree uses 'text' instead of 'label'
+            'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'default', // jsTree types for icons
+            'state' => [
+                'opened' => true, // Auto-expand all nodes
+                'disabled' => !$item->isEnabled(), // Disabled state for jsTree
+            ],
+            'a_attr' => [
+                'data-enabled' => $item->isEnabled() ? 'true' : 'false', // Custom attribute for enabled status
+                'data-item-type' => $itemType, // Store actual item type for edit forms
+            ],
+            'data' => [ // Custom data for our application
+                'enabled' => $item->isEnabled(),
+                'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
+                'item_type' => $itemType, // Store actual item type
+            ],
             'children' => $childrenArray,
         ];
     }
