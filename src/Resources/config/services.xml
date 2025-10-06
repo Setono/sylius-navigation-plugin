@@ -10,6 +10,7 @@
         <import resource="services/graph.xml"/>
         <import resource="services/manager.xml"/>
         <import resource="services/menu.xml"/>
+        <import resource="services/registry.xml"/>
         <import resource="services/renderer.xml"/>
         <import resource="services/twig.xml"/>
     </imports>

@@ -32,20 +32,20 @@ final class ItemDiscriminatorMapListener
      */
     private function getDiscriminatorMap(): array
     {
-        $children = [];
+        $discriminatorMap = [];
 
         foreach ($this->resources as $resource) {
             ['model' => $model] = $resource['classes'];
 
-            // todo this is a naïve approach. We need to find child entities of either Item or ItemInterface
+            // Include both the base Item class and child classes that implement ItemInterface
             if (Item::class === $model || !is_a($model, ItemInterface::class, true)) {
                 continue;
             }
 
-            $children[self::getDiscriminatorKey($model)] = $model;
+            $discriminatorMap[self::getDiscriminatorKey($model)] = $model;
         }
 
-        return $children;
+        return $discriminatorMap;
     }
 
     /**

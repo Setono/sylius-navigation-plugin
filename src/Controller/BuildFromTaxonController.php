@@ -12,6 +12,7 @@ use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
+use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,6 +28,7 @@ final class BuildFromTaxonController extends AbstractController
         private readonly NavigationRepositoryInterface $navigationRepository,
         private readonly TaxonItemFactoryInterface $taxonItemFactory,
         private readonly ClosureManagerInterface $closureManager,
+        private readonly ClosureRepositoryInterface $closureRepository,
         ManagerRegistry $managerRegistry,
     ) {
         $this->managerRegistry = $managerRegistry;
@@ -69,10 +71,13 @@ final class BuildFromTaxonController extends AbstractController
 
     private function build(NavigationInterface $navigation, TaxonInterface $root): void
     {
-        $rootItem = $navigation->getRootItem();
-        if (null !== $rootItem) {
-            $navigation->setRootItem(null);
-            $this->closureManager->removeTree($rootItem);
+        $hiddenRoot = $navigation->getRootItem();
+        if (null !== $hiddenRoot) {
+            // Remove all children of the hidden root, but keep the hidden root itself
+            $children = $this->getDirectChildren($hiddenRoot);
+            foreach ($children as $child) {
+                $this->closureManager->removeTree($child);
+            }
         }
 
         /** @var \SplObjectStorage<TaxonInterface, ItemInterface> $taxonToItemStorage */
@@ -91,15 +96,14 @@ final class BuildFromTaxonController extends AbstractController
 
             $taxonToItemStorage->attach($taxon, $item);
 
-            $this->closureManager->createItem($item, null !== $parent && $taxonToItemStorage->contains($parent) ? $taxonToItemStorage[$parent] : null);
+            $this->closureManager->createItem($item, null !== $parent && $taxonToItemStorage->contains($parent) ? $taxonToItemStorage[$parent] : $hiddenRoot);
 
             foreach ($taxon->getChildren() as $child) {
                 $taxons[] = $child;
             }
         }
 
-        $navigation->setRootItem($taxonToItemStorage[$root]);
-
+        // No need to set the root item - the hidden root already exists
         $this->getManager($navigation)->flush();
     }
 
@@ -112,5 +116,29 @@ final class BuildFromTaxonController extends AbstractController
         $item->setTaxon($taxon);
 
         return $item;
+    }
+
+    /**
+     * Get direct children (depth = 1) of the given item
+     *
+     * @return ItemInterface[]
+     */
+    private function getDirectChildren(ItemInterface $item): array
+    {
+        // Find all closures where this item is the ancestor with depth = 1 (direct children)
+        $childClosures = $this->closureRepository->findBy([
+            'ancestor' => $item,
+            'depth' => 1,
+        ]);
+
+        $children = [];
+        foreach ($childClosures as $closure) {
+            $descendant = $closure->getDescendant();
+            if ($descendant !== null) {
+                $children[] = $descendant;
+            }
+        }
+
+        return $children;
     }
 }

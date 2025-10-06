@@ -44,6 +44,22 @@ The plugin includes a test Symfony application in `tests/Application/` for devel
 - Run `yarn install && yarn build` to build assets
 - Use standard Symfony commands for the test app
 
+## Bash Tools Recommendations
+
+Use the right tool for the right job when executing bash commands:
+
+- **Finding FILES?** → Use `fd` (fast file finder)
+- **Finding TEXT/strings?** → Use `rg` (ripgrep for text search)
+- **Finding CODE STRUCTURE?** → Use `ast-grep` (syntax-aware code search)
+- **SELECTING from multiple results?** → Pipe to `fzf` (interactive fuzzy finder)
+- **Interacting with JSON?** → Use `jq` (JSON processor)
+- **Interacting with YAML or XML?** → Use `yq` (YAML/XML processor)
+
+Examples:
+- `fd "*.php" | fzf` - Find PHP files and interactively select one
+- `rg "function.*validate" | fzf` - Search for validation functions and select
+- `ast-grep --lang php -p 'class $name extends $parent'` - Find class inheritance patterns
+
 ## Architecture Overview
 
 ### Core Models
@@ -160,8 +176,61 @@ Navigation rendering templates in `src/Resources/views/navigation/`:
 - Uses custom Twig function `ssn_item()` for item rendering
 - Supports item attributes through `ItemAttributes` helper class
 
+## Navigation Builder Forms Implementation
+
+### AJAX Form Types for Tree Builder Interface
+The navigation builder interface uses specialized form types for AJAX-based CRUD operations:
+
+#### Form Types (`src/Form/Type/`)
+- **`BuilderTextItemType`** - Form for creating/editing simple navigation items via AJAX
+- **`BuilderTaxonItemType`** - Form for creating/editing taxon-linked navigation items via AJAX
+
+#### Key Implementation Details
+- **Extends AbstractType**: Unlike other forms, these extend `AbstractType` instead of `AbstractResourceType` for simplified AJAX handling
+- **CSRF Protection Disabled**: Both forms have `'csrf_protection' => false` in `configureOptions()` for AJAX compatibility
+- **Unmapped Fields**: Contains several unmapped fields for JavaScript integration:
+  - `label` - Item name (unmapped, handled manually in controller)
+  - `parent_id` - Parent item ID for tree structure
+  - `item_id` - Current item ID for updates
+  - `taxon_id` - Taxon reference for TaxonItem (TaxonItemType only)
+  - `type` - Item type identifier for form selection
+
+#### Controller Integration (`src/Controller/BuildController.php`)
+- **Form Handling**: Uses `$form->handleRequest($request)` for proper Symfony form processing
+- **Server-side HTML Rendering**: Returns rendered HTML via Twig instead of JSON for tree updates
+- **Manual Field Processing**: Handles unmapped fields manually after form validation:
+  ```php
+  // Handle label (unmapped field)
+  if ($request->request->get('label')) {
+      $item->setLabel($request->request->get('label'));
+  }
+  
+  // Handle taxon_id for TaxonItem (since it's unmapped)
+  if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
+      $taxon = $this->taxonRepository->find($request->request->get('taxon_id'));
+      if ($taxon instanceof TaxonInterface) {
+          $item->setTaxon($taxon);
+      }
+  }
+  ```
+
+#### Frontend Integration
+- **FormData Submission**: JavaScript uses `FormData` instead of JSON for form submissions
+- **Modal Interface**: Add/edit operations use modal dialogs with real-time validation
+- **Tree Updates**: Server returns rendered HTML that replaces the entire tree structure
+
+#### Service Configuration (`src/Resources/config/services/form.xml`)
+Both form types are registered as Symfony services with the `form.type` tag for automatic discovery.
+
+### Testing the Builder Interface
+- **Test URL**: `https://127.0.0.1:8000/admin/navigation/navigations/2/build`
+- **Functionality**: All CRUD operations (Create, Read, Update, Delete) work via AJAX
+- **Validation**: Proper Symfony form validation with error handling
+- **User Experience**: Modals, confirmation dialogs, and success feedback messages
+
 ## Testing Notes
 - Tests are in `tests/` directory
 - Test application in `tests/Application/` provides full Sylius environment
 - Use `composer phpunit` to run tests
 - Psalm configuration excludes test application from analysis
+- **Manual Testing**: Navigation builder can be tested at `/admin/navigation/navigations/{id}/build`

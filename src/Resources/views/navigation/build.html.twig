@@ -1,0 +1,229 @@
+{% extends '@SyliusAdmin/layout.html.twig' %}
+
+{% block title %}{{ 'setono_sylius_navigation.ui.build_navigation'|trans }} {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="ui stackable grid">
+    <div class="sixteen wide column">
+        <div class="ui breadcrumb">
+            <a href="{{ path('setono_sylius_navigation_admin_navigation_index') }}" class="section">{{ 'setono_sylius_navigation.ui.navigations'|trans }}</a>
+            <i class="right angle icon divider"></i>
+            <div class="section">{{ navigation.code }}</div>
+            <i class="right angle icon divider"></i>
+            <div class="active section">{{ 'setono_sylius_navigation.ui.build_manually'|trans }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="ui stackable grid">
+    <div class="ten wide column">
+        <div class="ui segment">
+            <h3 class="ui dividing header">
+                <i class="sitemap icon"></i>
+                {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
+                <div class="ui right floated">
+                    <div id="main-add-dropdown" class="ui primary button dropdown" onclick="NavigationBuilder.initDropdown(this, null)">
+                        <i class="plus icon"></i>
+                        {{ 'setono_sylius_navigation.ui.add_item'|trans }}
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <!-- Item types will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </h3>
+
+            <div id="navigation-tree-container">
+                <div id="navigation-tree" class="ui relaxed divided list">
+                    <!-- Tree will be loaded here via JavaScript -->
+                </div>
+
+                <div id="tree-loading" class="ui active centered inline loader" style="display: none;">
+                    {{ 'sylius.ui.loading'|trans }}
+                </div>
+
+                <div id="empty-tree" class="ui placeholder segment" style="display: none;">
+                    <div class="ui icon header">
+                        <i class="sitemap icon"></i>
+                        {{ 'setono_sylius_navigation.ui.empty_navigation'|trans }}
+                    </div>
+                    <div class="inline">
+                        <div class="ui primary button dropdown" onclick="NavigationBuilder.initDropdown(this, null)">
+                            <i class="plus icon"></i>
+                            {{ 'setono_sylius_navigation.ui.add_first_item'|trans }}
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <!-- Item types will be loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="six wide column">
+        <div class="ui segment">
+            <h3 class="ui dividing header">
+                <i class="info circle icon"></i>
+                {{ 'sylius.ui.information'|trans }}
+            </h3>
+
+            <div class="ui relaxed list">
+                <div class="item">
+                    <i class="plus circle icon"></i>
+                    <div class="content">
+                        <div class="header">{{ 'setono_sylius_navigation.ui.add_items'|trans }}</div>
+                        <div class="description">{{ 'setono_sylius_navigation.ui.help.add_items'|trans }}</div>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="move icon"></i>
+                    <div class="content">
+                        <div class="header">{{ 'setono_sylius_navigation.ui.reorder_items'|trans }}</div>
+                        <div class="description">{{ 'setono_sylius_navigation.ui.help.reorder_items'|trans }}</div>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="edit icon"></i>
+                    <div class="content">
+                        <div class="header">{{ 'setono_sylius_navigation.ui.edit_items'|trans }}</div>
+                        <div class="description">{{ 'setono_sylius_navigation.ui.help.edit_items'|trans }}</div>
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="trash icon"></i>
+                    <div class="content">
+                        <div class="header">{{ 'setono_sylius_navigation.ui.delete_items'|trans }}</div>
+                        <div class="description">{{ 'setono_sylius_navigation.ui.help.delete_items'|trans }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <h4 class="ui header">{{ 'setono_sylius_navigation.ui.navigation_info'|trans }}</h4>
+            <div class="ui relaxed list">
+                <div class="item">
+                    <strong>{{ 'sylius.ui.code'|trans }}:</strong> {{ navigation.code }}
+                </div>
+                <div class="item">
+                    <strong>{{ 'sylius.ui.description'|trans }}:</strong> {{ navigation.description ?? 'N/A' }}
+                </div>
+                <div class="item">
+                    <strong>{{ 'sylius.ui.enabled'|trans }}:</strong>
+                    {% if navigation.enabled %}
+                        <i class="green check circle icon"></i> {{ 'sylius.ui.yes_label'|trans }}
+                    {% else %}
+                        <i class="red times circle icon"></i> {{ 'sylius.ui.no_label'|trans }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Item Modal (simplified - only shows form after type selection) -->
+<div id="add-item-modal" class="ui modal">
+    <div class="header">
+        <i class="plus icon"></i>
+        <span id="add-item-modal-title">{{ 'setono_sylius_navigation.ui.add_new_item'|trans }}</span>
+    </div>
+    <div class="content">
+        <form id="add-item-form" class="ui form">
+            <div id="add-item-form-fields">
+                <!-- Form fields will be loaded dynamically via AJAX -->
+            </div>
+            <input type="hidden" name="parent_id" id="parent-id-field">
+            <input type="hidden" name="type" id="item-type-field">
+        </form>
+    </div>
+    <div class="actions">
+        <div class="ui cancel button">
+            {{ 'sylius.ui.cancel'|trans }}
+        </div>
+        <div class="ui primary button" onclick="NavigationBuilder.addItem()">
+            {{ 'sylius.ui.create'|trans }}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div id="edit-item-modal" class="ui modal">
+    <div class="header">
+        <i class="edit icon"></i>
+        {{ 'setono_sylius_navigation.ui.edit_item'|trans }}
+    </div>
+    <div class="content">
+        <form id="edit-item-form" class="ui form">
+            <div id="edit-item-form-fields">
+                <!-- Form fields will be loaded dynamically via AJAX -->
+            </div>
+
+            <input type="hidden" name="item_id" id="edit-item-id">
+        </form>
+    </div>
+    <div class="actions">
+        <div class="ui cancel button">
+            {{ 'sylius.ui.cancel'|trans }}
+        </div>
+        <div class="ui primary button" onclick="NavigationBuilder.updateItem()">
+            {{ 'sylius.ui.save'|trans }}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-item-modal" class="ui basic modal">
+    <div class="ui icon header">
+        <i class="trash icon"></i>
+        {{ 'setono_sylius_navigation.ui.delete_item'|trans }}
+    </div>
+    <div class="content">
+        <p>{{ 'setono_sylius_navigation.ui.delete_item_confirmation'|trans }}</p>
+        <input type="hidden" id="delete-item-id">
+    </div>
+    <div class="actions">
+        <div class="ui red basic cancel inverted button">
+            <i class="remove icon"></i>
+            {{ 'sylius.ui.no'|trans }}
+        </div>
+        <div class="ui green ok inverted button" onclick="NavigationBuilder.deleteItem()">
+            <i class="checkmark icon"></i>
+            {{ 'sylius.ui.yes'|trans }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('bundles/setonosyliusnavigationplugin/css/navigation-builder.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        window.NavigationBuilderConfig = {
+            navigationId: {{ navigation.id }},
+            routes: {
+                getTree: '{{ path('setono_sylius_navigation_admin_navigation_build_get_tree', {'id': navigation.id}) }}',
+                getItemTypes: '{{ path('setono_sylius_navigation_admin_navigation_build_get_item_types') }}',
+                getForm: '{{ path('setono_sylius_navigation_admin_navigation_build_get_form', {'type': '__TYPE__'}) }}',
+                addItem: '{{ path('setono_sylius_navigation_admin_navigation_build_add_item', {'id': navigation.id}) }}',
+                updateItem: '{{ path('setono_sylius_navigation_admin_navigation_build_update_item', {'id': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
+                deleteItem: '{{ path('setono_sylius_navigation_admin_navigation_build_delete_item', {'id': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
+                reorderItem: '{{ path('setono_sylius_navigation_admin_navigation_build_reorder_item', {'id': navigation.id}) }}',
+                getTaxons: '{{ path('sylius_admin_ajax_taxon_by_name_phrase') }}' {# Using existing Sylius route for taxon search #}
+            },
+            translations: {
+                loading: '{{ 'sylius.ui.loading'|trans }}',
+                error: '{{ 'sylius.ui.error'|trans }}',
+                success: '{{ 'sylius.ui.success'|trans }}',
+                simpleItem: '{{ 'setono_sylius_navigation.ui.simple_item'|trans }}',
+                taxonItem: '{{ 'setono_sylius_navigation.ui.taxon_item'|trans }}'
+            }
+        };
+    </script>
+    <script type="module" src="{{ asset('bundles/setonosyliusnavigationplugin/js/navigation-builder.js') }}?v={{ 'now'|date('U') }}"></script>
+{% endblock %}

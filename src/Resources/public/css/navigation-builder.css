@@ -1,0 +1,158 @@
+/**
+ * Navigation Builder Tree Styles
+ * Provides visual tree structure with lines and indentation for nested HTML structure
+ */
+
+#navigation-tree {
+    position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.tree-item {
+    position: relative;
+    margin: 4px 0;
+}
+
+.tree-item-content {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    margin-bottom: 4px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.tree-item-content:hover {
+    background: #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Simple indentation for nested items */
+.tree-item[data-level="1"],
+.tree-item[data-level="2"],
+.tree-item[data-level="3"],
+.tree-item[data-level="4"],
+.tree-item[data-level="5"] {
+    margin-left: 30px;
+}
+
+/* Remove the connector boxes */
+.tree-connector {
+    display: none;
+}
+
+/* Item content styling */
+.tree-item-label {
+    flex: 1;
+    margin-left: 8px;
+    font-weight: 500;
+    color: #212529;
+}
+
+.tree-item-type-icon {
+    margin-right: 6px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.tree-item-enabled-icon {
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.tree-item-actions {
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    display: flex;
+    gap: 4px;
+}
+
+.tree-item-content:hover .tree-item-actions {
+    opacity: 1;
+}
+
+.tree-item-actions .ui.button {
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+/* Root level styling */
+.tree-item[data-level="0"] .tree-item-content {
+    background: #fff;
+    font-weight: 600;
+}
+
+.tree-item[data-level="0"] .tree-item-content:hover {
+    background: #f8f9fa;
+}
+
+/* Sortable states */
+.sortable-ghost {
+    opacity: 0.5;
+    background: #e3f2fd !important;
+    border: 2px dashed #2196f3 !important;
+}
+
+.sortable-chosen {
+    background: #f3e5f5 !important;
+    border-color: #9c27b0 !important;
+}
+
+.sortable-drag {
+    background: #fff3e0 !important;
+    border-color: #ff9800 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Empty state styling */
+#empty-tree {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+#empty-tree .ui.icon.header i {
+    color: #dee2e6;
+}
+
+/* Loading state */
+#tree-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+/* Modal improvements */
+.ui.modal .content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Form field spacing */
+.ui.form .field {
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tree-item[data-level="1"],
+    .tree-item[data-level="2"],
+    .tree-item[data-level="3"],
+    .tree-item[data-level="4"],
+    .tree-item[data-level="5"] {
+        margin-left: 20px;
+    }
+    
+    .tree-item-actions .ui.button {
+        padding: 4px 6px;
+    }
+    
+    .tree-connector {
+        width: 16px;
+        height: 16px;
+        font-size: 12px;
+    }
+}

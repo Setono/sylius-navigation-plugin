@@ -5,6 +5,9 @@
         <parameter key="setono_sylius_navigation.form_type.navigation.validation_groups" type="collection">
             <parameter>setono_sylius_navigation</parameter>
         </parameter>
+        <parameter key="setono_sylius_navigation.form_type.item.validation_groups" type="collection">
+            <parameter>setono_sylius_navigation</parameter>
+        </parameter>
     </parameters>
     <services>
         <service id="Setono\SyliusNavigationPlugin\Form\Type\NavigationType">
@@ -12,5 +15,40 @@
             <argument>%setono_sylius_navigation.form_type.navigation.validation_groups%</argument>
             <tag name="form.type"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\ItemType">
+            <argument>%setono_sylius_navigation.model.item.class%</argument>
+            <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\ItemTranslationType">
+            <argument>%setono_sylius_navigation.model.item_translation.class%</argument>
+            <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\TextItemType">
+            <argument>%setono_sylius_navigation.model.text_item.class%</argument>
+            <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\TaxonItemType">
+            <argument>%setono_sylius_navigation.model.taxon_item.class%</argument>
+            <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\AbstractBuilderItemType" abstract="true"/>
+        
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType">
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\BuilderTaxonItemType">
+            <tag name="form.type"/>
+        </service>
+
     </services>
 </container>

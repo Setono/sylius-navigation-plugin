@@ -15,7 +15,7 @@ use function Symfony\Component\String\u;
 /**
  * @method ItemTranslationInterface getTranslation(?string $locale = null)
  */
-class Item implements ItemInterface
+abstract class Item implements ItemInterface
 {
     use TimestampableTrait;
     use ToggleableTrait;

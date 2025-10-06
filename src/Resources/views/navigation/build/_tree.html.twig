@@ -1,0 +1,5 @@
+{% if items is not empty %}
+    {% for item in items %}
+        {% include '@SetonoSyliusNavigationPlugin/navigation/build/_tree_item.html.twig' with {'item': item, 'children': item.children|default([]), 'level': 0} %}
+    {% endfor %}
+{% endif %}
