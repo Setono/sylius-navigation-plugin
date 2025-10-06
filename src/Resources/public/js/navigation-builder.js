@@ -146,16 +146,6 @@ class NavigationBuilder {
             }
         };
 
-        // Disable item
-        items.separator = '-';
-        items.toggle = {
-            'label': node.original.enabled ? 'Disable' : 'Enable',
-            'icon': node.original.enabled ? 'times circle icon' : 'check circle icon',
-            'action': function() {
-                self.toggleItemStatus(node.id, !node.original.enabled);
-            }
-        };
-
         return items;
     }
 
