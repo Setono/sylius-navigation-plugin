@@ -45,7 +45,7 @@
         "jms/serializer-bundle": "^4.2",
         "lexik/jwt-authentication-bundle": "^2.17",
         "phpspec/prophecy-phpunit": "^2.3",
-        "setono/sylius-plugin-pack": "~1.12.0",
+        "setono/sylius-plugin-pack": "~1.12.1",
         "symfony/debug-bundle": "^5.4 || ^6.4 || ^7.0",
         "symfony/dotenv": "^5.4 || ^6.4 || ^7.0",
         "symfony/intl": "^5.4 || ^6.4 || ^7.0",
@@ -74,12 +74,13 @@
             "dealerdirect/phpcodesniffer-composer-installer": false,
             "ergebnis/composer-normalize": true,
             "infection/extension-installer": true,
+            "phpstan/extension-installer": true,
             "symfony/thanks": false
         },
         "sort-packages": true
     },
     "scripts": {
-        "analyse": "psalm",
+        "analyse": "phpstan analyse",
         "check-style": "ecs check",
         "fix-style": "ecs check --fix",
         "phpunit": "phpunit"

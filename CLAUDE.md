@@ -29,7 +29,7 @@ Follow clean code principles and SOLID design patterns when working with this co
 Based on the `composer.json` scripts section:
 
 ### Code Quality & Testing
-- `composer analyse` - Run Psalm static analysis
+- `composer analyse` - Run PHPStan static analysis (level 8)
 - `composer check-style` - Check code style with ECS (Easy Coding Standard)
 - `composer fix-style` - Fix code style issues automatically with ECS
 - `composer phpunit` - Run PHPUnit tests
@@ -37,6 +37,21 @@ Based on the `composer.json` scripts section:
 ### Additional Quality Tools
 - `vendor/bin/infection` - Run mutation testing (configured in infection.json.dist)
 - `vendor/bin/rector process` - Run automated refactoring
+
+### Static Analysis
+
+#### PHPStan Configuration
+PHPStan is configured in `phpstan.neon` with:
+- **Analysis Level**: 8 (strictest)
+- **Extensions**: Auto-loaded via `phpstan/extension-installer`
+  - `phpstan/phpstan-symfony` - Symfony framework integration
+  - `phpstan/phpstan-doctrine` - Doctrine ORM integration
+  - `phpstan/phpstan-phpunit` - PHPUnit test integration
+  - `jangregor/phpstan-prophecy` - Prophecy mocking integration
+- **Symfony Integration**: Uses console application loader (`tests/console_application.php`)
+- **Doctrine Integration**: Uses object manager loader (`tests/object_manager.php`)
+- **Exclusions**: Test application directory and Configuration.php
+- **Baseline**: Generate with `composer analyse -- --generate-baseline` to track improvements
 
 ### Test Application
 The plugin includes a test Symfony application in `tests/Application/` for development and testing:

@@ -1,0 +1,27 @@
+parameters:
+    level: 8
+
+    paths:
+        - src
+
+    excludePaths:
+        - tests/Application/*
+        - src/DependencyInjection/Configuration.php
+
+    bootstrapFiles:
+        - vendor/autoload.php
+
+    # Symfony Configuration
+    symfony:
+        consoleApplicationLoader: tests/console_application.php
+
+    # Doctrine Configuration
+    doctrine:
+        repositoryClass: Doctrine\ORM\EntityRepository
+        objectManagerLoader: tests/object_manager.php
+
+    # Report unmatched ignored errors
+    reportUnmatchedIgnoredErrors: false
+
+    # Bleeding edge features
+    treatPhpDocTypesAsCertain: false
