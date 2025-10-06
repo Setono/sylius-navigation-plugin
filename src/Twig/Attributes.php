@@ -127,9 +127,6 @@ final class Attributes implements \Stringable, \IteratorAggregate, \Countable
         return new \ArrayIterator($this->attributes);
     }
 
-    /**
-     * @phpstan-assert-if-true scalar|\Stringable $this->attributes[$attribute]
-     */
     public function has(string $attribute): bool
     {
         return \array_key_exists($attribute, $this->attributes);
