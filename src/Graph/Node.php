@@ -26,6 +26,9 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
         return (string) $this->item->getLabel();
     }
 
+    /**
+     * @return list<Node>
+     */
     public function getParents(): array
     {
         return $this->parents;
@@ -39,6 +42,9 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
         return [] !== $this->parents;
     }
 
+    /**
+     * @return list<Node>
+     */
     public function getChildren(): array
     {
         return $this->children;
@@ -69,6 +75,9 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
         return count($this->children);
     }
 
+    /**
+     * @return \ArrayIterator<int, Node>
+     */
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->children);

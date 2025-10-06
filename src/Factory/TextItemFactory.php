@@ -10,6 +10,9 @@ use Webmozart\Assert\Assert;
 
 final class TextItemFactory implements TextItemFactoryInterface
 {
+    /**
+     * @param FactoryInterface<TextItemInterface> $decoratedFactory
+     */
     public function __construct(private readonly FactoryInterface $decoratedFactory)
     {
     }

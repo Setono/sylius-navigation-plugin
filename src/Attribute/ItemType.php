@@ -19,7 +19,7 @@ final class ItemType
         /**
          * The form type class to use for this entity
          *
-         * @var class-string<FormTypeInterface> $formType
+         * @var class-string<FormTypeInterface<mixed>> $formType
          */
         public readonly string $formType,
 

@@ -29,6 +29,9 @@ final class BuildController extends AbstractController
 {
     use ORMTrait;
 
+    /**
+     * @param RepositoryInterface<TaxonInterface> $taxonRepository
+     */
     public function __construct(
         private readonly NavigationRepositoryInterface $navigationRepository,
         private readonly ItemFactoryInterface $itemFactory,
@@ -213,6 +216,10 @@ final class BuildController extends AbstractController
             // Determine item type from form data
             $type = $request->request->get('type', 'text');
 
+            if (!\is_string($type)) {
+                return new JsonResponse(['error' => 'Invalid item type'], Response::HTTP_BAD_REQUEST);
+            }
+
             if (!$this->itemTypeRegistry->has($type)) {
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_BAD_REQUEST);
             }
@@ -243,8 +250,9 @@ final class BuildController extends AbstractController
             // The form automatically maps data to the entity when using handleRequest
 
             // Handle label (unmapped field)
-            if ($request->request->get('label')) {
-                $item->setLabel($request->request->get('label'));
+            $label = $request->request->get('label');
+            if (\is_string($label)) {
+                $item->setLabel($label);
             }
 
             // Handle taxon_id for TaxonItem (since it's unmapped)
@@ -328,8 +336,9 @@ final class BuildController extends AbstractController
             // The form automatically maps data to the entity when using handleRequest
 
             // Handle label (unmapped field)
-            if ($request->request->get('label')) {
-                $item->setLabel($request->request->get('label'));
+            $label = $request->request->get('label');
+            if (\is_string($label)) {
+                $item->setLabel($label);
             }
 
             // Handle taxon_id for TaxonItem (since it's unmapped)
@@ -450,6 +459,9 @@ final class BuildController extends AbstractController
         }
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function buildTreeStructure(NavigationInterface $navigation, bool $recursive = true): array
     {
         $rootItem = $navigation->getRootItem();
@@ -468,6 +480,9 @@ final class BuildController extends AbstractController
         return $childrenArray;
     }
 
+    /**
+     * @return array<int, array{entity: ItemInterface, children: array<int, mixed>}>
+     */
     private function buildTreeStructureEntities(NavigationInterface $navigation): array
     {
         $rootItem = $navigation->getRootItem();
@@ -486,6 +501,9 @@ final class BuildController extends AbstractController
         return $childrenArray;
     }
 
+    /**
+     * @return array{entity: ItemInterface, children: array<int, mixed>}
+     */
     private function buildItemTreeEntities(ItemInterface $item): array
     {
         $children = $this->getDirectChildren($item);
@@ -501,6 +519,9 @@ final class BuildController extends AbstractController
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildItemTree(ItemInterface $item, bool $recursive = true): array
     {
         $children = $this->getDirectChildren($item);

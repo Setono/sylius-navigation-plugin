@@ -7,8 +7,6 @@ namespace Setono\SyliusNavigationPlugin\Twig;
 /**
  * Much of this code has been copied from \Symfony\UX\TwigComponent\ComponentAttributes
  *
- * @immutable
- *
  * @implements \IteratorAggregate<string, scalar|\Stringable>
  */
 final class Attributes implements \Stringable, \IteratorAggregate, \Countable
@@ -35,7 +33,7 @@ final class Attributes implements \Stringable, \IteratorAggregate, \Countable
             $attributes .= match ($value) {
                 true => ' ' . $key,
                 false => '',
-                default => \sprintf(' %s="%s"', $key, (string) $value),
+                default => \sprintf(' %s="%s"', $key, $value),
             };
 
             $this->rendered[$key] = true;
@@ -121,13 +119,16 @@ final class Attributes implements \Stringable, \IteratorAggregate, \Countable
         return new self($attributes);
     }
 
+    /**
+     * @return \ArrayIterator<string, scalar|\Stringable>
+     */
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->attributes);
     }
 
     /**
-     * @psalm-assert-if-true scalar|\Stringable $this->attributes[$attribute]
+     * @phpstan-assert-if-true scalar|\Stringable $this->attributes[$attribute]
      */
     public function has(string $attribute): bool
     {

@@ -11,6 +11,9 @@ use Webmozart\Assert\Assert;
 
 final class ClosureFactory implements ClosureFactoryInterface
 {
+    /**
+     * @param FactoryInterface<ClosureInterface> $decorated
+     */
     public function __construct(private readonly FactoryInterface $decorated)
     {
     }

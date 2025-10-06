@@ -8,6 +8,9 @@ use Setono\SyliusNavigationPlugin\Model\ClosureInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
+/**
+ * @extends FactoryInterface<ClosureInterface>
+ */
 interface ClosureFactoryInterface extends FactoryInterface
 {
     public function createNew(): ClosureInterface;

@@ -68,6 +68,8 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
      * Get ItemType attributes from the class hierarchy, starting from the current class
      * and walking up to parent classes until an attribute is found.
      *
+     * @param \ReflectionClass<object> $reflectionClass
+     *
      * @return list<\ReflectionAttribute<ItemType>>
      */
     private static function getItemTypeAttributeFromHierarchy(\ReflectionClass $reflectionClass): array

@@ -10,6 +10,9 @@ use Webmozart\Assert\Assert;
 
 final class TaxonItemFactory implements TaxonItemFactoryInterface
 {
+    /**
+     * @param FactoryInterface<TaxonItemInterface> $decoratedFactory
+     */
     public function __construct(private readonly FactoryInterface $decoratedFactory)
     {
     }

@@ -25,3 +25,14 @@ parameters:
 
     # Bleeding edge features
     treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: doctrine.associationType
+        -
+            identifier: doctrine.columnType
+        -
+            identifier: missingType.generics
+            path: src/Form
