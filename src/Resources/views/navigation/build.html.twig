@@ -18,20 +18,26 @@
 <div class="ui stackable grid">
     <div class="ten wide column">
         <div class="ui segment">
-            <h3 class="ui dividing header">
-                <i class="sitemap icon"></i>
-                {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
-                <div class="ui right floated">
-                    <div id="main-add-dropdown" class="ui primary button dropdown">
-                        <i class="plus icon"></i>
-                        {{ 'setono_sylius_navigation.ui.add_item'|trans }}
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
-                            <!-- Item types will be loaded dynamically by JavaScript -->
-                        </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 class="ui header" style="margin: 0;">
+                    <i class="sitemap icon"></i>
+                    {{ 'setono_sylius_navigation.ui.navigation_tree'|trans }}
+                </h3>
+                <div id="main-add-dropdown" class="ui primary button dropdown">
+                    <i class="plus icon"></i>
+                    {{ 'setono_sylius_navigation.ui.add_item'|trans }}
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <!-- Item types will be loaded dynamically by JavaScript -->
                     </div>
                 </div>
-            </h3>
+            </div>
+            <div class="ui divider"></div>
+
+            <div class="ui fluid icon input" style="margin-bottom: 1rem;">
+                <input type="text" id="tree-search" placeholder="{{ 'sylius.ui.search'|trans }}...">
+                <i class="search icon"></i>
+            </div>
 
             <div id="navigation-tree-container">
                 <div id="navigation-tree" class="ui relaxed divided list">

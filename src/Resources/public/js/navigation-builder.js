@@ -42,6 +42,27 @@ class NavigationBuilder {
 
         jQuery('#edit-item-modal').modal();
         jQuery('#delete-item-modal').modal();
+
+        // Initialize search
+        this.initializeSearch();
+    }
+
+    initializeSearch() {
+        const self = this;
+        let searchTimeout = null;
+
+        jQuery('#tree-search').on('keyup', function() {
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            searchTimeout = setTimeout(function() {
+                const searchString = jQuery('#tree-search').val();
+                if (self.tree) {
+                    self.tree.search(searchString);
+                }
+            }, 250); // Debounce search by 250ms
+        });
     }
 
     initializeTree() {
@@ -64,10 +85,16 @@ class NavigationBuilder {
                     'icons': true
                 }
             },
-            'plugins': ['dnd', 'contextmenu', 'types', 'state'],
+            'plugins': ['dnd', 'contextmenu', 'types', 'state', 'search'],
             'state': {
                 'key': 'navigation-tree-' + this.config.navigationId, // Unique key per navigation
                 'preserve_loaded': false // Don't preserve loaded nodes, let lazy loading handle it
+            },
+            'search': {
+                'show_only_matches': true,
+                'show_only_matches_children': true,
+                'case_sensitive': false,
+                'search_callback': false // Use default search
             },
             'dnd': {
                 'is_draggable': function() {
