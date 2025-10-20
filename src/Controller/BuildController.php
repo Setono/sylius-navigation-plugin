@@ -37,15 +37,8 @@ final class BuildController extends AbstractController
     /**
      * Main build page - displays the interactive tree builder interface
      */
-    public function buildAction(int $id, NavigationRepositoryInterface $navigationRepository): Response
+    public function buildAction(NavigationInterface $navigation): Response
     {
-        $navigation = $navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            $this->addFlash('error', 'setono_sylius_navigation.navigation_not_found');
-
-            return $this->redirectToRoute('setono_sylius_navigation_admin_navigation_index');
-        }
-
         return $this->render('@SetonoSyliusNavigationPlugin/navigation/build.html.twig', [
             'navigation' => $navigation,
         ]);
@@ -57,15 +50,9 @@ final class BuildController extends AbstractController
      */
     public function getTreeAction(
         Request $request,
-        int $id,
-        NavigationRepositoryInterface $navigationRepository,
+        NavigationInterface $navigation,
         ClosureRepositoryInterface $closureRepository,
     ): JsonResponse {
-        $navigation = $navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
-        }
-
         // Get node ID from request (for lazy loading)
         $nodeId = $request->query->get('id', '#');
 
@@ -97,15 +84,9 @@ final class BuildController extends AbstractController
      */
     public function searchItemsAction(
         Request $request,
-        int $id,
-        NavigationRepositoryInterface $navigationRepository,
+        NavigationInterface $navigation,
         ClosureRepositoryInterface $closureRepository,
     ): JsonResponse {
-        $navigation = $navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            return new JsonResponse([]);
-        }
-
         // jsTree sends 'str' by default, but also support 'q' for compatibility
         $searchTerm = $request->query->get('str', $request->query->get('q', ''));
         if (empty($searchTerm) || strlen($searchTerm) < 2) {
@@ -227,8 +208,7 @@ final class BuildController extends AbstractController
      */
     public function addItemAction(
         Request $request,
-        int $id,
-        NavigationRepositoryInterface $navigationRepository,
+        NavigationInterface $navigation,
         ItemTypeRegistryInterface $itemTypeRegistry,
         TaxonItemFactoryInterface $taxonItemFactory,
         TextItemFactoryInterface $textItemFactory,
@@ -239,11 +219,6 @@ final class BuildController extends AbstractController
         ClosureRepositoryInterface $closureRepository,
         Environment $twig,
     ): JsonResponse {
-        $navigation = $navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
-        }
-
         try {
             // Determine item type from form data
             $type = $request->request->get('type', 'text');
@@ -338,9 +313,8 @@ final class BuildController extends AbstractController
      */
     public function updateItemAction(
         Request $request,
-        int $id,
+        NavigationInterface $navigation,
         int $itemId,
-        NavigationRepositoryInterface $navigationRepository,
         ItemTypeRegistryInterface $itemTypeRegistry,
         FormFactoryInterface $formFactory,
         RepositoryInterface $taxonRepository,
@@ -348,11 +322,6 @@ final class BuildController extends AbstractController
         Environment $twig,
     ): JsonResponse {
         try {
-            $navigation = $navigationRepository->find($id);
-            if (!$navigation instanceof NavigationInterface) {
-                return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
-            }
-
             $itemManager = $this->getManager($navigation);
             $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
             if (!$item instanceof ItemInterface) {
@@ -425,18 +394,12 @@ final class BuildController extends AbstractController
      * Remove item from navigation
      */
     public function deleteItemAction(
-        int $id,
+        NavigationInterface $navigation,
         int $itemId,
-        NavigationRepositoryInterface $navigationRepository,
         ClosureManagerInterface $closureManager,
         ClosureRepositoryInterface $closureRepository,
         Environment $twig,
     ): JsonResponse {
-        $navigation = $navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
-        }
-
         $itemManager = $this->getManager($navigation);
         $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
         if (!$item instanceof ItemInterface) {
@@ -471,15 +434,9 @@ final class BuildController extends AbstractController
      */
     public function reorderItemAction(
         Request $request,
-        int $id,
-        NavigationRepositoryInterface $navigationRepository,
+        NavigationInterface $navigation,
         ClosureManagerInterface $closureManager,
     ): JsonResponse {
-        $navigation = $navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
-        }
-
         $data = json_decode($request->getContent(), true);
         if (!is_array($data)) {
             return new JsonResponse(['error' => 'Invalid JSON data'], Response::HTTP_BAD_REQUEST);

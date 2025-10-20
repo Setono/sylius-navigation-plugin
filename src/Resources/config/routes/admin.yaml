@@ -42,18 +42,18 @@ setono_sylius_navigation_admin_navigation_build_from_taxon:
         id: ^\d+$
 
 setono_sylius_navigation_admin_navigation_build:
-    path: /navigations/{id}/build
+    path: /navigations/{navigation}/build
     methods: [ GET ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::buildAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$
 
 setono_sylius_navigation_admin_navigation_build_get_tree:
-    path: /navigations/{id}/build/items
+    path: /navigations/{navigation}/build/items
     methods: [ GET ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::getTreeAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$
 
 setono_sylius_navigation_admin_navigation_build_get_item_types:
     path: /navigations/build/item-types
@@ -61,11 +61,11 @@ setono_sylius_navigation_admin_navigation_build_get_item_types:
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::getItemTypesAction
 
 setono_sylius_navigation_admin_navigation_build_search_items:
-    path: /navigations/{id}/build/search
+    path: /navigations/{navigation}/build/search
     methods: [ GET ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::searchItemsAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$
 
 setono_sylius_navigation_admin_navigation_build_get_form:
     path: /navigations/build/form/{type}
@@ -75,31 +75,31 @@ setono_sylius_navigation_admin_navigation_build_get_form:
         type: ^[a-z_]+$
 
 setono_sylius_navigation_admin_navigation_build_add_item:
-    path: /navigations/{id}/build/items
+    path: /navigations/{navigation}/build/items
     methods: [ POST ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::addItemAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$
 
 setono_sylius_navigation_admin_navigation_build_update_item:
-    path: /navigations/{id}/build/items/{itemId}
+    path: /navigations/{navigation}/build/items/{itemId}
     methods: [ POST,PUT,PATCH ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::updateItemAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$
         itemId: ^(\d+|__ITEM_ID__)$
 
 setono_sylius_navigation_admin_navigation_build_delete_item:
-    path: /navigations/{id}/build/items/{itemId}
+    path: /navigations/{navigation}/build/items/{itemId}
     methods: [ DELETE ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::deleteItemAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$
         itemId: ^(\d+|__ITEM_ID__)$
 
 setono_sylius_navigation_admin_navigation_build_reorder_item:
-    path: /navigations/{id}/build/items/reorder
+    path: /navigations/{navigation}/build/items/reorder
     methods: [ POST ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::reorderItemAction
     requirements:
-        id: ^\d+$
+        navigation: ^\d+$

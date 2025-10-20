@@ -207,14 +207,14 @@
         window.NavigationBuilderConfig = {
             navigationId: {{ navigation.id }},
             routes: {
-                getTree: '{{ path('setono_sylius_navigation_admin_navigation_build_get_tree', {'id': navigation.id}) }}',
-                searchItems: '{{ path('setono_sylius_navigation_admin_navigation_build_search_items', {'id': navigation.id}) }}',
+                getTree: '{{ path('setono_sylius_navigation_admin_navigation_build_get_tree', {'navigation': navigation.id}) }}',
+                searchItems: '{{ path('setono_sylius_navigation_admin_navigation_build_search_items', {'navigation': navigation.id}) }}',
                 getItemTypes: '{{ path('setono_sylius_navigation_admin_navigation_build_get_item_types') }}',
                 getForm: '{{ path('setono_sylius_navigation_admin_navigation_build_get_form', {'type': '__TYPE__'}) }}',
-                addItem: '{{ path('setono_sylius_navigation_admin_navigation_build_add_item', {'id': navigation.id}) }}',
-                updateItem: '{{ path('setono_sylius_navigation_admin_navigation_build_update_item', {'id': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
-                deleteItem: '{{ path('setono_sylius_navigation_admin_navigation_build_delete_item', {'id': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
-                reorderItem: '{{ path('setono_sylius_navigation_admin_navigation_build_reorder_item', {'id': navigation.id}) }}',
+                addItem: '{{ path('setono_sylius_navigation_admin_navigation_build_add_item', {'navigation': navigation.id}) }}',
+                updateItem: '{{ path('setono_sylius_navigation_admin_navigation_build_update_item', {'navigation': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
+                deleteItem: '{{ path('setono_sylius_navigation_admin_navigation_build_delete_item', {'navigation': navigation.id, 'itemId': '__ITEM_ID__'}) }}',
+                reorderItem: '{{ path('setono_sylius_navigation_admin_navigation_build_reorder_item', {'navigation': navigation.id}) }}',
                 getTaxons: '{{ path('sylius_admin_ajax_taxon_by_name_phrase') }}' {# Using existing Sylius route for taxon search #}
             },
             translations: {
