@@ -34,7 +34,7 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
         ];
     }
 
-    public function getType(string $name): array
+    public function get(string $name): array
     {
         if (!isset($this->types[$name])) {
             throw new \InvalidArgumentException(sprintf(

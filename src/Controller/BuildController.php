@@ -163,7 +163,7 @@ final class BuildController extends AbstractController
             }
 
             $formClass = $itemTypeRegistry->getForm($type);
-            $metadata = $itemTypeRegistry->getType($type);
+            $metadata = $itemTypeRegistry->get($type);
 
             // Check if we're editing an existing item
             $itemId = $request->query->get('itemId');

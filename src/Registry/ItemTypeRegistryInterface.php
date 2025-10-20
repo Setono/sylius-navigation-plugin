@@ -19,7 +19,7 @@ interface ItemTypeRegistryInterface
      *
      * @throws \InvalidArgumentException if the item type is not registered
      */
-    public function getType(string $name): array;
+    public function get(string $name): array;
 
     /**
      * Get the form class for a given item type name
