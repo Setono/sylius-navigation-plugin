@@ -3,12 +3,6 @@
  * Uses jsTree's native styling with minimal overrides
  */
 
-/* Container scrolling */
-#navigation-tree {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
-}
-
 /* Loading and empty states */
 #tree-loading {
     text-align: center;
@@ -52,9 +46,3 @@
     margin-right: 8px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #navigation-tree {
-        max-height: calc(100vh - 250px);
-    }
-}
