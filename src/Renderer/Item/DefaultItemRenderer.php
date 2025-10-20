@@ -24,7 +24,6 @@ final class DefaultItemRenderer implements ItemRendererInterface
             $this->defaultTemplate,
         ]);
 
-        /** @psalm-suppress ImplicitToStringCast */
         return $this->twig->render($template, [
             'item' => $item,
             'attributes' => new Attributes($attributes),

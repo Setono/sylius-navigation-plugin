@@ -25,7 +25,6 @@ final class TwigEnvironmentConfigurator
         if (class_exists(EscaperRuntime::class)) {
             $environment->getRuntime(EscaperRuntime::class)->addSafeClass(Attributes::class, ['html']);
         } elseif ($environment->hasExtension(EscaperExtension::class)) {
-            /** @psalm-suppress DeprecatedMethod,UndefinedInterfaceMethod */
             $environment->getExtension(EscaperExtension::class)->addSafeClass(Attributes::class, ['html']);
         }
     }

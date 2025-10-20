@@ -6,9 +6,6 @@ namespace Setono\SyliusNavigationPlugin\Registry;
 
 use Symfony\Component\Form\FormTypeInterface;
 
-/**
- * @psalm-immutable
- */
 final class ItemType
 {
     /**

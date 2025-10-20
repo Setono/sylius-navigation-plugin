@@ -56,7 +56,6 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
             $this->defaultTemplate,
         ]);
 
-        /** @psalm-suppress ImplicitToStringCast */
         return $this->twig->render($template, [
             'navigation' => $navigation,
             'graph' => $this->graphBuilder->build($navigation),
