@@ -296,9 +296,12 @@ class NavigationBuilder {
             const containerId = mode === 'add' ? 'add-item-form-fields' : 'edit-item-form-fields';
             document.getElementById(containerId).innerHTML = result.html;
 
-            // Reinitialize Semantic UI components
-            jQuery(`#${containerId} .ui.dropdown`).dropdown();
-            jQuery(`#${containerId} .ui.checkbox`).checkbox();
+            // Reinitialize Semantic UI components after DOM is ready
+            setTimeout(() => {
+                jQuery(`#${containerId} .ui.dropdown`).dropdown();
+                jQuery(`#${containerId} .ui.checkbox`).checkbox();
+                jQuery(`#${containerId} .ui.accordion`).accordion();
+            }, 10);
 
         } catch (error) {
             console.error('Failed to load form fields:', error);
