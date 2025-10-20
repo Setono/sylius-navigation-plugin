@@ -201,7 +201,7 @@ final class BuildController extends AbstractController
     ): JsonResponse {
         try {
             // Determine item type from form data
-            $type = $request->request->get('type', 'text');
+            $type = $request->request->get('type');
 
             if (!\is_string($type)) {
                 return new JsonResponse(['error' => 'Invalid item type'], Response::HTTP_BAD_REQUEST);
@@ -212,12 +212,8 @@ final class BuildController extends AbstractController
             }
 
             $itemType = $itemTypeRegistry->get($type);
-
             $item = $itemType->factory->createNew();
-
-            // Get the appropriate form type from registry
-            $formClass = $itemType->form;
-            $form = $formFactory->create($formClass, $item);
+            $form = $formFactory->create($itemType->form, $item);
 
             // Process the form data using handleRequest
             $form->handleRequest($request);
@@ -249,7 +245,6 @@ final class BuildController extends AbstractController
 
             /** @var int|null $parentId */
             $parentId = $request->request->get('parent_id') ? (int) $request->request->get('parent_id') : null;
-            $parent = null;
             if ($parentId !== null) {
                 $parent = $this->getManager($item)->getRepository(ItemInterface::class)->find($parentId);
             } else {
