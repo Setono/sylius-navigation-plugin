@@ -6,9 +6,7 @@ namespace Setono\SyliusNavigationPlugin\Registry;
 
 final class ItemTypeRegistry implements ItemTypeRegistryInterface
 {
-    /**
-     * @var array<string, ItemType>
-     */
+    /** @var array<string, ItemType> */
     private array $types = [];
 
     public function register(string $name, string $label, string $entity, string $form, string $template): void

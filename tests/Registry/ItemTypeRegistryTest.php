@@ -29,7 +29,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
         );
 
         self::assertTrue($this->registry->has('text'));
@@ -45,7 +45,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
         );
 
         $itemType = $this->registry->get('text');
@@ -68,7 +68,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
         );
 
         $formClass = $this->registry->getForm('text');
@@ -116,7 +116,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
         );
 
         $this->registry->register(
@@ -124,7 +124,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Taxon Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
         );
 
         try {
@@ -145,7 +145,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
         );
 
         $this->expectException(\InvalidArgumentException::class);
@@ -157,7 +157,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Another Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_other.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_other.html.twig',
         );
     }
 
@@ -171,7 +171,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Text Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
         );
 
         $this->registry->register(
@@ -179,7 +179,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Taxon Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
         );
 
         $all = $this->registry->all();
@@ -213,7 +213,7 @@ final class ItemTypeRegistryTest extends TestCase
             'First Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_first.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_first.html.twig',
         );
 
         $this->registry->register(
@@ -221,7 +221,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Second Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_second.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_second.html.twig',
         );
 
         $this->registry->register(
@@ -229,7 +229,7 @@ final class ItemTypeRegistryTest extends TestCase
             'Third Item',
             TextItem::class,
             BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_third.html.twig'
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_third.html.twig',
         );
 
         $all = $this->registry->all();

@@ -55,7 +55,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
                 TestTextItem::class,
                 BuilderTextItemType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_test.html.twig',
-            ]
+            ],
         );
     }
 
@@ -176,7 +176,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
                 TestMinimalItem::class,
                 BuilderTextItemType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
-            ]
+            ],
         );
     }
 
@@ -212,7 +212,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
     name: 'text',
     formType: BuilderTextItemType::class,
     template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_test.html.twig',
-    label: 'Test Text Item'
+    label: 'Test Text Item',
 )]
 class TestTextItem extends TextItem
 {
@@ -222,7 +222,7 @@ class TestTextItem extends TextItem
     name: null,
     formType: BuilderTextItemType::class,
     template: null,
-    label: null
+    label: null,
 )]
 class TestMinimalItem extends TextItem
 {
