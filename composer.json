@@ -44,6 +44,7 @@
         "doctrine/doctrine-bundle": "^2.11",
         "jms/serializer-bundle": "^4.2",
         "lexik/jwt-authentication-bundle": "^2.17",
+        "matthiasnoback/symfony-dependency-injection-test": "^5.1",
         "phpspec/prophecy-phpunit": "^2.3",
         "setono/sylius-plugin-pack": "~1.12.2",
         "symfony/debug-bundle": "^5.4 || ^6.4 || ^7.0",
