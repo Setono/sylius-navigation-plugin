@@ -9,6 +9,7 @@ use Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType;
 use Setono\SyliusNavigationPlugin\Model\TextItem;
 use Setono\SyliusNavigationPlugin\Registry\ItemType;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
+use Sylius\Component\Resource\Factory\FactoryInterface;
 
 final class ItemTypeRegistryTest extends TestCase
 {
@@ -17,6 +18,11 @@ final class ItemTypeRegistryTest extends TestCase
     protected function setUp(): void
     {
         $this->registry = new ItemTypeRegistry();
+    }
+
+    private function createMockFactory(): FactoryInterface
+    {
+        return $this->createMock(FactoryInterface::class);
     }
 
     /**
@@ -30,6 +36,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
         );
 
         self::assertTrue($this->registry->has('text'));
@@ -46,6 +53,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
         );
 
         $itemType = $this->registry->get('text');
@@ -88,6 +96,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
         );
 
         $this->registry->register(
@@ -96,6 +105,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
+            $this->createMockFactory(),
         );
 
         try {
@@ -117,6 +127,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
         );
 
         $this->expectException(\InvalidArgumentException::class);
@@ -129,6 +140,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_other.html.twig',
+            $this->createMockFactory(),
         );
     }
 
@@ -143,6 +155,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
         );
 
         $this->registry->register(
@@ -151,6 +164,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
+            $this->createMockFactory(),
         );
 
         $all = $this->registry->all();
@@ -185,6 +199,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_first.html.twig',
+            $this->createMockFactory(),
         );
 
         $this->registry->register(
@@ -193,6 +208,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_second.html.twig',
+            $this->createMockFactory(),
         );
 
         $this->registry->register(
@@ -201,6 +217,7 @@ final class ItemTypeRegistryTest extends TestCase
             TextItem::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_third.html.twig',
+            $this->createMockFactory(),
         );
 
         $all = $this->registry->all();

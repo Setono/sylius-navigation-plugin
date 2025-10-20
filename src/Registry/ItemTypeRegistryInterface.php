@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Registry;
 
+use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
 interface ItemTypeRegistryInterface
@@ -12,7 +13,7 @@ interface ItemTypeRegistryInterface
      * @param class-string $entity
      * @param class-string<FormTypeInterface<mixed>> $form
      */
-    public function register(string $name, string $label, string $entity, string $form, string $template): void;
+    public function register(string $name, string $label, string $entity, string $form, string $template, FactoryInterface $factory): void;
 
     /**
      * @throws \InvalidArgumentException if the item type is not registered

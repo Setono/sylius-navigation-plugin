@@ -11,6 +11,7 @@ use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\Reference;
 
 final class RegisterNavigationItemsPass implements CompilerPassInterface
 {
@@ -26,11 +27,11 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
 
         $registryDefinition = $container->findDefinition(ItemTypeRegistryInterface::class);
 
-        /** @var array<string, array{classes: array{model: class-string}}> $resources */
+        /** @var array<string, array{classes: array{model: class-string, factory: class-string}}> $resources */
         $resources = $container->getParameter('sylius.resources');
 
-        foreach ($resources as $resource) {
-            ['model' => $entity] = $resource['classes'];
+        foreach ($resources as $resourceName => $resource) {
+            $entity = $resource['classes']['model'];
 
             // Only process classes that implement ItemInterface
             if (!is_a($entity, ItemInterface::class, true)) {
@@ -53,13 +54,28 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
 
             $name = $metadata->name ?? Item::getType($entity);
 
-            // Register the form type with the registry
+            // Construct the factory service ID from the resource name
+            // e.g., 'setono_sylius_navigation.text_item' -> 'setono_sylius_navigation.factory.text_item'
+            $factoryServiceId = str_replace('.', '.factory.', $resourceName);
+
+            // Validate that the factory service exists
+            if (!$container->has($factoryServiceId)) {
+                throw new ServiceNotFoundException(sprintf(
+                    'Factory service "%s" not found for item type "%s". Expected service to be registered by Sylius Resource Bundle.',
+                    $factoryServiceId,
+                    $name,
+                ));
+            }
+
+            // Register the item type with the registry
+            // Pass a Reference to the factory service so it gets injected as FactoryInterface instance
             $registryDefinition->addMethodCall('register', [
                 $name,
                 $metadata->label ?? sprintf('setono_sylius_navigation.item_types.%s', $name),
                 $entity,
                 $metadata->formType,
                 $metadata->template ?? '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
+                new Reference($factoryServiceId),
             ]);
         }
     }

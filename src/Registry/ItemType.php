@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Registry;
 
+use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
 final class ItemType
@@ -18,6 +19,7 @@ final class ItemType
         public readonly string $entity,
         public readonly string $form,
         public readonly string $template,
+        public readonly FactoryInterface $factory,
     ) {
     }
 }

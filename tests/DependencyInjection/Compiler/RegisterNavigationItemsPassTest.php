@@ -14,6 +14,7 @@ use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
 {
@@ -34,11 +35,15 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         // Register the form type service
         $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
 
+        // Register the factory service that Sylius would create
+        $this->setDefinition('setono_sylius_navigation.factory.text_item', new Definition(\stdClass::class));
+
         // Set up sylius resources parameter with a test item type
         $this->setParameter('sylius.resources', [
             'setono_sylius_navigation.text_item' => [
                 'classes' => [
                     'model' => TestTextItem::class,
+                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
                 ],
             ],
         ]);
@@ -55,6 +60,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
                 TestTextItem::class,
                 BuilderTextItemType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_test.html.twig',
+                new Reference('setono_sylius_navigation.factory.text_item'),
             ],
         );
     }
@@ -154,11 +160,15 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         // Register the form type service
         $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
 
+        // Register the factory service that Sylius would create
+        $this->setDefinition('setono_sylius_navigation.factory.minimal_item', new Definition(\stdClass::class));
+
         // Set up sylius resources with an item that has minimal attribute configuration
         $this->setParameter('sylius.resources', [
             'setono_sylius_navigation.minimal_item' => [
                 'classes' => [
                     'model' => TestMinimalItem::class,
+                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
                 ],
             ],
         ]);
@@ -176,6 +186,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
                 TestMinimalItem::class,
                 BuilderTextItemType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
+                new Reference('setono_sylius_navigation.factory.minimal_item'),
             ],
         );
     }
@@ -196,11 +207,71 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
             'setono_sylius_navigation.text_item' => [
                 'classes' => [
                     'model' => TestTextItem::class,
+                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
                 ],
             ],
         ]);
 
         $this->expectException(\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException::class);
+
+        $this->compile();
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_when_factory_is_not_configured(): void
+    {
+        // Register the registry service
+        $registryDefinition = new Definition(ItemTypeRegistry::class);
+        $this->setDefinition(ItemTypeRegistryInterface::class, $registryDefinition);
+
+        // Register the form type service
+        $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
+
+        // Set up sylius resources without factory
+        $this->setParameter('sylius.resources', [
+            'setono_sylius_navigation.text_item' => [
+                'classes' => [
+                    'model' => TestTextItem::class,
+                    // factory is missing
+                ],
+            ],
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('No factory configured for item type "text"');
+
+        $this->compile();
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_when_factory_service_does_not_exist(): void
+    {
+        // Register the registry service
+        $registryDefinition = new Definition(ItemTypeRegistry::class);
+        $this->setDefinition(ItemTypeRegistryInterface::class, $registryDefinition);
+
+        // Register the form type service
+        $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
+
+        // Don't register the factory service that should exist
+        // $this->setDefinition('setono_sylius_navigation.factory.text_item', new Definition(\stdClass::class));
+
+        // Set up sylius resources with factory class but service doesn't exist
+        $this->setParameter('sylius.resources', [
+            'setono_sylius_navigation.text_item' => [
+                'classes' => [
+                    'model' => TestTextItem::class,
+                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
+                ],
+            ],
+        ]);
+
+        $this->expectException(\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException::class);
+        $this->expectExceptionMessage('Factory service "setono_sylius_navigation.factory.text_item" not found');
 
         $this->compile();
     }

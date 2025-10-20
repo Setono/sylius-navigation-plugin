@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Registry;
 
+use Sylius\Component\Resource\Factory\FactoryInterface;
+
 final class ItemTypeRegistry implements ItemTypeRegistryInterface
 {
     /** @var array<string, ItemType> */
     private array $types = [];
 
-    public function register(string $name, string $label, string $entity, string $form, string $template): void
+    public function register(string $name, string $label, string $entity, string $form, string $template, FactoryInterface $factory): void
     {
         if (isset($this->types[$name])) {
             throw new \InvalidArgumentException(sprintf(
@@ -19,7 +21,7 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
             ));
         }
 
-        $this->types[$name] = new ItemType($name, $label, $entity, $form, $template);
+        $this->types[$name] = new ItemType($name, $label, $entity, $form, $template, $factory);
     }
 
     public function get(string $name): ItemType
