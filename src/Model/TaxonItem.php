@@ -8,7 +8,12 @@ use Setono\SyliusNavigationPlugin\Attribute\ItemType;
 use Setono\SyliusNavigationPlugin\Form\Type\TaxonItemType;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-#[ItemType(name: 'taxon', formType: TaxonItemType::class, template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon_item.html.twig', label: 'Taxon Item')]
+#[ItemType(
+    name: 'taxon',
+    formType: TaxonItemType::class,
+    template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon_item.html.twig',
+    label: 'Taxon Item',
+)]
 class TaxonItem extends Item implements TaxonItemInterface
 {
     protected ?TaxonInterface $taxon = null;
