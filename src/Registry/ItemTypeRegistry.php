@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Registry;
 
-use Symfony\Component\Form\FormTypeInterface;
-
 final class ItemTypeRegistry implements ItemTypeRegistryInterface
 {
     /**
-     * An array of defined types. The key is the name, and the value is an array of metadata
-     *
-     * @var array<string, array{name: string, label: string, entity: class-string, form: class-string<FormTypeInterface<mixed>>, template: string}>
+     * @var array<string, ItemType>
      */
     private array $types = [];
 
@@ -21,20 +17,14 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
             throw new \InvalidArgumentException(sprintf(
                 'An item type with name "%s" is already registered (class: %s)',
                 $name,
-                $this->types[$name]['entity'],
+                $this->types[$name]->entity,
             ));
         }
 
-        $this->types[$name] = [
-            'name' => $name,
-            'label' => $label,
-            'entity' => $entity,
-            'form' => $form,
-            'template' => $template,
-        ];
+        $this->types[$name] = new ItemType($name, $label, $entity, $form, $template);
     }
 
-    public function get(string $name): array
+    public function get(string $name): ItemType
     {
         if (!isset($this->types[$name])) {
             throw new \InvalidArgumentException(sprintf(
@@ -57,7 +47,7 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
             ));
         }
 
-        return $this->types[$name]['form'];
+        return $this->types[$name]->form;
     }
 
     public function has(string $name): bool

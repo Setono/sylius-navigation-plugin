@@ -137,8 +137,8 @@ final class BuildController extends AbstractController
         try {
             // Get all registered types and extract name => label mapping
             $itemTypes = [];
-            foreach ($itemTypeRegistry->all() as $name => $metadata) {
-                $itemTypes[$name] = $metadata['label'];
+            foreach ($itemTypeRegistry->all() as $name => $itemType) {
+                $itemTypes[$name] = $itemType->label;
             }
 
             return new JsonResponse(['success' => true, 'itemTypes' => $itemTypes]);
@@ -167,7 +167,7 @@ final class BuildController extends AbstractController
             }
 
             $formClass = $itemTypeRegistry->getForm($type);
-            $metadata = $itemTypeRegistry->get($type);
+            $itemType = $itemTypeRegistry->get($type);
 
             // Check if we're editing an existing item
             $itemId = $request->query->get('itemId');
@@ -193,10 +193,10 @@ final class BuildController extends AbstractController
 
             $form = $formFactory->create($formClass, $item);
 
-            $html = $twig->render($metadata['template'], [
+            $html = $twig->render($itemType->template, [
                 'form' => $form->createView(),
                 'type' => $type,
-                'metadata' => $metadata,
+                'metadata' => $itemType,
             ]);
 
             return new JsonResponse(['success' => true, 'html' => $html]);

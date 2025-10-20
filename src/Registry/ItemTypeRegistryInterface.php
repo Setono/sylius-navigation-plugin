@@ -15,11 +15,9 @@ interface ItemTypeRegistryInterface
     public function register(string $name, string $label, string $entity, string $form, string $template): void;
 
     /**
-     * @return array{name: string, label: string, entity: class-string, form: class-string, template: string}
-     *
      * @throws \InvalidArgumentException if the item type is not registered
      */
-    public function get(string $name): array;
+    public function get(string $name): ItemType;
 
     /**
      * Get the form class for a given item type name
@@ -38,7 +36,7 @@ interface ItemTypeRegistryInterface
     /**
      * Get all registered item types
      *
-     * @return array<string, array{name: string, label: string, entity: class-string, form: class-string, template: string}>
+     * @return array<string, ItemType>
      */
     public function all(): array;
 }
