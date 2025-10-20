@@ -35,7 +35,7 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
     }
 
     /**
-     * @psalm-assert-if-true non-empty-list<Node> $this->parents
+     * @phpstan-assert-if-true non-empty-list<Node> $this->parents
      */
     public function hasParents(): bool
     {
