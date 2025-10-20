@@ -135,7 +135,11 @@ final class BuildController extends AbstractController
     public function getItemTypesAction(ItemTypeRegistryInterface $itemTypeRegistry): JsonResponse
     {
         try {
-            $itemTypes = $itemTypeRegistry->getFormTypesForDropdown();
+            // Get all registered types and extract name => label mapping
+            $itemTypes = [];
+            foreach ($itemTypeRegistry->all() as $name => $metadata) {
+                $itemTypes[$name] = $metadata['label'];
+            }
 
             return new JsonResponse(['success' => true, 'itemTypes' => $itemTypes]);
         } catch (\Exception $e) {

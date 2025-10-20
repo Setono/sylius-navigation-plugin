@@ -36,9 +36,9 @@ interface ItemTypeRegistryInterface
     public function has(string $name): bool;
 
     /**
-     * Get form types suitable for dropdown display, sorted by priority
+     * Get all registered item types
      *
-     * @return array<string, string> Map of name => label
+     * @return array<string, array{name: string, label: string, entity: class-string, form: class-string, template: string}>
      */
-    public function getFormTypesForDropdown(): array;
+    public function all(): array;
 }

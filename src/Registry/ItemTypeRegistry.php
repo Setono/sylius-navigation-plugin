@@ -65,8 +65,8 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
         return isset($this->types[$name]);
     }
 
-    public function getFormTypesForDropdown(): array
+    public function all(): array
     {
-        return array_combine(array_keys($this->types), array_map(static fn (array $type): string => $type['label'], $this->types));
+        return $this->types;
     }
 }
