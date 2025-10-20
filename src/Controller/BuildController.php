@@ -181,12 +181,22 @@ final class BuildController extends AbstractController
             $formClass = $this->itemTypeRegistry->getForm($type);
             $metadata = $this->itemTypeRegistry->getType($type);
 
-            // Create the appropriate item instance
-            $item = match ($type) {
-                'taxon' => $this->taxonItemFactory->createNew(),
-                'text' => $this->textItemFactory->createNew(),
-                default => $this->itemFactory->createNew(),
-            };
+            // Check if we're editing an existing item
+            $itemId = $request->query->get('itemId');
+            if ($itemId !== null) {
+                // Load existing item for editing
+                $item = $this->getManager($this->navigationRepository->findOneBy([]))->getRepository(ItemInterface::class)->find((int) $itemId);
+                if (!$item instanceof ItemInterface) {
+                    return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
+                }
+            } else {
+                // Create new item instance
+                $item = match ($type) {
+                    'taxon' => $this->taxonItemFactory->createNew(),
+                    'text' => $this->textItemFactory->createNew(),
+                    default => $this->itemFactory->createNew(),
+                };
+            }
 
             $form = $this->formFactory->create($formClass, $item);
 
