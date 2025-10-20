@@ -55,8 +55,12 @@ final class BuildController extends AbstractController
      * Load current tree structure as JSON
      * Supports lazy loading: if node id is provided, returns only children of that node
      */
-    public function getTreeAction(Request $request, int $id, NavigationRepositoryInterface $navigationRepository, ClosureRepositoryInterface $closureRepository): JsonResponse
-    {
+    public function getTreeAction(
+        Request $request,
+        int $id,
+        NavigationRepositoryInterface $navigationRepository,
+        ClosureRepositoryInterface $closureRepository,
+    ): JsonResponse {
         $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
@@ -91,8 +95,12 @@ final class BuildController extends AbstractController
      * Search navigation items by label (jsTree AJAX search)
      * Returns array of node IDs that match the search term
      */
-    public function searchItemsAction(Request $request, int $id, NavigationRepositoryInterface $navigationRepository, ClosureRepositoryInterface $closureRepository): JsonResponse
-    {
+    public function searchItemsAction(
+        Request $request,
+        int $id,
+        NavigationRepositoryInterface $navigationRepository,
+        ClosureRepositoryInterface $closureRepository,
+    ): JsonResponse {
         $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse([]);
@@ -507,8 +515,11 @@ final class BuildController extends AbstractController
     /**
      * @return array<int, mixed>
      */
-    private function buildTreeStructure(NavigationInterface $navigation, ClosureRepositoryInterface $closureRepository, bool $recursive = true): array
-    {
+    private function buildTreeStructure(
+        NavigationInterface $navigation,
+        ClosureRepositoryInterface $closureRepository,
+        bool $recursive = true,
+    ): array {
         $rootItem = $navigation->getRootItem();
         if (null === $rootItem) {
             return [];
@@ -528,8 +539,10 @@ final class BuildController extends AbstractController
     /**
      * @return array<int, array{entity: ItemInterface, children: array<int, mixed>}>
      */
-    private function buildTreeStructureEntities(NavigationInterface $navigation, ClosureRepositoryInterface $closureRepository): array
-    {
+    private function buildTreeStructureEntities(
+        NavigationInterface $navigation,
+        ClosureRepositoryInterface $closureRepository,
+    ): array {
         $rootItem = $navigation->getRootItem();
         if (null === $rootItem) {
             return [];
@@ -567,8 +580,11 @@ final class BuildController extends AbstractController
     /**
      * @return array<string, mixed>
      */
-    private function buildItemTree(ItemInterface $item, ClosureRepositoryInterface $closureRepository, bool $recursive = true): array
-    {
+    private function buildItemTree(
+        ItemInterface $item,
+        ClosureRepositoryInterface $closureRepository,
+        bool $recursive = true,
+    ): array {
         $children = $this->getDirectChildren($item, $closureRepository);
         $hasChildren = count($children) > 0;
         $childrenArray = [];
@@ -648,8 +664,11 @@ final class BuildController extends AbstractController
      *
      * @return ItemInterface[]
      */
-    private function searchItemsRecursive(ItemInterface $item, string $searchTerm, ClosureRepositoryInterface $closureRepository): array
-    {
+    private function searchItemsRecursive(
+        ItemInterface $item,
+        string $searchTerm,
+        ClosureRepositoryInterface $closureRepository,
+    ): array {
         $matches = [];
         $children = $this->getDirectChildren($item, $closureRepository);
 
