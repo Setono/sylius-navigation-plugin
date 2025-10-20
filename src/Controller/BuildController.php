@@ -6,9 +6,6 @@ namespace Setono\SyliusNavigationPlugin\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
-use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
-use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
-use Setono\SyliusNavigationPlugin\Factory\TextItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
@@ -144,9 +141,6 @@ final class BuildController extends AbstractController
         Request $request,
         string $type,
         ItemTypeRegistryInterface $itemTypeRegistry,
-        TaxonItemFactoryInterface $taxonItemFactory,
-        TextItemFactoryInterface $textItemFactory,
-        ItemFactoryInterface $itemFactory,
         FormFactoryInterface $formFactory,
         Environment $twig,
         NavigationRepositoryInterface $navigationRepository,
@@ -173,12 +167,7 @@ final class BuildController extends AbstractController
                     return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
                 }
             } else {
-                // Create new item instance
-                $item = match ($type) {
-                    'taxon' => $taxonItemFactory->createNew(),
-                    'text' => $textItemFactory->createNew(),
-                    default => $itemFactory->createNew(),
-                };
+                $item = $itemType->factory->createNew();
             }
 
             $form = $formFactory->create($formClass, $item);
@@ -204,9 +193,6 @@ final class BuildController extends AbstractController
         Request $request,
         NavigationInterface $navigation,
         ItemTypeRegistryInterface $itemTypeRegistry,
-        TaxonItemFactoryInterface $taxonItemFactory,
-        TextItemFactoryInterface $textItemFactory,
-        ItemFactoryInterface $itemFactory,
         FormFactoryInterface $formFactory,
         RepositoryInterface $taxonRepository,
         ClosureManagerInterface $closureManager,
@@ -225,15 +211,12 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_BAD_REQUEST);
             }
 
-            // Create item based on type
-            $item = match ($type) {
-                'taxon' => $taxonItemFactory->createNew(),
-                'text' => $textItemFactory->createNew(),
-                default => $itemFactory->createNew(),
-            };
+            $itemType = $itemTypeRegistry->get($type);
+
+            $item = $itemType->factory->createNew();
 
             // Get the appropriate form type from registry
-            $formClass = $itemTypeRegistry->get($type)->form;
+            $formClass = $itemType->form;
             $form = $formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
