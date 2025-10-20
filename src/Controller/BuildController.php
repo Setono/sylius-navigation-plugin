@@ -89,7 +89,7 @@ final class BuildController extends AbstractController
     ): JsonResponse {
         // jsTree sends 'str' by default, but also support 'q' for compatibility
         $searchTerm = $request->query->get('str', $request->query->get('q', ''));
-        if (empty($searchTerm) || strlen($searchTerm) < 2) {
+        if (!is_string($searchTerm) || '' === $searchTerm) {
             return new JsonResponse([]);
         }
 
