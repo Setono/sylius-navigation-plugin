@@ -298,9 +298,14 @@ class NavigationBuilder {
 
             // Reinitialize Semantic UI components after DOM is ready
             setTimeout(() => {
-                jQuery(`#${containerId} .ui.dropdown`).dropdown();
+                jQuery(`#${containerId} .ui.dropdown:not(.sylius-autocomplete)`).dropdown();
                 jQuery(`#${containerId} .ui.checkbox`).checkbox();
                 jQuery(`#${containerId} .ui.accordion`).accordion();
+
+                // Initialize Sylius autocomplete
+                jQuery(`#${containerId} .sylius-autocomplete`).each(function() {
+                    jQuery(this).autoComplete();
+                });
             }, 10);
 
         } catch (error) {
