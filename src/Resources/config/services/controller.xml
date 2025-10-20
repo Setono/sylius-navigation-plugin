@@ -17,17 +17,8 @@
         </service>
 
         <service id="Setono\SyliusNavigationPlugin\Controller\BuildController">
-            <argument type="service" id="setono_sylius_navigation.repository.navigation"/>
-            <argument type="service" id="setono_sylius_navigation.factory.item"/>
-            <argument type="service" id="setono_sylius_navigation.factory.taxon_item"/>
-            <argument type="service" id="setono_sylius_navigation.factory.text_item"/>
-            <argument type="service" id="Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface"/>
-            <argument type="service" id="setono_sylius_navigation.repository.closure"/>
-            <argument type="service" id="sylius.repository.taxon"/>
-            <argument type="service" id="form.factory"/>
-            <argument type="service" id="Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface"/>
-            <argument type="service" id="twig"/>
             <argument type="service" id="doctrine"/>
+            <tag name="controller.service_arguments"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container" />

@@ -7,15 +7,24 @@
             <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\ClosureFactory.inner"/>
         </service>
 
+        <service id="Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface"
+                 alias="Setono\SyliusNavigationPlugin\Factory\ItemFactory"/>
+
         <service id="Setono\SyliusNavigationPlugin\Factory\ItemFactory"
                  decorates="setono_sylius_navigation.factory.item" decoration-priority="64">
             <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\ItemFactory.inner"/>
         </service>
 
+        <service id="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface"
+                 alias="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactory"/>
+
         <service id="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactory"
                  decorates="setono_sylius_navigation.factory.taxon_item" decoration-priority="64">
             <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactory.inner"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Factory\TextItemFactoryInterface"
+                 alias="Setono\SyliusNavigationPlugin\Factory\TextItemFactory"/>
 
         <service id="Setono\SyliusNavigationPlugin\Factory\TextItemFactory"
                  decorates="setono_sylius_navigation.factory.text_item" decoration-priority="64">

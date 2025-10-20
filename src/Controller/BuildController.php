@@ -29,31 +29,17 @@ final class BuildController extends AbstractController
 {
     use ORMTrait;
 
-    /**
-     * @param RepositoryInterface<TaxonInterface> $taxonRepository
-     */
-    public function __construct(
-        private readonly NavigationRepositoryInterface $navigationRepository,
-        private readonly ItemFactoryInterface $itemFactory,
-        private readonly TaxonItemFactoryInterface $taxonItemFactory,
-        private readonly TextItemFactoryInterface $textItemFactory,
-        private readonly ClosureManagerInterface $closureManager,
-        private readonly ClosureRepositoryInterface $closureRepository,
-        private readonly RepositoryInterface $taxonRepository,
-        private readonly FormFactoryInterface $formFactory,
-        private readonly ItemTypeRegistryInterface $itemTypeRegistry,
-        private readonly Environment $twig,
-        ManagerRegistry $managerRegistry,
-    ) {
+    public function __construct(ManagerRegistry $managerRegistry)
+    {
         $this->managerRegistry = $managerRegistry;
     }
 
     /**
      * Main build page - displays the interactive tree builder interface
      */
-    public function buildAction(int $id): Response
+    public function buildAction(int $id, NavigationRepositoryInterface $navigationRepository): Response
     {
-        $navigation = $this->navigationRepository->find($id);
+        $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             $this->addFlash('error', 'setono_sylius_navigation.navigation_not_found');
 
@@ -69,9 +55,9 @@ final class BuildController extends AbstractController
      * Load current tree structure as JSON
      * Supports lazy loading: if node id is provided, returns only children of that node
      */
-    public function getTreeAction(Request $request, int $id): JsonResponse
+    public function getTreeAction(Request $request, int $id, NavigationRepositoryInterface $navigationRepository, ClosureRepositoryInterface $closureRepository): JsonResponse
     {
-        $navigation = $this->navigationRepository->find($id);
+        $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
         }
@@ -81,7 +67,7 @@ final class BuildController extends AbstractController
 
         if ($nodeId === '#') {
             // Load root level (first level items)
-            $tree = $this->buildTreeStructure($navigation, false); // false = don't load children recursively
+            $tree = $this->buildTreeStructure($navigation, $closureRepository, false); // false = don't load children recursively
         } else {
             // Load children of specific node
             $itemManager = $this->getManager($navigation);
@@ -91,10 +77,10 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => 'Parent item not found'], Response::HTTP_NOT_FOUND);
             }
 
-            $children = $this->getDirectChildren($parentItem);
+            $children = $this->getDirectChildren($parentItem, $closureRepository);
             $tree = [];
             foreach ($children as $child) {
-                $tree[] = $this->buildItemTree($child, false); // false = don't load children recursively
+                $tree[] = $this->buildItemTree($child, $closureRepository, false); // false = don't load children recursively
             }
         }
 
@@ -105,9 +91,9 @@ final class BuildController extends AbstractController
      * Search navigation items by label (jsTree AJAX search)
      * Returns array of node IDs that match the search term
      */
-    public function searchItemsAction(Request $request, int $id): JsonResponse
+    public function searchItemsAction(Request $request, int $id, NavigationRepositoryInterface $navigationRepository, ClosureRepositoryInterface $closureRepository): JsonResponse
     {
-        $navigation = $this->navigationRepository->find($id);
+        $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse([]);
         }
@@ -123,7 +109,7 @@ final class BuildController extends AbstractController
             return new JsonResponse([]);
         }
 
-        $matchingItems = $this->searchItemsRecursive($rootItem, $searchTerm);
+        $matchingItems = $this->searchItemsRecursive($rootItem, $searchTerm, $closureRepository);
 
         // jsTree expects an array of node IDs (as strings)
         // We need to include both the matched nodes AND all their parent nodes
@@ -135,7 +121,7 @@ final class BuildController extends AbstractController
 
             // Add all parent nodes up to the root using closure table
             // Find closures where this item is the descendant (these give us ancestors/parents)
-            $parentClosures = $this->closureRepository->findBy([
+            $parentClosures = $closureRepository->findBy([
                 'descendant' => $item,
             ]);
 
@@ -157,10 +143,10 @@ final class BuildController extends AbstractController
     /**
      * Get available item types from registry (AJAX endpoint)
      */
-    public function getItemTypesAction(): JsonResponse
+    public function getItemTypesAction(ItemTypeRegistryInterface $itemTypeRegistry): JsonResponse
     {
         try {
-            $itemTypes = $this->itemTypeRegistry->getFormTypesForDropdown();
+            $itemTypes = $itemTypeRegistry->getFormTypesForDropdown();
 
             return new JsonResponse(['success' => true, 'itemTypes' => $itemTypes]);
         } catch (\Exception $e) {
@@ -171,36 +157,50 @@ final class BuildController extends AbstractController
     /**
      * Get form HTML for a specific item type (AJAX endpoint)
      */
-    public function getFormAction(Request $request, string $type): Response
-    {
+    public function getFormAction(
+        Request $request,
+        string $type,
+        ItemTypeRegistryInterface $itemTypeRegistry,
+        TaxonItemFactoryInterface $taxonItemFactory,
+        TextItemFactoryInterface $textItemFactory,
+        ItemFactoryInterface $itemFactory,
+        FormFactoryInterface $formFactory,
+        Environment $twig,
+        NavigationRepositoryInterface $navigationRepository,
+    ): Response {
         try {
-            if (!$this->itemTypeRegistry->has($type)) {
+            if (!$itemTypeRegistry->has($type)) {
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_NOT_FOUND);
             }
 
-            $formClass = $this->itemTypeRegistry->getForm($type);
-            $metadata = $this->itemTypeRegistry->getType($type);
+            $formClass = $itemTypeRegistry->getForm($type);
+            $metadata = $itemTypeRegistry->getType($type);
 
             // Check if we're editing an existing item
             $itemId = $request->query->get('itemId');
             if ($itemId !== null) {
                 // Load existing item for editing
-                $item = $this->getManager($this->navigationRepository->findOneBy([]))->getRepository(ItemInterface::class)->find((int) $itemId);
+                // We need a navigation to get the manager, so get any navigation (they all share the same manager)
+                $anyNavigation = $navigationRepository->findOneBy([]);
+                if (!$anyNavigation instanceof NavigationInterface) {
+                    return new JsonResponse(['error' => 'No navigation found in the system'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+                $item = $this->getManager($anyNavigation)->getRepository(ItemInterface::class)->find((int) $itemId);
                 if (!$item instanceof ItemInterface) {
                     return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
                 }
             } else {
                 // Create new item instance
                 $item = match ($type) {
-                    'taxon' => $this->taxonItemFactory->createNew(),
-                    'text' => $this->textItemFactory->createNew(),
-                    default => $this->itemFactory->createNew(),
+                    'taxon' => $taxonItemFactory->createNew(),
+                    'text' => $textItemFactory->createNew(),
+                    default => $itemFactory->createNew(),
                 };
             }
 
-            $form = $this->formFactory->create($formClass, $item);
+            $form = $formFactory->create($formClass, $item);
 
-            $html = $this->twig->render($metadata['template'], [
+            $html = $twig->render($metadata['template'], [
                 'form' => $form->createView(),
                 'type' => $type,
                 'metadata' => $metadata,
@@ -214,10 +214,24 @@ final class BuildController extends AbstractController
 
     /**
      * Add new item to navigation
+     *
+     * @param RepositoryInterface<TaxonInterface> $taxonRepository
      */
-    public function addItemAction(Request $request, int $id): JsonResponse
-    {
-        $navigation = $this->navigationRepository->find($id);
+    public function addItemAction(
+        Request $request,
+        int $id,
+        NavigationRepositoryInterface $navigationRepository,
+        ItemTypeRegistryInterface $itemTypeRegistry,
+        TaxonItemFactoryInterface $taxonItemFactory,
+        TextItemFactoryInterface $textItemFactory,
+        ItemFactoryInterface $itemFactory,
+        FormFactoryInterface $formFactory,
+        RepositoryInterface $taxonRepository,
+        ClosureManagerInterface $closureManager,
+        ClosureRepositoryInterface $closureRepository,
+        Environment $twig,
+    ): JsonResponse {
+        $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
         }
@@ -230,20 +244,20 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => 'Invalid item type'], Response::HTTP_BAD_REQUEST);
             }
 
-            if (!$this->itemTypeRegistry->has($type)) {
+            if (!$itemTypeRegistry->has($type)) {
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_BAD_REQUEST);
             }
 
             // Create item based on type
             $item = match ($type) {
-                'taxon' => $this->taxonItemFactory->createNew(),
-                'text' => $this->textItemFactory->createNew(),
-                default => $this->itemFactory->createNew(),
+                'taxon' => $taxonItemFactory->createNew(),
+                'text' => $textItemFactory->createNew(),
+                default => $itemFactory->createNew(),
             };
 
             // Get the appropriate form type from registry
-            $formClass = $this->itemTypeRegistry->getForm($type);
-            $form = $this->formFactory->create($formClass, $item);
+            $formClass = $itemTypeRegistry->getForm($type);
+            $form = $formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
             $form->handleRequest($request);
@@ -267,7 +281,7 @@ final class BuildController extends AbstractController
 
             // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
-                $taxon = $this->taxonRepository->find($request->request->get('taxon_id'));
+                $taxon = $taxonRepository->find($request->request->get('taxon_id'));
                 if ($taxon instanceof TaxonInterface) {
                     $item->setTaxon($taxon);
                 }
@@ -286,11 +300,11 @@ final class BuildController extends AbstractController
             $this->getManager($item)->persist($item);
             $this->getManager($item)->flush();
 
-            $this->closureManager->createItem($item, $parent);
+            $closureManager->createItem($item, $parent);
 
             // Return rendered tree HTML
-            $tree = $this->buildTreeStructureEntities($navigation);
-            $html = $this->twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
+            $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
+            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
                 'items' => $tree,
             ]);
 
@@ -311,11 +325,22 @@ final class BuildController extends AbstractController
 
     /**
      * Update existing item
+     *
+     * @param RepositoryInterface<TaxonInterface> $taxonRepository
      */
-    public function updateItemAction(Request $request, int $id, int $itemId): JsonResponse
-    {
+    public function updateItemAction(
+        Request $request,
+        int $id,
+        int $itemId,
+        NavigationRepositoryInterface $navigationRepository,
+        ItemTypeRegistryInterface $itemTypeRegistry,
+        FormFactoryInterface $formFactory,
+        RepositoryInterface $taxonRepository,
+        ClosureRepositoryInterface $closureRepository,
+        Environment $twig,
+    ): JsonResponse {
         try {
-            $navigation = $this->navigationRepository->find($id);
+            $navigation = $navigationRepository->find($id);
             if (!$navigation instanceof NavigationInterface) {
                 return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
             }
@@ -328,8 +353,8 @@ final class BuildController extends AbstractController
 
             // Get the appropriate form type from registry based on item type
             $type = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
-            $formClass = $this->itemTypeRegistry->getForm($type);
-            $form = $this->formFactory->create($formClass, $item);
+            $formClass = $itemTypeRegistry->getForm($type);
+            $form = $formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
             $form->handleRequest($request);
@@ -353,7 +378,7 @@ final class BuildController extends AbstractController
 
             // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
-                $taxon = $this->taxonRepository->find($request->request->get('taxon_id'));
+                $taxon = $taxonRepository->find($request->request->get('taxon_id'));
                 if ($taxon instanceof TaxonInterface) {
                     $item->setTaxon($taxon);
                 }
@@ -362,8 +387,8 @@ final class BuildController extends AbstractController
             $itemManager->flush();
 
             // Return rendered tree HTML
-            $tree = $this->buildTreeStructureEntities($navigation);
-            $html = $this->twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
+            $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
+            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
                 'items' => $tree,
             ]);
 
@@ -391,9 +416,15 @@ final class BuildController extends AbstractController
     /**
      * Remove item from navigation
      */
-    public function deleteItemAction(int $id, int $itemId): JsonResponse
-    {
-        $navigation = $this->navigationRepository->find($id);
+    public function deleteItemAction(
+        int $id,
+        int $itemId,
+        NavigationRepositoryInterface $navigationRepository,
+        ClosureManagerInterface $closureManager,
+        ClosureRepositoryInterface $closureRepository,
+        Environment $twig,
+    ): JsonResponse {
+        $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
         }
@@ -410,11 +441,11 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => 'Cannot delete the root item'], Response::HTTP_BAD_REQUEST);
             }
 
-            $this->closureManager->removeTree($item);
+            $closureManager->removeTree($item);
 
             // Return rendered tree HTML
-            $tree = $this->buildTreeStructureEntities($navigation);
-            $html = $this->twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
+            $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
+            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
                 'items' => $tree,
             ]);
 
@@ -430,9 +461,13 @@ final class BuildController extends AbstractController
     /**
      * Reorder items using drag & drop
      */
-    public function reorderItemAction(Request $request, int $id): JsonResponse
-    {
-        $navigation = $this->navigationRepository->find($id);
+    public function reorderItemAction(
+        Request $request,
+        int $id,
+        NavigationRepositoryInterface $navigationRepository,
+        ClosureManagerInterface $closureManager,
+    ): JsonResponse {
+        $navigation = $navigationRepository->find($id);
         if (!$navigation instanceof NavigationInterface) {
             return new JsonResponse(['error' => 'Navigation not found'], Response::HTTP_NOT_FOUND);
         }
@@ -461,7 +496,7 @@ final class BuildController extends AbstractController
                 $newParent = $itemManager->getRepository(ItemInterface::class)->find($newParentId);
             }
 
-            $this->closureManager->moveItem($item, $newParent, $position);
+            $closureManager->moveItem($item, $newParent, $position);
 
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
@@ -472,7 +507,7 @@ final class BuildController extends AbstractController
     /**
      * @return array<int, mixed>
      */
-    private function buildTreeStructure(NavigationInterface $navigation, bool $recursive = true): array
+    private function buildTreeStructure(NavigationInterface $navigation, ClosureRepositoryInterface $closureRepository, bool $recursive = true): array
     {
         $rootItem = $navigation->getRootItem();
         if (null === $rootItem) {
@@ -480,11 +515,11 @@ final class BuildController extends AbstractController
         }
 
         // Get direct children of the hidden root (these are the UI "root" items)
-        $children = $this->getDirectChildren($rootItem);
+        $children = $this->getDirectChildren($rootItem, $closureRepository);
         $childrenArray = [];
 
         foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTree($child, $recursive);
+            $childrenArray[] = $this->buildItemTree($child, $closureRepository, $recursive);
         }
 
         return $childrenArray;
@@ -493,7 +528,7 @@ final class BuildController extends AbstractController
     /**
      * @return array<int, array{entity: ItemInterface, children: array<int, mixed>}>
      */
-    private function buildTreeStructureEntities(NavigationInterface $navigation): array
+    private function buildTreeStructureEntities(NavigationInterface $navigation, ClosureRepositoryInterface $closureRepository): array
     {
         $rootItem = $navigation->getRootItem();
         if (null === $rootItem) {
@@ -501,11 +536,11 @@ final class BuildController extends AbstractController
         }
 
         // Get direct children of the hidden root (these are the UI "root" items)
-        $children = $this->getDirectChildren($rootItem);
+        $children = $this->getDirectChildren($rootItem, $closureRepository);
         $childrenArray = [];
 
         foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTreeEntities($child);
+            $childrenArray[] = $this->buildItemTreeEntities($child, $closureRepository);
         }
 
         return $childrenArray;
@@ -514,13 +549,13 @@ final class BuildController extends AbstractController
     /**
      * @return array{entity: ItemInterface, children: array<int, mixed>}
      */
-    private function buildItemTreeEntities(ItemInterface $item): array
+    private function buildItemTreeEntities(ItemInterface $item, ClosureRepositoryInterface $closureRepository): array
     {
-        $children = $this->getDirectChildren($item);
+        $children = $this->getDirectChildren($item, $closureRepository);
         $childrenArray = [];
 
         foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTreeEntities($child);
+            $childrenArray[] = $this->buildItemTreeEntities($child, $closureRepository);
         }
 
         return [
@@ -532,16 +567,16 @@ final class BuildController extends AbstractController
     /**
      * @return array<string, mixed>
      */
-    private function buildItemTree(ItemInterface $item, bool $recursive = true): array
+    private function buildItemTree(ItemInterface $item, ClosureRepositoryInterface $closureRepository, bool $recursive = true): array
     {
-        $children = $this->getDirectChildren($item);
+        $children = $this->getDirectChildren($item, $closureRepository);
         $hasChildren = count($children) > 0;
         $childrenArray = [];
 
         if ($recursive) {
             // Load all children recursively
             foreach ($children as $child) {
-                $childrenArray[] = $this->buildItemTree($child, true);
+                $childrenArray[] = $this->buildItemTree($child, $closureRepository, true);
             }
         }
 
@@ -589,10 +624,10 @@ final class BuildController extends AbstractController
      *
      * @return ItemInterface[]
      */
-    private function getDirectChildren(ItemInterface $item): array
+    private function getDirectChildren(ItemInterface $item, ClosureRepositoryInterface $closureRepository): array
     {
         // Find all closures where this item is the ancestor with depth = 1 (direct children)
-        $childClosures = $this->closureRepository->findBy([
+        $childClosures = $closureRepository->findBy([
             'ancestor' => $item,
             'depth' => 1,
         ]);
@@ -613,10 +648,10 @@ final class BuildController extends AbstractController
      *
      * @return ItemInterface[]
      */
-    private function searchItemsRecursive(ItemInterface $item, string $searchTerm): array
+    private function searchItemsRecursive(ItemInterface $item, string $searchTerm, ClosureRepositoryInterface $closureRepository): array
     {
         $matches = [];
-        $children = $this->getDirectChildren($item);
+        $children = $this->getDirectChildren($item, $closureRepository);
 
         foreach ($children as $child) {
             $label = $this->getItemLabel($child);
@@ -625,7 +660,7 @@ final class BuildController extends AbstractController
             }
 
             // Search in children recursively
-            $childMatches = $this->searchItemsRecursive($child, $searchTerm);
+            $childMatches = $this->searchItemsRecursive($child, $searchTerm, $closureRepository);
             $matches = array_merge($matches, $childMatches);
         }
 
