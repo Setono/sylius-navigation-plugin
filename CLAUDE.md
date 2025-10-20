@@ -238,7 +238,7 @@ The navigation builder interface uses specialized form types for AJAX-based CRUD
 Both form types are registered as Symfony services with the `form.type` tag for automatic discovery.
 
 ### Testing the Builder Interface
-- **Test URL**: `https://127.0.0.1:8000/admin/navigation/navigations/2/build`
+- **Test URL**: `https://127.0.0.1:8000/admin/navigation/navigations/{id}/build`
 - **Functionality**: All CRUD operations (Create, Read, Update, Delete) work via AJAX
 - **Validation**: Proper Symfony form validation with error handling
 - **User Experience**: Modals, confirmation dialogs, and success feedback messages
@@ -247,5 +247,4 @@ Both form types are registered as Symfony services with the `form.type` tag for 
 - Tests are in `tests/` directory
 - Test application in `tests/Application/` provides full Sylius environment
 - Use `composer phpunit` to run tests
-- Psalm configuration excludes test application from analysis
 - **Manual Testing**: Navigation builder can be tested at `/admin/navigation/navigations/{id}/build`
