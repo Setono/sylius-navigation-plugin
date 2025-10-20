@@ -1,0 +1,18 @@
+{% form_theme form '@SyliusAdmin/Form/theme.html.twig' %}
+{% from '@SyliusAdmin/Macro/translationForm.html.twig' import translationForm %}
+
+{{ form_start(form, {'attr': {'class': 'ui form', 'novalidate': 'novalidate'}}) }}
+    {{ form_row(form.taxon, {
+        'label': '<i class="tag icon"></i> ' ~ form.taxon.vars.label|trans,
+        'label_html': true,
+        'help': 'Select a taxon to link this navigation item to a product category',
+        'attr': {'class': 'ui fluid search selection dropdown'}
+    }) }}
+
+    <div class="field">
+        {{ translationForm(form.translations) }}
+    </div>
+
+    {{ form_row(form.enabled) }}
+    {{ form_row(form.channels) }}
+{{ form_end(form, {'render_rest': false}) }}

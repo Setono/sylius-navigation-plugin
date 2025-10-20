@@ -243,10 +243,6 @@ class NavigationBuilder {
         // Load form for selected type
         await this.loadFormFields(type, 'add');
 
-        // Set the hidden fields
-        document.getElementById('parent-id-field').value = parentId || '';
-        document.getElementById('item-type-field').value = type;
-
         // Update modal title based on type
         const titleElement = document.getElementById('add-item-modal-title');
         const typeLabel = this.itemTypes[type] || type;
@@ -271,9 +267,6 @@ class NavigationBuilder {
 
         // Load form for the item type
         await this.loadFormFields(type, 'edit', itemId);
-
-        // Set the hidden field
-        document.getElementById('edit-item-id').value = itemId;
 
         // Show modal
         jQuery('#edit-item-modal').modal('show');
@@ -314,8 +307,19 @@ class NavigationBuilder {
     }
 
     async addItem() {
-        const form = document.getElementById('add-item-form');
+        const container = document.getElementById('add-item-form-fields');
+        const form = container.querySelector('form');
+        if (!form) {
+            this.showError('Form not found');
+            return;
+        }
         const formData = new FormData(form);
+
+        // Add additional fields
+        if (this.currentParentId) {
+            formData.append('parent_id', this.currentParentId);
+        }
+        formData.append('type', this.currentSelectedType);
 
         try {
             const response = await fetch(this.config.routes.addItem, {
@@ -349,7 +353,12 @@ class NavigationBuilder {
 
     async updateItem() {
         const itemId = this.currentEditItemId;
-        const form = document.getElementById('edit-item-form');
+        const container = document.getElementById('edit-item-form-fields');
+        const form = container.querySelector('form');
+        if (!form) {
+            this.showError('Form not found');
+            return;
+        }
         const formData = new FormData(form);
 
         try {
