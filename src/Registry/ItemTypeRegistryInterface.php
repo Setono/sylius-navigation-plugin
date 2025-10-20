@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Registry;
 
-use Setono\SyliusNavigationPlugin\Form\Type\AbstractBuilderItemType;
+use Symfony\Component\Form\FormTypeInterface;
 
 interface ItemTypeRegistryInterface
 {
     /**
      * @param class-string $entity
-     * @param class-string<AbstractBuilderItemType> $form
+     * @param class-string<FormTypeInterface<mixed>> $form
      */
     public function register(string $name, string $label, string $entity, string $form, string $template): void;
 
     /**
-     * @return array{name: string, label: string, entity: class-string, form: class-string<AbstractBuilderItemType>, template: string}
+     * @return array{name: string, label: string, entity: class-string, form: class-string, template: string}
      *
      * @throws \InvalidArgumentException if the item type is not registered
      */
@@ -24,7 +24,7 @@ interface ItemTypeRegistryInterface
     /**
      * Get the form class for a given item type name
      *
-     * @return class-string<AbstractBuilderItemType>
+     * @return class-string<\Symfony\Component\Form\FormTypeInterface<mixed>>
      *
      * @throws \InvalidArgumentException if the item type is not registered
      */

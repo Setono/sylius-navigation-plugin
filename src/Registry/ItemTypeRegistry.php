@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Registry;
 
-use Setono\SyliusNavigationPlugin\Form\Type\AbstractBuilderItemType;
+use Symfony\Component\Form\FormTypeInterface;
 
 final class ItemTypeRegistry implements ItemTypeRegistryInterface
 {
     /**
      * An array of defined types. The key is the name, and the value is an array of metadata
      *
-     * @var array<string, array{name: string, label: string, entity: class-string, form: class-string<AbstractBuilderItemType>, template: string}>
+     * @var array<string, array{name: string, label: string, entity: class-string, form: class-string<FormTypeInterface<mixed>>, template: string}>
      */
     private array $types = [];
 

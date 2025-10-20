@@ -39,16 +39,5 @@
             <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
             <tag name="form.type"/>
         </service>
-
-        <service id="Setono\SyliusNavigationPlugin\Form\Type\AbstractBuilderItemType" abstract="true"/>
-        
-        <service id="Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType">
-            <tag name="form.type"/>
-        </service>
-
-        <service id="Setono\SyliusNavigationPlugin\Form\Type\BuilderTaxonItemType">
-            <tag name="form.type"/>
-        </service>
-
     </services>
 </container>
