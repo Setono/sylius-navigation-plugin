@@ -1,96 +1,21 @@
 /**
- * Navigation Builder with jsTree - Custom Styles
- * Integrates jsTree with Semantic UI styling
+ * Navigation Builder with jsTree - Minimal Custom Styles
+ * Uses jsTree's native styling with minimal overrides
  */
 
-/* Override jsTree default styles to match Semantic UI */
-#navigation-tree.jstree {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* Container scrolling */
+#navigation-tree {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
 }
 
-/* jsTree node styling */
-#navigation-tree .jstree-node {
-    margin: 4px 0;
-}
-
-#navigation-tree .jstree-anchor {
-    padding: 8px 12px;
-    border-radius: 6px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
-    line-height: 24px;
-    height: auto;
-}
-
-#navigation-tree .jstree-anchor:hover {
-    background: #e9ecef;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#navigation-tree .jstree-clicked {
-    background: #e3f2fd !important;
-    box-shadow: none !important;
-}
-
-/* jsTree icon styling */
-#navigation-tree .jstree-icon {
-    margin-right: 6px;
-    color: #6c757d;
-}
-
-#navigation-tree .jstree-themeicon {
-    margin-right: 6px;
-}
-
-/* Disabled items */
-#navigation-tree .jstree-disabled {
-    opacity: 0.5;
-}
-
-/* Root level styling */
-#navigation-tree > .jstree-container-ul > .jstree-node > .jstree-anchor {
-    background: #fff;
-    font-weight: 600;
-}
-
-#navigation-tree > .jstree-container-ul > .jstree-node > .jstree-anchor:hover {
-    background: #f8f9fa;
-}
-
-/* Context menu integration */
-.jstree-contextmenu {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border: 1px solid #dee2e6;
-}
-
-.jstree-contextmenu .jstree-contextmenu-sep {
-    margin: 4px 0;
-}
-
-/* Drag and drop styling */
-#navigation-tree .jstree-draggable {
-    background: #fff3e0 !important;
-    border: 2px solid #ff9800 !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-#navigation-tree .jstree-drop {
-    background: #e3f2fd;
-    border: 2px dashed #2196f3;
-}
-
-/* Loading state */
+/* Loading and empty states */
 #tree-loading {
     text-align: center;
     padding: 40px 20px;
     color: #6c757d;
 }
 
-/* Empty state styling */
 #empty-tree {
     text-align: center;
     padding: 40px 20px;
@@ -112,57 +37,7 @@
     margin-bottom: 1rem;
 }
 
-/* Custom type icons for jsTree */
-#navigation-tree .jstree-icon.jstree-themeicon-custom {
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-/* Taxon type icon */
-#navigation-tree .jstree-node[type="taxon"] > .jstree-anchor > .jstree-themeicon::before {
-    content: "\f02b"; /* tag icon */
-    font-family: 'Icons';
-    font-style: normal;
-}
-
-/* Default type icon */
-#navigation-tree .jstree-node[type="default"] > .jstree-anchor > .jstree-themeicon::before {
-    content: "\f15c"; /* file text icon */
-    font-family: 'Icons';
-    font-style: normal;
-}
-
-/* Make the tree container scrollable if needed */
-#navigation-tree {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #navigation-tree .jstree-anchor {
-        padding: 6px 10px;
-        font-size: 14px;
-    }
-
-    #navigation-tree {
-        max-height: calc(100vh - 250px);
-    }
-}
-
-/* Add custom status indicators */
-#navigation-tree .jstree-anchor::after {
-    content: attr(data-status);
-    margin-left: auto;
-    font-size: 12px;
-    padding: 2px 8px;
-    border-radius: 12px;
-    background: #e9ecef;
-    color: #6c757d;
-}
-
-/* Enabled/disabled visual indicators */
+/* Enabled/disabled visual indicators using Semantic UI icons */
 #navigation-tree .jstree-anchor[data-enabled="true"]::before {
     content: '\f058'; /* check circle icon */
     font-family: 'Icons';
@@ -175,4 +50,11 @@
     font-family: 'Icons';
     color: #dc3545;
     margin-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #navigation-tree {
+        max-height: calc(100vh - 250px);
+    }
 }
