@@ -141,7 +141,7 @@ final class BuildController extends AbstractController
                 $itemTypes[$name] = $itemType->label;
             }
 
-            return new JsonResponse(['success' => true, 'itemTypes' => $itemTypes]);
+            return new JsonResponse($itemTypes);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -199,7 +199,7 @@ final class BuildController extends AbstractController
                 'metadata' => $itemType,
             ]);
 
-            return new JsonResponse(['success' => true, 'html' => $html]);
+            return new JsonResponse(['html' => $html]);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
