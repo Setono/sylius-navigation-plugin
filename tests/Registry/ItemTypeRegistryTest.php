@@ -61,24 +61,6 @@ final class ItemTypeRegistryTest extends TestCase
     /**
      * @test
      */
-    public function it_retrieves_form_class_for_registered_item_type(): void
-    {
-        $this->registry->register(
-            'text',
-            'Text Item',
-            TextItem::class,
-            BuilderTextItemType::class,
-            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
-        );
-
-        $formClass = $this->registry->getForm('text');
-
-        self::assertSame(BuilderTextItemType::class, $formClass);
-    }
-
-    /**
-     * @test
-     */
     public function it_returns_false_when_item_type_is_not_registered(): void
     {
         self::assertFalse($this->registry->has('non_existent'));
@@ -93,17 +75,6 @@ final class ItemTypeRegistryTest extends TestCase
         $this->expectExceptionMessage('No item type registered with name "non_existent". Available types:');
 
         $this->registry->get('non_existent');
-    }
-
-    /**
-     * @test
-     */
-    public function it_throws_exception_when_getting_form_for_non_existent_item_type(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('No item type registered with name "non_existent". Available types:');
-
-        $this->registry->getForm('non_existent');
     }
 
     /**

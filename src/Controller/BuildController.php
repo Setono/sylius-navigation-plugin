@@ -129,22 +129,12 @@ final class BuildController extends AbstractController
         return new JsonResponse($nodeIds);
     }
 
-    /**
-     * Get available item types from registry (AJAX endpoint)
-     */
     public function getItemTypesAction(ItemTypeRegistryInterface $itemTypeRegistry): JsonResponse
     {
-        try {
-            // Get all registered types and extract name => label mapping
-            $itemTypes = [];
-            foreach ($itemTypeRegistry->all() as $name => $itemType) {
-                $itemTypes[$name] = $itemType->label;
-            }
+        // Get all registered types and extract name => label mapping
+        $itemTypes = array_map(static fn ($itemType) => $itemType->label, $itemTypeRegistry->all());
 
-            return new JsonResponse($itemTypes);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return new JsonResponse($itemTypes);
     }
 
     /**
@@ -166,8 +156,8 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => sprintf('Unknown item type: %s', $type)], Response::HTTP_NOT_FOUND);
             }
 
-            $formClass = $itemTypeRegistry->getForm($type);
             $itemType = $itemTypeRegistry->get($type);
+            $formClass = $itemType->form;
 
             // Check if we're editing an existing item
             $itemId = $request->query->get('itemId');
@@ -243,7 +233,7 @@ final class BuildController extends AbstractController
             };
 
             // Get the appropriate form type from registry
-            $formClass = $itemTypeRegistry->getForm($type);
+            $formClass = $itemTypeRegistry->get($type)->form;
             $form = $formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
@@ -334,7 +324,7 @@ final class BuildController extends AbstractController
 
             // Get the appropriate form type from registry based on item type
             $type = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
-            $formClass = $itemTypeRegistry->getForm($type);
+            $formClass = $itemTypeRegistry->get($type)->form;
             $form = $formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest

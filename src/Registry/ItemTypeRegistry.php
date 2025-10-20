@@ -35,19 +35,6 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
         return $this->types[$name];
     }
 
-    public function getForm(string $name): string
-    {
-        if (!isset($this->types[$name])) {
-            throw new \InvalidArgumentException(sprintf(
-                'No item type registered with name "%s". Available types: %s',
-                $name,
-                implode(', ', array_keys($this->types)),
-            ));
-        }
-
-        return $this->types[$name]->form;
-    }
-
     public function has(string $name): bool
     {
         return isset($this->types[$name]);

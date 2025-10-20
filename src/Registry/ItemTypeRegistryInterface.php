@@ -20,21 +20,12 @@ interface ItemTypeRegistryInterface
     public function get(string $name): ItemType;
 
     /**
-     * Get the form class for a given item type name
-     *
-     * @return class-string<\Symfony\Component\Form\FormTypeInterface<mixed>>
-     *
-     * @throws \InvalidArgumentException if the item type is not registered
-     */
-    public function getForm(string $name): string;
-
-    /**
      * Check if an item type is registered
      */
     public function has(string $name): bool;
 
     /**
-     * Get all registered item types
+     * Get all registered item types indexed by name
      *
      * @return array<string, ItemType>
      */
