@@ -351,7 +351,6 @@ final class GraphBuilderTest extends TestCase
         // Use reflection to set the ID since it's protected
         $reflection = new \ReflectionClass($item);
         $idProperty = $reflection->getProperty('id');
-        $idProperty->setAccessible(true);
         $idProperty->setValue($item, $id);
 
         $item->setCurrentLocale('en_US');

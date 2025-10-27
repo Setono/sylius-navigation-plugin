@@ -40,7 +40,6 @@ final class DefaultItemRendererTest extends TestCase
 
         $reflection = new \ReflectionClass($renderer);
         $property = $reflection->getProperty('defaultTemplate');
-        $property->setAccessible(true);
 
         self::assertSame(
             '@SetonoSyliusNavigationPlugin/navigation/item/default.html.twig',
@@ -59,7 +58,6 @@ final class DefaultItemRendererTest extends TestCase
 
         $reflection = new \ReflectionClass($renderer);
         $property = $reflection->getProperty('defaultTemplate');
-        $property->setAccessible(true);
 
         self::assertSame($customTemplate, $property->getValue($renderer));
     }
