@@ -31,6 +31,7 @@ final class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
 
         $this->addResourcesSection($rootNode);
+        $this->addCacheSection($rootNode);
 
         return $treeBuilder;
     }
@@ -166,6 +167,21 @@ final class Configuration implements ConfigurationInterface
                                         ->scalarNode('repository')->defaultValue(NavigationRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('form')->defaultValue(NavigationType::class)->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
+        ;
+    }
+
+    private function addCacheSection(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->arrayNode('cache')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultNull()->info('Will be true by default when the kernel.debug parameter is false')->end()
+                        ->scalarNode('pool')->defaultValue('cache.app')->cannotBeEmpty()->end()
+                    ->end()
+                ->end()
+            ->end()
         ;
     }
 }

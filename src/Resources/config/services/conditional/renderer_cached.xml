@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer"
+                 decorates="Setono\SyliusNavigationPlugin\Renderer\NavigationRenderer" decoration-priority="100">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer.inner"/>
+            <argument type="service" id="setono_sylius_navigation.cache.pool"/>
+            <argument type="service" id="sylius.context.channel"/>
+            <argument type="service" id="sylius.context.locale"/>
+        </service>
+
+        <service id="Setono\SyliusNavigationPlugin\EventListener\Doctrine\InvalidateNavigationCacheListener">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer"/>
+
+            <tag name="doctrine.event_listener" event="postUpdate"/>
+            <tag name="doctrine.event_listener" event="postRemove"/>
+            <tag name="doctrine.event_listener" event="postPersist"/>
+        </service>
+    </services>
+</container>

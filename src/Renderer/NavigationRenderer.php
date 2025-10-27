@@ -15,7 +15,6 @@ use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Twig\Environment;
 
-// todo cache this
 final class NavigationRenderer implements NavigationRendererInterface, LoggerAwareInterface
 {
     private LoggerInterface $logger;
