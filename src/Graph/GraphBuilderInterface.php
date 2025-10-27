@@ -8,5 +8,10 @@ use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 
 interface GraphBuilderInterface
 {
-    public function build(NavigationInterface $navigation): Node;
+    /**
+     * Builds a graph of navigation items
+     *
+     * @return iterable<Node>
+     */
+    public function build(NavigationInterface $navigation): iterable;
 }

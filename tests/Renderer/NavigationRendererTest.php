@@ -9,9 +9,7 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Setono\SyliusNavigationPlugin\Graph\GraphBuilderInterface;
-use Setono\SyliusNavigationPlugin\Graph\Node;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
-use Setono\SyliusNavigationPlugin\Model\TextItem;
 use Setono\SyliusNavigationPlugin\Renderer\NavigationRenderer;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -44,7 +42,7 @@ final class NavigationRendererTest extends TestCase
         $this->navigationRepository = $this->prophesize(NavigationRepositoryInterface::class);
 
         $this->graphBuilder = $this->prophesize(GraphBuilderInterface::class);
-        $this->graphBuilder->build(Argument::type(Navigation::class))->willReturn(new Node(new TextItem()));
+        $this->graphBuilder->build(Argument::type(Navigation::class))->willReturn([]);
 
         $channel = new Channel();
         $channel->setCode('WEB');

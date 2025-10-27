@@ -1,15 +1,15 @@
 <nav class="ssn-nav" data-code="{{ navigation.code }}">
-    {{ _self.render_node(graph) }}
+    {{ _self.render_children(graph) }}
 </nav>
 
-{% macro render_node(node) %}
-    {# @var node \Setono\SyliusNavigationPlugin\Graph\Node #}
-    {% if node.children is not empty %}
+{% macro render_children(graph) %}
+    {# @var graph \Setono\SyliusNavigationPlugin\Graph\Node|list<\Setono\SyliusNavigationPlugin\Graph\Node> #}
+    {% if graph|length > 0 %}
         <ul>
-            {% for child in node.children %}
-                <li class="level-{{ child.depth }}">
-                    {{ ssn_item(child.item) }}
-                    {{ _self.render_node(child) }}
+            {% for node in graph %}
+                <li class="level-{{ node.depth }}">
+                    {{ ssn_item(node.item) }}
+                    {{ _self.render_children(node) }}
                 </li>
             {% endfor %}
         </ul>

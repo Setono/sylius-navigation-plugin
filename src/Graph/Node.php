@@ -23,7 +23,7 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
 
     public function __toString(): string
     {
-        return $this->item !== null ? (string) $this->item->getLabel() : 'Virtual Root';
+        return $this->item?->getLabel() ?? 'Node';
     }
 
     /**

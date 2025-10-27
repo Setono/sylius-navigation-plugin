@@ -14,7 +14,7 @@ final class GraphBuilder implements GraphBuilderInterface
     {
     }
 
-    public function build(NavigationInterface $navigation): Node
+    public function build(NavigationInterface $navigation): iterable
     {
         /** @var array<int, Node> $nodes */
         $nodes = [];
@@ -48,15 +48,7 @@ final class GraphBuilder implements GraphBuilderInterface
             }
         }
 
-        // Find all root nodes (nodes without parents)
-        $roots = array_values(array_filter($nodes, static fn (Node $node) => !$node->hasParents()));
-
-        // Create a virtual root node that contains all actual root nodes as children
-        $virtualRoot = new Node(null);
-        foreach ($roots as $root) {
-            $virtualRoot->addChild($root);
-        }
-
-        return $virtualRoot;
+        // Return all root nodes (nodes without parents)
+        return array_values(array_filter($nodes, static fn (Node $node) => !$node->hasParents()));
     }
 }
