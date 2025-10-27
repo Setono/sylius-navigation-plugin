@@ -33,6 +33,7 @@ class NavigationBuilder {
 
         // Initialize modals
         jQuery('#add-item-modal').modal({
+            autofocus: false,
             onHidden: () => {
                 jQuery('.ui.button.dropdown.initialized').each(function() {
                     jQuery(this).removeClass('initialized');
@@ -40,8 +41,12 @@ class NavigationBuilder {
             }
         });
 
-        jQuery('#edit-item-modal').modal();
-        jQuery('#delete-item-modal').modal();
+        jQuery('#edit-item-modal').modal({
+            autofocus: false
+        });
+        jQuery('#delete-item-modal').modal({
+            autofocus: false
+        });
 
         // Initialize search
         this.initializeSearch();
