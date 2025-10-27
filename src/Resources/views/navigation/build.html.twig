@@ -74,41 +74,6 @@
                 <i class="info circle icon"></i>
                 {{ 'sylius.ui.information'|trans }}
             </h3>
-
-            <div class="ui relaxed list">
-                <div class="item">
-                    <i class="plus circle icon"></i>
-                    <div class="content">
-                        <div class="header">{{ 'setono_sylius_navigation.ui.add_items'|trans }}</div>
-                        <div class="description">{{ 'setono_sylius_navigation.ui.help.add_items'|trans }}</div>
-                    </div>
-                </div>
-                <div class="item">
-                    <i class="move icon"></i>
-                    <div class="content">
-                        <div class="header">{{ 'setono_sylius_navigation.ui.reorder_items'|trans }}</div>
-                        <div class="description">{{ 'setono_sylius_navigation.ui.help.reorder_items'|trans }}</div>
-                    </div>
-                </div>
-                <div class="item">
-                    <i class="edit icon"></i>
-                    <div class="content">
-                        <div class="header">{{ 'setono_sylius_navigation.ui.edit_items'|trans }}</div>
-                        <div class="description">{{ 'setono_sylius_navigation.ui.help.edit_items'|trans }}</div>
-                    </div>
-                </div>
-                <div class="item">
-                    <i class="trash icon"></i>
-                    <div class="content">
-                        <div class="header">{{ 'setono_sylius_navigation.ui.delete_items'|trans }}</div>
-                        <div class="description">{{ 'setono_sylius_navigation.ui.help.delete_items'|trans }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="ui segment">
-            <h4 class="ui header">{{ 'setono_sylius_navigation.ui.navigation_info'|trans }}</h4>
             <div class="ui relaxed list">
                 <div class="item">
                     <strong>{{ 'sylius.ui.code'|trans }}:</strong> {{ navigation.code }}
@@ -184,11 +149,11 @@
     <div class="actions">
         <div class="ui red basic cancel inverted button">
             <i class="remove icon"></i>
-            {{ 'sylius.ui.no'|trans }}
+            {{ 'sylius.ui.no_label'|trans }}
         </div>
         <div class="ui green ok inverted button" onclick="NavigationBuilder.deleteItem()">
             <i class="checkmark icon"></i>
-            {{ 'sylius.ui.yes'|trans }}
+            {{ 'sylius.ui.yes_label'|trans }}
         </div>
     </div>
 </div>
