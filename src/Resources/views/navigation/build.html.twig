@@ -74,20 +74,21 @@
                 <i class="info circle icon"></i>
                 {{ 'sylius.ui.information'|trans }}
             </h3>
-            <div class="ui relaxed list">
+            <div class="ui list">
+                <div class="item">
+                    {% if navigation.enabled %}
+                        <i class="green check circle icon"></i>
+                        <div class="content"><strong>{{ 'sylius.ui.enabled'|trans }}</strong></div>
+                    {% else %}
+                        <i class="red times circle icon"></i>
+                        <div class="content"><strong>{{ 'sylius.ui.disabled'|trans }}</strong></div>
+                    {% endif %}
+                </div>
                 <div class="item">
                     <strong>{{ 'sylius.ui.code'|trans }}:</strong> {{ navigation.code }}
                 </div>
                 <div class="item">
                     <strong>{{ 'sylius.ui.description'|trans }}:</strong> {{ navigation.description ?? 'N/A' }}
-                </div>
-                <div class="item">
-                    <strong>{{ 'sylius.ui.enabled'|trans }}:</strong>
-                    {% if navigation.enabled %}
-                        <i class="green check circle icon"></i> {{ 'sylius.ui.yes_label'|trans }}
-                    {% else %}
-                        <i class="red times circle icon"></i> {{ 'sylius.ui.no_label'|trans }}
-                    {% endif %}
                 </div>
             </div>
         </div>
