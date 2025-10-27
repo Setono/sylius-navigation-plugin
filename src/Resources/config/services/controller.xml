@@ -10,7 +10,7 @@
         </service>
 
         <service id="Setono\SyliusNavigationPlugin\ArgumentResolver\ItemValueResolver">
-            <argument type="service" id="doctrine"/>
+            <argument type="service" id="setono_sylius_navigation.repository.item"/>
             <tag name="controller.argument_value_resolver" priority="140"/>
         </service>
 
