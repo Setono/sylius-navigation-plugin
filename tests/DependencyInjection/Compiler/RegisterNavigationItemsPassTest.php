@@ -7,8 +7,7 @@ namespace Setono\SyliusNavigationPlugin\Tests\DependencyInjection\Compiler;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use Setono\SyliusNavigationPlugin\Attribute\ItemType;
 use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\RegisterNavigationItemsPass;
-use Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType;
-use Setono\SyliusNavigationPlugin\Model\ItemInterface;
+use Setono\SyliusNavigationPlugin\Form\Type\TextItemType;
 use Setono\SyliusNavigationPlugin\Model\TextItem;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
@@ -33,7 +32,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         $this->setDefinition(ItemTypeRegistryInterface::class, $registryDefinition);
 
         // Register the form type service
-        $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
+        $this->setDefinition(TextItemType::class, new Definition(TextItemType::class));
 
         // Register the factory service that Sylius would create
         $this->setDefinition('setono_sylius_navigation.factory.text_item', new Definition(\stdClass::class));
@@ -58,7 +57,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
                 'text',
                 'Test Text Item',
                 TestTextItem::class,
-                BuilderTextItemType::class,
+                TextItemType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_test.html.twig',
                 new Reference('setono_sylius_navigation.factory.text_item'),
             ],
@@ -158,7 +157,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         $this->setDefinition(ItemTypeRegistryInterface::class, $registryDefinition);
 
         // Register the form type service
-        $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
+        $this->setDefinition(TextItemType::class, new Definition(TextItemType::class));
 
         // Register the factory service that Sylius would create
         $this->setDefinition('setono_sylius_navigation.factory.minimal_item', new Definition(\stdClass::class));
@@ -184,7 +183,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
                 'test_minimal_item', // Derived from class name TestMinimalItem -> test_minimal_item
                 'setono_sylius_navigation.item_types.test_minimal_item',
                 TestMinimalItem::class,
-                BuilderTextItemType::class,
+                TextItemType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
                 new Reference('setono_sylius_navigation.factory.minimal_item'),
             ],
@@ -227,7 +226,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         $this->setDefinition(ItemTypeRegistryInterface::class, $registryDefinition);
 
         // Register the form type service
-        $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
+        $this->setDefinition(TextItemType::class, new Definition(TextItemType::class));
 
         // Set up sylius resources without factory
         // When factory is not configured in the resource, the factory service won't exist either
@@ -256,7 +255,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         $this->setDefinition(ItemTypeRegistryInterface::class, $registryDefinition);
 
         // Register the form type service
-        $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
+        $this->setDefinition(TextItemType::class, new Definition(TextItemType::class));
 
         // Don't register the factory service that should exist
         // $this->setDefinition('setono_sylius_navigation.factory.text_item', new Definition(\stdClass::class));
@@ -282,7 +281,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
 
 #[ItemType(
     name: 'text',
-    formType: BuilderTextItemType::class,
+    formType: TextItemType::class,
     template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_test.html.twig',
     label: 'Test Text Item',
 )]
@@ -292,7 +291,7 @@ class TestTextItem extends TextItem
 
 #[ItemType(
     name: null,
-    formType: BuilderTextItemType::class,
+    formType: TextItemType::class,
     template: null,
     label: null,
 )]
