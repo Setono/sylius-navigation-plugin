@@ -42,7 +42,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
             'setono_sylius_navigation.text_item' => [
                 'classes' => [
                     'model' => TestTextItem::class,
-                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
+                    'factory' => \Sylius\Resource\Factory\TranslatableFactory::class,
                 ],
             ],
         ]);
@@ -167,7 +167,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
             'setono_sylius_navigation.minimal_item' => [
                 'classes' => [
                     'model' => TestMinimalItem::class,
-                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
+                    'factory' => \Sylius\Resource\Factory\TranslatableFactory::class,
                 ],
             ],
         ]);
@@ -206,7 +206,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
             'setono_sylius_navigation.text_item' => [
                 'classes' => [
                     'model' => TestTextItem::class,
-                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
+                    'factory' => \Sylius\Resource\Factory\TranslatableFactory::class,
                 ],
             ],
         ]);
@@ -265,7 +265,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
             'setono_sylius_navigation.text_item' => [
                 'classes' => [
                     'model' => TestTextItem::class,
-                    'factory' => 'Sylius\Resource\Factory\TranslatableFactory',
+                    'factory' => \Sylius\Resource\Factory\TranslatableFactory::class,
                 ],
             ],
         ]);
