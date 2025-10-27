@@ -63,9 +63,12 @@ final class BuildFromTaxonController extends AbstractController
             ]);
         }
 
+        $hasItems = [] !== $this->closureRepository->findRootItems($navigation);
+
         return $this->render('@SetonoSyliusNavigationPlugin/navigation/build_from_taxon.html.twig', [
             'form' => $form->createView(),
             'navigation' => $navigation,
+            'hasItems' => $hasItems,
         ]);
     }
 

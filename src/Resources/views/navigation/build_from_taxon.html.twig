@@ -31,7 +31,7 @@
                 {{ form_start(form) }}
                     {{ form_row(form.taxon) }}
 
-                    {% if navigation.rootItem %}
+                    {% if hasItems %}
                         <div class="ui warning message">
                             <div class="header">Navigation already built</div>
                             Please notice that this navigation has already been built and if you build it again, the existing navigation will be overwritten.
