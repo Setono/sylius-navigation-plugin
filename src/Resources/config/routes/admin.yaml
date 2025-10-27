@@ -82,20 +82,20 @@ setono_sylius_navigation_admin_navigation_build_add_item:
         navigation: ^\d+$
 
 setono_sylius_navigation_admin_navigation_build_update_item:
-    path: /navigations/{navigation}/build/items/{itemId}
+    path: /navigations/{navigation}/build/items/{item}
     methods: [ POST,PUT,PATCH ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::updateItemAction
     requirements:
         navigation: ^\d+$
-        itemId: ^(\d+|__ITEM_ID__)$
+        item: ^(\d+|__ITEM_ID__)$
 
 setono_sylius_navigation_admin_navigation_build_delete_item:
-    path: /navigations/{navigation}/build/items/{itemId}
+    path: /navigations/{navigation}/build/items/{item}
     methods: [ DELETE ]
     controller: Setono\SyliusNavigationPlugin\Controller\BuildController::deleteItemAction
     requirements:
         navigation: ^\d+$
-        itemId: ^(\d+|__ITEM_ID__)$
+        item: ^(\d+|__ITEM_ID__)$
 
 setono_sylius_navigation_admin_navigation_build_reorder_item:
     path: /navigations/{navigation}/build/items/reorder

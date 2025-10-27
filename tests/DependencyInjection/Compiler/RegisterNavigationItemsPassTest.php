@@ -230,6 +230,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         $this->setDefinition(BuilderTextItemType::class, new Definition(BuilderTextItemType::class));
 
         // Set up sylius resources without factory
+        // When factory is not configured in the resource, the factory service won't exist either
         $this->setParameter('sylius.resources', [
             'setono_sylius_navigation.text_item' => [
                 'classes' => [
@@ -239,8 +240,8 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
             ],
         ]);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No factory configured for item type "text"');
+        $this->expectException(\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException::class);
+        $this->expectExceptionMessage('Factory service "setono_sylius_navigation.factory.text_item" not found');
 
         $this->compile();
     }

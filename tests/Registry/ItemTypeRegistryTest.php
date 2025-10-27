@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin\Tests\Registry;
 
 use PHPUnit\Framework\TestCase;
+use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType;
 use Setono\SyliusNavigationPlugin\Model\TextItem;
 use Setono\SyliusNavigationPlugin\Registry\ItemType;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
-use Sylius\Component\Resource\Factory\FactoryInterface;
 
 final class ItemTypeRegistryTest extends TestCase
 {
@@ -20,9 +20,9 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry = new ItemTypeRegistry();
     }
 
-    private function createMockFactory(): FactoryInterface
+    private function createMockFactory(): ItemFactoryInterface
     {
-        return $this->createMock(FactoryInterface::class);
+        return $this->createMock(ItemFactoryInterface::class);
     }
 
     /**

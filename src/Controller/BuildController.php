@@ -286,7 +286,7 @@ final class BuildController extends AbstractController
     public function updateItemAction(
         Request $request,
         NavigationInterface $navigation,
-        int $itemId,
+        ItemInterface $item,
         ItemTypeRegistryInterface $itemTypeRegistry,
         FormFactoryInterface $formFactory,
         RepositoryInterface $taxonRepository,
@@ -294,12 +294,6 @@ final class BuildController extends AbstractController
         Environment $twig,
     ): JsonResponse {
         try {
-            $itemManager = $this->getManager($navigation);
-            $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
-            if (!$item instanceof ItemInterface) {
-                return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
-            }
-
             // Get the appropriate form type from registry based on item type
             $type = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
             $formClass = $itemTypeRegistry->get($type)->form;
@@ -333,7 +327,7 @@ final class BuildController extends AbstractController
                 }
             }
 
-            $itemManager->flush();
+            $this->getManager($item)->flush();
 
             // Return rendered tree HTML
             $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
@@ -367,17 +361,11 @@ final class BuildController extends AbstractController
      */
     public function deleteItemAction(
         NavigationInterface $navigation,
-        int $itemId,
+        ItemInterface $item,
         ClosureManagerInterface $closureManager,
         ClosureRepositoryInterface $closureRepository,
         Environment $twig,
     ): JsonResponse {
-        $itemManager = $this->getManager($navigation);
-        $item = $itemManager->getRepository(ItemInterface::class)->find($itemId);
-        if (!$item instanceof ItemInterface) {
-            return new JsonResponse(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
-        }
-
         try {
             // Don't allow deletion of the hidden root item
             if ($navigation->getRootItem() === $item) {

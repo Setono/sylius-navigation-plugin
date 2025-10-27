@@ -9,6 +9,11 @@
             <tag name="controller.argument_value_resolver" priority="150"/>
         </service>
 
+        <service id="Setono\SyliusNavigationPlugin\ArgumentResolver\ItemValueResolver">
+            <argument type="service" id="doctrine"/>
+            <tag name="controller.argument_value_resolver" priority="140"/>
+        </service>
+
         <service id="Setono\SyliusNavigationPlugin\Controller\BuildFromTaxonController">
             <argument type="service" id="setono_sylius_navigation.repository.navigation"/>
             <argument type="service" id="setono_sylius_navigation.factory.taxon_item"/>
