@@ -17,13 +17,13 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
     /** @var list<Node> */
     private array $children = [];
 
-    public function __construct(public readonly ItemInterface $item)
+    public function __construct(public readonly ?ItemInterface $item)
     {
     }
 
     public function __toString(): string
     {
-        return (string) $this->item->getLabel();
+        return $this->item !== null ? (string) $this->item->getLabel() : 'Virtual Root';
     }
 
     /**

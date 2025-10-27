@@ -90,12 +90,13 @@ final class BuildController extends AbstractController
             return new JsonResponse([]);
         }
 
-        $rootItem = $navigation->getRootItem();
-        if (!$rootItem) {
-            return new JsonResponse([]);
-        }
+        // Get all root items and search through them
+        $rootItems = $closureRepository->findRootItems($navigation);
+        $matchingItems = [];
 
-        $matchingItems = $this->searchItemsRecursive($rootItem, $searchTerm, $closureRepository);
+        foreach ($rootItems as $rootItem) {
+            $matchingItems = array_merge($matchingItems, $this->searchItemsRecursive($rootItem, $searchTerm, $closureRepository));
+        }
 
         // jsTree expects an array of node IDs (as strings)
         // We need to include both the matched nodes AND all their parent nodes
@@ -113,8 +114,8 @@ final class BuildController extends AbstractController
 
             foreach ($parentClosures as $closure) {
                 $ancestor = $closure->getAncestor();
-                // Don't include the hidden root or the item itself
-                if ($ancestor && $ancestor !== $rootItem && $ancestor !== $item) {
+                // Don't include the item itself (self-reference)
+                if ($ancestor && $ancestor !== $item) {
                     $parentId = (string) $ancestor->getId();
                     if (!in_array($parentId, $nodeIds, true)) {
                         $nodeIds[] = $parentId;
@@ -235,6 +236,9 @@ final class BuildController extends AbstractController
                 $item->setLabel($label);
             }
 
+            // Set navigation on the item
+            $item->setNavigation($navigation);
+
             // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
                 $taxon = $taxonRepository->find($request->request->get('taxon_id'));
@@ -245,11 +249,9 @@ final class BuildController extends AbstractController
 
             /** @var int|null $parentId */
             $parentId = $request->request->get('parent_id') ? (int) $request->request->get('parent_id') : null;
+            $parent = null;
             if ($parentId !== null) {
                 $parent = $this->getManager($item)->getRepository(ItemInterface::class)->find($parentId);
-            } else {
-                // If no parent specified, use the navigation's hidden root item as parent
-                $parent = $navigation->getRootItem();
             }
 
             $this->getManager($item)->persist($item);
@@ -367,11 +369,6 @@ final class BuildController extends AbstractController
         Environment $twig,
     ): JsonResponse {
         try {
-            // Don't allow deletion of the hidden root item
-            if ($navigation->getRootItem() === $item) {
-                return new JsonResponse(['error' => 'Cannot delete the root item'], Response::HTTP_BAD_REQUEST);
-            }
-
             $closureManager->removeTree($item);
 
             // Return rendered tree HTML
@@ -437,17 +434,12 @@ final class BuildController extends AbstractController
         ClosureRepositoryInterface $closureRepository,
         bool $recursive = true,
     ): array {
-        $rootItem = $navigation->getRootItem();
-        if (null === $rootItem) {
-            return [];
-        }
-
-        // Get direct children of the hidden root (these are the UI "root" items)
-        $children = $this->getDirectChildren($rootItem, $closureRepository);
+        // Get root items (items with no parent)
+        $rootItems = $closureRepository->findRootItems($navigation);
         $childrenArray = [];
 
-        foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTree($child, $closureRepository, $recursive);
+        foreach ($rootItems as $rootItem) {
+            $childrenArray[] = $this->buildItemTree($rootItem, $closureRepository, $recursive);
         }
 
         return $childrenArray;
@@ -460,17 +452,12 @@ final class BuildController extends AbstractController
         NavigationInterface $navigation,
         ClosureRepositoryInterface $closureRepository,
     ): array {
-        $rootItem = $navigation->getRootItem();
-        if (null === $rootItem) {
-            return [];
-        }
-
-        // Get direct children of the hidden root (these are the UI "root" items)
-        $children = $this->getDirectChildren($rootItem, $closureRepository);
+        // Get root items (items with no parent)
+        $rootItems = $closureRepository->findRootItems($navigation);
         $childrenArray = [];
 
-        foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTreeEntities($child, $closureRepository);
+        foreach ($rootItems as $rootItem) {
+            $childrenArray[] = $this->buildItemTreeEntities($rootItem, $closureRepository);
         }
 
         return $childrenArray;

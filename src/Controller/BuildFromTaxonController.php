@@ -71,13 +71,10 @@ final class BuildFromTaxonController extends AbstractController
 
     private function build(NavigationInterface $navigation, TaxonInterface $root): void
     {
-        $hiddenRoot = $navigation->getRootItem();
-        if (null !== $hiddenRoot) {
-            // Remove all children of the hidden root, but keep the hidden root itself
-            $children = $this->getDirectChildren($hiddenRoot);
-            foreach ($children as $child) {
-                $this->closureManager->removeTree($child);
-            }
+        // Remove all existing items for this navigation
+        $existingItems = $this->closureRepository->findRootItems($navigation);
+        foreach ($existingItems as $item) {
+            $this->closureManager->removeTree($item);
         }
 
         /** @var \SplObjectStorage<TaxonInterface, ItemInterface> $taxonToItemStorage */
@@ -90,55 +87,35 @@ final class BuildFromTaxonController extends AbstractController
             $taxon = array_shift($taxons);
             $parent = $taxon->getParent();
 
-            $item = $this->createItemFromTaxon($taxon);
+            $item = $this->createItemFromTaxon($taxon, $navigation);
             $this->getManager($item)->persist($item);
             $this->getManager($item)->flush();
 
             $taxonToItemStorage->attach($taxon, $item);
 
-            $this->closureManager->createItem($item, null !== $parent && $taxonToItemStorage->contains($parent) ? $taxonToItemStorage[$parent] : $hiddenRoot);
+            // Create closure relationships - parent is either the parent taxon's item or null (for root items)
+            $parentItem = (null !== $parent && $taxonToItemStorage->contains($parent)) ? $taxonToItemStorage[$parent] : null;
+            $this->closureManager->createItem($item, $parentItem);
 
             foreach ($taxon->getChildren() as $child) {
                 $taxons[] = $child;
             }
         }
 
-        // No need to set the root item - the hidden root already exists
         $this->getManager($navigation)->flush();
     }
 
-    private function createItemFromTaxon(TaxonInterface $taxon): TaxonItemInterface
+    private function createItemFromTaxon(TaxonInterface $taxon, NavigationInterface $navigation): TaxonItemInterface
     {
         $item = $this->taxonItemFactory->createNew();
+
+        // Set the navigation
+        $item->setNavigation($navigation);
 
         // todo should be set for each locale
         $item->setLabel($taxon->getName());
         $item->setTaxon($taxon);
 
         return $item;
-    }
-
-    /**
-     * Get direct children (depth = 1) of the given item
-     *
-     * @return ItemInterface[]
-     */
-    private function getDirectChildren(ItemInterface $item): array
-    {
-        // Find all closures where this item is the ancestor with depth = 1 (direct children)
-        $childClosures = $this->closureRepository->findBy([
-            'ancestor' => $item,
-            'depth' => 1,
-        ]);
-
-        $children = [];
-        foreach ($childClosures as $closure) {
-            $descendant = $closure->getDescendant();
-            if ($descendant !== null) {
-                $children[] = $descendant;
-            }
-        }
-
-        return $children;
     }
 }

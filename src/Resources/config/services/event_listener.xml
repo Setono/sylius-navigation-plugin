@@ -7,13 +7,5 @@
 
             <tag name="doctrine.event_listener" event="loadClassMetadata"/>
         </service>
-
-        <service id="Setono\SyliusNavigationPlugin\EventListener\Doctrine\NavigationRootItemListener">
-            <argument type="service" id="setono_sylius_navigation.factory.item"/>
-            <argument type="service" id="Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface"/>
-
-            <tag name="doctrine.event_listener" event="prePersist"/>
-            <tag name="doctrine.event_listener" event="postPersist"/>
-        </service>
     </services>
 </container>

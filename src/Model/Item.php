@@ -23,6 +23,8 @@ abstract class Item implements ItemInterface
 
     protected ?int $id = null;
 
+    protected ?NavigationInterface $navigation = null;
+
     /** @var Collection<array-key, ChannelInterface> */
     protected Collection $channels;
 
@@ -86,6 +88,16 @@ abstract class Item implements ItemInterface
     public function hasChannel(ChannelInterface $channel): bool
     {
         return $this->channels->contains($channel);
+    }
+
+    public function getNavigation(): ?NavigationInterface
+    {
+        return $this->navigation;
+    }
+
+    public function setNavigation(?NavigationInterface $navigation): void
+    {
+        $this->navigation = $navigation;
     }
 
     protected function createTranslation(): ItemTranslation

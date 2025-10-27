@@ -23,13 +23,6 @@
             <gedmo:timestampable on="update"/>
         </field>
 
-        <one-to-one field="rootItem" target-entity="Setono\SyliusNavigationPlugin\Model\ItemInterface">
-            <join-column name="root_item_id" referenced-column-name="id" on-delete="SET NULL"/>
-            <cascade>
-                <cascade-persist/>
-            </cascade>
-        </one-to-one>
-
         <many-to-many field="channels" target-entity="Sylius\Component\Channel\Model\ChannelInterface">
             <join-table name="setono_sylius_navigation__navigation_channels">
                 <join-columns>

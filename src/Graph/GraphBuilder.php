@@ -16,18 +16,18 @@ final class GraphBuilder implements GraphBuilderInterface
 
     public function build(NavigationInterface $navigation): Node
     {
-        $rootItem = $navigation->getRootItem();
-        Assert::notNull($rootItem);
-
         /** @var array<int, Node> $nodes */
         $nodes = [];
 
-        $closures = $this->closureRepository->findGraph($rootItem);
+        $closures = $this->closureRepository->findByNavigation($navigation);
         foreach ($closures as $closure) {
             $descendant = $closure->getDescendant();
             Assert::notNull($descendant);
 
-            $nodes[(int) $descendant->getId()] = new Node($descendant);
+            $descendantId = (int) $descendant->getId();
+            if (!isset($nodes[$descendantId])) {
+                $nodes[$descendantId] = new Node($descendant);
+            }
         }
 
         foreach ($closures as $closure) {
@@ -35,16 +35,28 @@ final class GraphBuilder implements GraphBuilderInterface
                 continue;
             }
 
-            $ancestor = (int) $closure->getAncestor()?->getId();
-            $descendant = (int) $closure->getDescendant()?->getId();
+            $ancestor = $closure->getAncestor();
+            $descendant = $closure->getDescendant();
 
-            $nodes[$ancestor]->addChild($nodes[$descendant]);
+            if ($ancestor !== null && $descendant !== null) {
+                $ancestorId = (int) $ancestor->getId();
+                $descendantId = (int) $descendant->getId();
+
+                if (isset($nodes[$ancestorId], $nodes[$descendantId])) {
+                    $nodes[$ancestorId]->addChild($nodes[$descendantId]);
+                }
+            }
         }
 
+        // Find all root nodes (nodes without parents)
         $roots = array_values(array_filter($nodes, static fn (Node $node) => !$node->hasParents()));
 
-        Assert::count($roots, 1, 'There should be exactly one root node');
+        // Create a virtual root node that contains all actual root nodes as children
+        $virtualRoot = new Node(null);
+        foreach ($roots as $root) {
+            $virtualRoot->addChild($root);
+        }
 
-        return $roots[0];
+        return $virtualRoot;
     }
 }

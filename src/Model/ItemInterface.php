@@ -22,4 +22,8 @@ interface ItemInterface extends
     public function getLabel(): ?string;
 
     public function setLabel(?string $label): void;
+
+    public function getNavigation(): ?NavigationInterface;
+
+    public function setNavigation(?NavigationInterface $navigation): void;
 }
