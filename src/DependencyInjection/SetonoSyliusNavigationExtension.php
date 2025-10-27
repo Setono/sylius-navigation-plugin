@@ -16,14 +16,23 @@ final class SetonoSyliusNavigationExtension extends AbstractResourceExtension im
     public function load(array $configs, ContainerBuilder $container): void
     {
         /**
-         * @var array{resources: array} $config
+         * @var array{resources: array, cache: array{enabled: bool|null, pool: string}} $config
          */
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('setono_sylius_navigation', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
 
+        // Set cache parameters
+        $cacheEnabled = $config['cache']['enabled'] ?? !$container->getParameter('kernel.debug');
+        $container->setParameter('setono_sylius_navigation.cache.enabled', $cacheEnabled);
+
         $loader->load('services.xml');
+
+        if ($cacheEnabled) {
+            $container->setAlias('setono_sylius_navigation.cache.pool', $config['cache']['pool']);
+            $loader->load('services/conditional/renderer_cached.xml');
+        }
     }
 
     public function prepend(ContainerBuilder $container): void
