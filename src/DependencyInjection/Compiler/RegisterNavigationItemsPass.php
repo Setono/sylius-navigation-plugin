@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin\DependencyInjection\Compiler;
 
 use Setono\SyliusNavigationPlugin\Attribute\ItemType;
-use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
+use function Symfony\Component\String\u;
 
 final class RegisterNavigationItemsPass implements CompilerPassInterface
 {
@@ -52,7 +52,7 @@ final class RegisterNavigationItemsPass implements CompilerPassInterface
                 throw new ServiceNotFoundException($metadata->formType);
             }
 
-            $name = $metadata->name ?? Item::getType($entity);
+            $name = $metadata->name ?? u($reflectionClass->getShortName())->snake()->toString();
 
             // Construct the factory service ID from the resource name
             // e.g., 'setono_sylius_navigation.text_item' -> 'setono_sylius_navigation.factory.text_item'

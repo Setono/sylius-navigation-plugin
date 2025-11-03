@@ -9,6 +9,7 @@
 
         <service id="Setono\SyliusNavigationPlugin\Renderer\Item\DefaultItemRenderer">
             <argument type="service" id="twig"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface"/>
 
             <tag name="setono_sylius_navigation.item_renderer"/>
         </service>

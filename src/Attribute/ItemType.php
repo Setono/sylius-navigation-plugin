@@ -12,7 +12,7 @@ final class ItemType
     public function __construct(
         /**
          * The unique identifier for this navigation item type (e.g., 'text', 'taxon')
-         * If null, will be derived from the entity class name using \Setono\SyliusNavigationPlugin\Model\Item::getType
+         * If it's not set, we will generate it based on the entity you've annotated
          */
         public readonly ?string $name,
 

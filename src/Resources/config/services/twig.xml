@@ -3,6 +3,8 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Setono\SyliusNavigationPlugin\Twig\Extension">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface"/>
+
             <tag name="twig.extension"/>
         </service>
 

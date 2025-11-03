@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
+use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Setono\SyliusNavigationPlugin\Renderer\Item\DefaultItemRenderer;
 
 final class DefaultItemRendererTest extends TestCase
@@ -27,7 +28,8 @@ final class DefaultItemRendererTest extends TestCase
     public function it_always_supports_any_item(): void
     {
         $twig = $this->prophesize(\Twig\Environment::class)->reveal();
-        $renderer = new DefaultItemRenderer($twig);
+        $registry = $this->prophesize(ItemTypeRegistryInterface::class)->reveal();
+        $renderer = new DefaultItemRenderer($twig, $registry);
 
         self::assertTrue($renderer->supports($this->item));
         self::assertTrue($renderer->supports($this->createCustomItem()));
@@ -39,7 +41,8 @@ final class DefaultItemRendererTest extends TestCase
     public function it_uses_default_template_path(): void
     {
         $twig = $this->prophesize(\Twig\Environment::class)->reveal();
-        $renderer = new DefaultItemRenderer($twig);
+        $registry = $this->prophesize(ItemTypeRegistryInterface::class)->reveal();
+        $renderer = new DefaultItemRenderer($twig, $registry);
 
         $reflection = new \ReflectionClass($renderer);
         $property = $reflection->getProperty('defaultTemplate');
@@ -57,7 +60,8 @@ final class DefaultItemRendererTest extends TestCase
     {
         $customTemplate = '@App/custom_item_template.html.twig';
         $twig = $this->prophesize(\Twig\Environment::class)->reveal();
-        $renderer = new DefaultItemRenderer($twig, $customTemplate);
+        $registry = $this->prophesize(ItemTypeRegistryInterface::class)->reveal();
+        $renderer = new DefaultItemRenderer($twig, $registry, $customTemplate);
 
         $reflection = new \ReflectionClass($renderer);
         $property = $reflection->getProperty('defaultTemplate');
@@ -80,10 +84,6 @@ final class DefaultItemRendererTest extends TestCase
     private function createCustomItem(): ItemInterface
     {
         $item = new class() extends Item {
-            public static function getType(string|ItemInterface $item = null): string
-            {
-                return 'custom_item';
-            }
         };
 
         $item->setCurrentLocale('en_US');

@@ -175,7 +175,7 @@ final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
         $this->compile();
 
         // Assert that the register method was called with default values
-        // When name is null, it uses Item::getType() which converts class name to snake_case
+        // When name is null, it converts class name to snake_case using Symfony's u() function
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
             ItemTypeRegistryInterface::class,
             'register',

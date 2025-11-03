@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Twig;
 
-use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
+use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class Extension extends AbstractExtension
 {
+    public function __construct(
+        private readonly ItemTypeRegistryInterface $itemTypeRegistry,
+    ) {
+    }
+
     public function getFunctions(): array
     {
         return [
@@ -22,6 +27,6 @@ class Extension extends AbstractExtension
 
     public function getItemType(ItemInterface $item): string
     {
-        return Item::getType($item);
+        return $this->itemTypeRegistry->getByEntity($item::class)->name;
     }
 }
