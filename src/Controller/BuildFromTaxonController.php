@@ -121,12 +121,7 @@ final class BuildFromTaxonController extends AbstractController
     private function createItemFromTaxon(TaxonInterface $taxon, NavigationInterface $navigation): TaxonItemInterface
     {
         $item = $this->taxonItemFactory->createNew();
-
-        // Set the navigation
         $item->setNavigation($navigation);
-
-        // todo should be set for each locale
-        $item->setLabel($taxon->getName());
         $item->setTaxon($taxon);
 
         return $item;

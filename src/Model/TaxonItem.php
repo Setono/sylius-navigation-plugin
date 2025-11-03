@@ -27,4 +27,17 @@ class TaxonItem extends Item implements TaxonItemInterface
     {
         $this->taxon = $taxon;
     }
+
+    /**
+     * Returns the label from translation if set, otherwise returns the taxon's name
+     */
+    public function getLabel(): ?string
+    {
+        $label = parent::getLabel();
+        if (null !== $label && '' !== $label) {
+            return $label;
+        }
+
+        return $this->taxon?->getName();
+    }
 }

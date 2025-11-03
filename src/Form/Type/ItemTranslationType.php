@@ -15,7 +15,7 @@ class ItemTranslationType extends AbstractResourceType
         $builder
             ->add('label', TextType::class, [
                 'label' => 'setono_sylius_navigation.form.item.label',
-                'required' => true,
+                'required' => false,
             ])
         ;
     }
