@@ -57,8 +57,10 @@
             <div class="description">
                 <div class="ui small divided list" style="margin-top: 0.5rem;">
                     {% for translation in item.translations %}
+                        {% set localeCode = translation.locale|split('_') %}
                         <div class="item">
                             <div class="content">
+                                <i class="{{ localeCode[1]|lower }} flag"></i>
                                 <strong>{{ translation.locale }}:</strong>
                                 {% if translation.label %}
                                     {{ translation.label }}
@@ -111,7 +113,7 @@
         <div class="item">
             <i class="calendar check icon"></i>
             <div class="content">
-                <div class="header">{{ 'sylius.ui.updated_at'|trans }}</div>
+                <div class="header">{{ 'sylius.ui.last_updated'|trans }}</div>
                 <div class="description">{{ item.updatedAt|date('Y-m-d H:i:s') }}</div>
             </div>
         </div>
