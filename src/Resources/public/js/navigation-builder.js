@@ -148,7 +148,7 @@ class NavigationBuilder {
 
         // Add child item submenu
         items.add = {
-            'label': 'Add Child',
+            'label': 'Add child',
             'icon': 'plus icon',
             'submenu': {}
         };
