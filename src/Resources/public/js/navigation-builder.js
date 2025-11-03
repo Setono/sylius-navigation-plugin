@@ -138,7 +138,12 @@ class NavigationBuilder {
             self.handleMove(data);
         })
         .on('select_node.jstree', function(e, data) {
-            // Can be used to show item details
+            // Show item information when a node is selected
+            self.showItemInfo(data.node.id);
+        })
+        .on('deselect_node.jstree', function(e, data) {
+            // Hide item info when node is deselected
+            self.hideItemInfo();
         });
     }
 
@@ -282,6 +287,36 @@ class NavigationBuilder {
         document.getElementById('delete-item-id').value = itemId;
 
         jQuery('#delete-item-modal').modal('show');
+    }
+
+    async showItemInfo(itemId) {
+        try {
+            // Show the item info panel
+            jQuery('#item-info-panel').show();
+
+            // Show loading state
+            document.getElementById('item-info-content').innerHTML = '<div class="ui active centered inline loader">Loading...</div>';
+
+            // Fetch item information
+            const url = this.config.routes.getItemInfo.replace('__ITEM_ID__', itemId);
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+            document.getElementById('item-info-content').innerHTML = result.html;
+
+        } catch (error) {
+            console.error('Failed to load item info:', error);
+            document.getElementById('item-info-content').innerHTML = '<div class="ui negative message">Failed to load item information</div>';
+        }
+    }
+
+    hideItemInfo() {
+        // Hide item info panel
+        jQuery('#item-info-panel').hide();
     }
 
     async loadFormFields(type, mode = 'add', itemId = null) {

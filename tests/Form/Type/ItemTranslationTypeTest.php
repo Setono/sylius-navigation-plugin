@@ -57,11 +57,11 @@ final class ItemTranslationTypeTest extends TypeTestCase
     /**
      * @test
      */
-    public function it_requires_label_field(): void
+    public function it_has_optional_label_field(): void
     {
         $form = $this->factory->create(ItemTranslationType::class);
 
-        self::assertTrue($form->get('label')->isRequired());
+        self::assertFalse($form->get('label')->isRequired());
     }
 
     protected function getExtensions(): array

@@ -1,0 +1,119 @@
+{# Display detailed information about a navigation item #}
+<div class="ui relaxed divided list">
+    {# Item Type #}
+    <div class="item">
+        <i class="tag icon"></i>
+        <div class="content">
+            <div class="header">{{ 'setono_sylius_navigation.ui.type'|trans }}</div>
+            <div class="description">
+                {% if item.taxon is defined and item.taxon is not null %}
+                    {{ 'setono_sylius_navigation.ui.taxon_item'|trans }}
+                {% else %}
+                    {{ 'setono_sylius_navigation.ui.text_item'|trans }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Status #}
+    <div class="item">
+        {% if item.enabled %}
+            <i class="green check circle icon"></i>
+            <div class="content">
+                <div class="header">{{ 'sylius.ui.enabled'|trans }}</div>
+            </div>
+        {% else %}
+            <i class="red times circle icon"></i>
+            <div class="content">
+                <div class="header">{{ 'sylius.ui.disabled'|trans }}</div>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Taxon (if TaxonItem) #}
+    {% if item.taxon is defined and item.taxon is not null %}
+        <div class="item">
+            <i class="sitemap icon"></i>
+            <div class="content">
+                <div class="header">{{ 'setono_sylius_navigation.ui.linked_taxon'|trans }}</div>
+                <div class="description">
+                    <a href="{{ path('sylius_shop_product_index', {'slug': item.taxon.slug}) }}" target="_blank" rel="noopener noreferrer">
+                        {{ item.taxon.name }}
+                        <i class="external alternate icon"></i>
+                    </a>
+                    {% if item.taxon.code %}
+                        <span class="ui tiny label">{{ item.taxon.code }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Labels by Locale #}
+    <div class="item">
+        <i class="language icon"></i>
+        <div class="content">
+            <div class="header">{{ 'setono_sylius_navigation.ui.labels_by_locale'|trans }}</div>
+            <div class="description">
+                <div class="ui small divided list" style="margin-top: 0.5rem;">
+                    {% for translation in item.translations %}
+                        <div class="item">
+                            <div class="content">
+                                <strong>{{ translation.locale }}:</strong>
+                                {% if translation.label %}
+                                    {{ translation.label }}
+                                {% else %}
+                                    <span class="ui tiny grey label">
+                                        {% if item.taxon is defined and item.taxon is not null %}
+                                            {{ item.taxon.name }} <i>({{ 'setono_sylius_navigation.ui.from_taxon'|trans }})</i>
+                                        {% else %}
+                                            <i>{{ 'setono_sylius_navigation.ui.no_label'|trans }}</i>
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Channels #}
+    <div class="item">
+        <i class="globe icon"></i>
+        <div class="content">
+            <div class="header">{{ 'sylius.ui.channels'|trans }}</div>
+            <div class="description">
+                {% if item.channels is empty %}
+                    <span class="ui tiny label">{{ 'setono_sylius_navigation.ui.all_channels'|trans }}</span>
+                {% else %}
+                    {% for channel in item.channels %}
+                        <span class="ui tiny label">{{ channel.name }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Created/Updated #}
+    {% if item.createdAt %}
+        <div class="item">
+            <i class="calendar icon"></i>
+            <div class="content">
+                <div class="header">{{ 'sylius.ui.created_at'|trans }}</div>
+                <div class="description">{{ item.createdAt|date('Y-m-d H:i:s') }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if item.updatedAt %}
+        <div class="item">
+            <i class="calendar check icon"></i>
+            <div class="content">
+                <div class="header">{{ 'sylius.ui.updated_at'|trans }}</div>
+                <div class="description">{{ item.updatedAt|date('Y-m-d H:i:s') }}</div>
+            </div>
+        </div>
+    {% endif %}
+</div>

@@ -427,6 +427,26 @@ final class BuildController extends AbstractController
     }
 
     /**
+     * Get detailed information about a specific item
+     */
+    public function getItemInfoAction(
+        NavigationInterface $navigation,
+        ItemInterface $item,
+        Environment $twig,
+    ): Response {
+        try {
+            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_item_info.html.twig', [
+                'item' => $item,
+                'navigation' => $navigation,
+            ]);
+
+            return new JsonResponse(['html' => $html]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * @return array<int, mixed>
      */
     private function buildTreeStructure(

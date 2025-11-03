@@ -16,6 +16,7 @@ setono_sylius_navigation:
         add_item: Add item
         add_items: Add items
         add_new_item: Add new item
+        all_channels: All channels
         build_from_taxon: Build from taxon
         build_manually: Build manually
         build_navigation: Build navigation
@@ -26,6 +27,13 @@ setono_sylius_navigation:
         edit_items: Edit items
         edit_navigation: Edit navigation
         empty_navigation: This navigation is empty
+        from_taxon: from taxon
+        item_information: Item Information
+        labels_by_locale: Labels by Locale
+        linked_taxon: Linked Taxon
+        no_label: No label set
+        text_item: Text item
+        type: Type
         help:
             add_items: Click the plus button to add new items to any level of the navigation
             delete_items: Click the trash button to remove items and their children permanently
