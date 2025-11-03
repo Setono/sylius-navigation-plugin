@@ -20,7 +20,7 @@ use function Symfony\Component\String\u;
 #[ItemType(
     name: 'text',
     formType: ItemFormType::class,
-    template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_text_item.html.twig',
+    template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_item.html.twig',
     label: 'Text Item',
 )]
 class Item implements ItemInterface
