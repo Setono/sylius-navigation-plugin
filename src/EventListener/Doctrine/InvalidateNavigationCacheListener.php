@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\EventListener\Doctrine;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
@@ -34,7 +35,7 @@ final class InvalidateNavigationCacheListener
     }
 
     /**
-     * @param LifecycleEventArgs<\Doctrine\ORM\EntityManagerInterface> $args
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
      */
     private function invalidateCache(LifecycleEventArgs $args): void
     {
