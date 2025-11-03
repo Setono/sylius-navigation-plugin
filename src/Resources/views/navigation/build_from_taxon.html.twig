@@ -28,8 +28,9 @@
     <div class="ui segment">
         <div class="ui stackable two column grid">
             <div class="column">
-                {{ form_start(form) }}
+                {{ form_start(form, { 'attr': { 'class': 'ui form' } }) }}
                     {{ form_row(form.taxon) }}
+                    {{ form_row(form.includeRoot) }}
 
                     {% if hasItems %}
                         <div class="ui warning message">

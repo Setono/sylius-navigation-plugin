@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Inkluder rod i navigation
             taxon: Taksonomi
+        item:
+            channels: Begræns til kanaler
+            label: Etiket
+            taxon: Taksonomi
+            translations: Oversættelser
         navigation:
             channels: Begræns til kanaler
             description: Beskrivelse (kun brugt internt)
     ui:
+        add_first_item: Tilføj første element
+        add_item: Tilføj element
+        add_items: Tilføj elementer
+        add_new_item: Tilføj nyt element
         build_from_taxon: Byg fra taksonomi
+        build_manually: Byg manuelt
+        build_navigation: Byg navigation
+        delete_item: Slet element
+        delete_item_confirmation: Er du sikker på, at du vil slette dette element og alle dets børn?
+        delete_items: Slet elementer
+        edit_item: Rediger element
+        edit_items: Rediger elementer
         edit_navigation: Rediger navigation
+        empty_navigation: Denne navigation er tom
+        help:
+            add_items: Klik på plus-knappen for at tilføje nye elementer til ethvert niveau i navigationen
+            delete_items: Klik på skraldespandsknappen for at fjerne elementer og deres børn permanent
+            edit_items: Klik på et element for at redigere dets egenskaber i en modal dialog
+            reorder_items: Træk og slip elementer for at ændre rækkefølgen i navigationsstrukturen
+        item: Element
+        item_type: Elementtype
+        items: Elementer
+        manage_items: Administrer elementer
         manage_navigations: Administrer navigationer
         navigation: Navigation
+        navigation_info: Navigationsinformation
+        navigation_tree: Navigationstræ
         navigations: Navigationer
+        new_item: Nyt element
         new_navigation: Ny navigation
+        reorder_items: Omarranger elementer
+        select_item_type: Vælg elementtype
+        select_taxon: Vælg en taksonomi
+        simple_item: Simpelt element
+        taxon: Taksonomi
+        taxon_item: Taksonomi-element

@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Hoofdniveau opnemen in navigatie
+            taxon: Hoofdtaxon
+        item:
+            channels: Beperken tot kanalen
+            label: Label
             taxon: Taxon
+            translations: Vertalingen
         navigation:
             channels: Beperken tot kanalen
             description: Beschrijving (alleen intern gebruikt)
     ui:
+        add_first_item: Eerste item toevoegen
+        add_item: Item toevoegen
+        add_items: Items toevoegen
+        add_new_item: Nieuw item toevoegen
         build_from_taxon: Bouwen van taxon
+        build_manually: Handmatig bouwen
+        build_navigation: Navigatie bouwen
+        delete_item: Item verwijderen
+        delete_item_confirmation: Weet u zeker dat u dit item en alle onderliggende items wilt verwijderen?
+        delete_items: Items verwijderen
+        edit_item: Item bewerken
+        edit_items: Items bewerken
         edit_navigation: Navigatie bewerken
+        empty_navigation: Deze navigatie is leeg
+        help:
+            add_items: Klik op de plusknop om nieuwe items toe te voegen aan elk niveau van de navigatie
+            delete_items: Klik op de prullenbakknop om items en hun onderliggende items permanent te verwijderen
+            edit_items: Klik op een item om de eigenschappen in een modaal dialoogvenster te bewerken
+            reorder_items: Sleep en zet items neer om ze opnieuw te ordenen binnen de navigatiestructuur
+        item: Item
+        item_type: Itemtype
+        items: Items
+        manage_items: Items beheren
         manage_navigations: Navigaties beheren
         navigation: Navigatie
+        navigation_info: Navigatie-informatie
+        navigation_tree: Navigatieboom
         navigations: Navigaties
+        new_item: Nieuw item
         new_navigation: Nieuwe navigatie
+        reorder_items: Items opnieuw ordenen
+        select_item_type: Selecteer itemtype
+        select_taxon: Selecteer een taxon
+        simple_item: Eenvoudig item
+        taxon: Taxon
+        taxon_item: Taxon-item

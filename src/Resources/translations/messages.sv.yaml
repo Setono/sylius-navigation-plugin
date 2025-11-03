@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Inkludera rot i navigation
+            taxon: Rot-taxon
+        item:
+            channels: Begränsa till kanaler
+            label: Etikett
             taxon: Taxon
+            translations: Översättningar
         navigation:
             channels: Begränsa till kanaler
             description: Beskrivning (endast för internt bruk)
     ui:
+        add_first_item: Lägg till första objekt
+        add_item: Lägg till objekt
+        add_items: Lägg till objekt
+        add_new_item: Lägg till nytt objekt
         build_from_taxon: Bygg från taxon
+        build_manually: Bygg manuellt
+        build_navigation: Bygg navigation
+        delete_item: Ta bort objekt
+        delete_item_confirmation: Är du säker på att du vill ta bort detta objekt och alla dess underordnade objekt?
+        delete_items: Ta bort objekt
+        edit_item: Redigera objekt
+        edit_items: Redigera objekt
         edit_navigation: Redigera navigation
+        empty_navigation: Denna navigation är tom
+        help:
+            add_items: Klicka på plus-knappen för att lägga till nya objekt på valfri nivå i navigationen
+            delete_items: Klicka på papperskorgsknappen för att permanent ta bort objekt och deras underordnade objekt
+            edit_items: Klicka på vilket objekt som helst för att redigera dess egenskaper i en modal dialogruta
+            reorder_items: Dra och släpp objekt för att ändra ordning i navigationsstrukturen
+        item: Objekt
+        item_type: Objekttyp
+        items: Objekt
+        manage_items: Hantera objekt
         manage_navigations: Hantera navigationer
         navigation: Navigation
+        navigation_info: Navigationsinformation
+        navigation_tree: Navigationsträd
         navigations: Navigationer
+        new_item: Nytt objekt
         new_navigation: Ny navigation
+        reorder_items: Ändra ordning på objekt
+        select_item_type: Välj objekttyp
+        select_taxon: Välj ett taxon
+        simple_item: Enkelt objekt
+        taxon: Taxon
+        taxon_item: Taxon-objekt

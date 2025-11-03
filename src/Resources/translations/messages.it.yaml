@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Includi radice nella navigazione
+            taxon: Taxon radice
+        item:
+            channels: Limita ai canali
+            label: Etichetta
             taxon: Taxon
+            translations: Traduzioni
         navigation:
             channels: Limita ai canali
             description: Descrizione (solo uso interno)
     ui:
+        add_first_item: Aggiungi primo elemento
+        add_item: Aggiungi elemento
+        add_items: Aggiungi elementi
+        add_new_item: Aggiungi nuovo elemento
         build_from_taxon: Costruisci da taxon
+        build_manually: Costruisci manualmente
+        build_navigation: Costruisci navigazione
+        delete_item: Elimina elemento
+        delete_item_confirmation: Sei sicuro di voler eliminare questo elemento e tutti i suoi figli?
+        delete_items: Elimina elementi
+        edit_item: Modifica elemento
+        edit_items: Modifica elementi
         edit_navigation: Modifica navigazione
+        empty_navigation: Questa navigazione è vuota
+        help:
+            add_items: Fai clic sul pulsante più per aggiungere nuovi elementi a qualsiasi livello della navigazione
+            delete_items: Fai clic sul pulsante del cestino per rimuovere permanentemente gli elementi e i loro figli
+            edit_items: Fai clic su qualsiasi elemento per modificarne le proprietà in una finestra di dialogo modale
+            reorder_items: Trascina e rilascia gli elementi per riordinarli all'interno della struttura di navigazione
+        item: Elemento
+        item_type: Tipo di elemento
+        items: Elementi
+        manage_items: Gestisci elementi
         manage_navigations: Gestisci navigazioni
         navigation: Navigazione
+        navigation_info: Informazioni sulla navigazione
+        navigation_tree: Albero di navigazione
         navigations: Navigazioni
+        new_item: Nuovo elemento
         new_navigation: Nuova navigazione
+        reorder_items: Riordina elementi
+        select_item_type: Seleziona tipo di elemento
+        select_taxon: Seleziona un taxon
+        simple_item: Elemento semplice
+        taxon: Taxon
+        taxon_item: Elemento taxon

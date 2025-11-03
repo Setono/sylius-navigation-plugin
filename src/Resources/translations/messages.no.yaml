@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Inkluder rot i navigasjon
+            taxon: Rot-taksonomi
+        item:
+            channels: Begrens til kanaler
+            label: Etikett
             taxon: Taksonomi
+            translations: Oversettelser
         navigation:
             channels: Begrens til kanaler
             description: Beskrivelse (kun brukt internt)
     ui:
+        add_first_item: Legg til første element
+        add_item: Legg til element
+        add_items: Legg til elementer
+        add_new_item: Legg til nytt element
         build_from_taxon: Bygg fra taksonomi
+        build_manually: Bygg manuelt
+        build_navigation: Bygg navigasjon
+        delete_item: Slett element
+        delete_item_confirmation: Er du sikker på at du vil slette dette elementet og alle dets barn?
+        delete_items: Slett elementer
+        edit_item: Rediger element
+        edit_items: Rediger elementer
         edit_navigation: Rediger navigasjon
+        empty_navigation: Denne navigasjonen er tom
+        help:
+            add_items: Klikk på pluss-knappen for å legge til nye elementer til hvilket som helst nivå i navigasjonen
+            delete_items: Klikk på søppelbøtte-knappen for å fjerne elementer og deres barn permanent
+            edit_items: Klikk på et element for å redigere egenskapene i en modal dialogboks
+            reorder_items: Dra og slipp elementer for å endre rekkefølgen i navigasjonsstrukturen
+        item: Element
+        item_type: Elementtype
+        items: Elementer
+        manage_items: Administrer elementer
         manage_navigations: Administrer navigasjoner
         navigation: Navigasjon
+        navigation_info: Navigasjonsinformasjon
+        navigation_tree: Navigasjonstre
         navigations: Navigasjoner
+        new_item: Nytt element
         new_navigation: Ny navigasjon
+        reorder_items: Omarranger elementer
+        select_item_type: Velg elementtype
+        select_taxon: Velg en taksonomi
+        simple_item: Enkelt element
+        taxon: Taksonomi
+        taxon_item: Taksonomi-element

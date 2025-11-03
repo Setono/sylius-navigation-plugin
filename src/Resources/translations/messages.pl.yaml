@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Uwzględnij korzeń w nawigacji
+            taxon: Główny takson
+        item:
+            channels: Ogranicz do kanałów
+            label: Etykieta
             taxon: Takson
+            translations: Tłumaczenia
         navigation:
             channels: Ogranicz do kanałów
             description: Opis (tylko do użytku wewnętrznego)
     ui:
+        add_first_item: Dodaj pierwszy element
+        add_item: Dodaj element
+        add_items: Dodaj elementy
+        add_new_item: Dodaj nowy element
         build_from_taxon: Zbuduj z taksonu
+        build_manually: Zbuduj ręcznie
+        build_navigation: Zbuduj nawigację
+        delete_item: Usuń element
+        delete_item_confirmation: Czy na pewno chcesz usunąć ten element i wszystkie jego elementy podrzędne?
+        delete_items: Usuń elementy
+        edit_item: Edytuj element
+        edit_items: Edytuj elementy
         edit_navigation: Edytuj nawigację
+        empty_navigation: Ta nawigacja jest pusta
+        help:
+            add_items: Kliknij przycisk plus, aby dodać nowe elementy do dowolnego poziomu nawigacji
+            delete_items: Kliknij przycisk kosza, aby trwale usunąć elementy i ich elementy podrzędne
+            edit_items: Kliknij dowolny element, aby edytować jego właściwości w oknie modalnym
+            reorder_items: Przeciągnij i upuść elementy, aby zmienić ich kolejność w strukturze nawigacji
+        item: Element
+        item_type: Typ elementu
+        items: Elementy
+        manage_items: Zarządzaj elementami
         manage_navigations: Zarządzaj nawigacjami
         navigation: Nawigacja
+        navigation_info: Informacje o nawigacji
+        navigation_tree: Drzewo nawigacji
         navigations: Nawigacje
+        new_item: Nowy element
         new_navigation: Nowa nawigacja
+        reorder_items: Zmień kolejność elementów
+        select_item_type: Wybierz typ elementu
+        select_taxon: Wybierz takson
+        simple_item: Prosty element
+        taxon: Takson
+        taxon_item: Element taksonu

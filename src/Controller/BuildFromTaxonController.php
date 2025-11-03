@@ -54,7 +54,9 @@ final class BuildFromTaxonController extends AbstractController
             $taxon = $data['taxon'] ?? null;
             Assert::isInstanceOf($taxon, TaxonInterface::class);
 
-            $this->build($navigation, $taxon);
+            $includeRoot = (bool) ($data['includeRoot'] ?? false);
+
+            $this->build($navigation, $taxon, $includeRoot);
 
             $this->addFlash('success', 'setono_sylius_navigation.navigation_built');
 
@@ -72,7 +74,7 @@ final class BuildFromTaxonController extends AbstractController
         ]);
     }
 
-    private function build(NavigationInterface $navigation, TaxonInterface $root): void
+    private function build(NavigationInterface $navigation, TaxonInterface $root, bool $includeRoot = true): void
     {
         // Remove all existing items for this navigation
         $existingItems = $this->closureRepository->findRootItems($navigation);
@@ -84,7 +86,7 @@ final class BuildFromTaxonController extends AbstractController
         $taxonToItemStorage = new \SplObjectStorage();
 
         /** @var list<TaxonInterface> $taxons */
-        $taxons = [$root];
+        $taxons = $includeRoot ? [$root] : iterator_to_array($root->getChildren());
 
         while ([] !== $taxons) {
             $taxon = array_shift($taxons);
@@ -97,7 +99,15 @@ final class BuildFromTaxonController extends AbstractController
             $taxonToItemStorage->attach($taxon, $item);
 
             // Create closure relationships - parent is either the parent taxon's item or null (for root items)
-            $parentItem = (null !== $parent && $taxonToItemStorage->contains($parent)) ? $taxonToItemStorage[$parent] : null;
+            // When not including root, children of root should have no parent (become root items themselves)
+            $parentItem = null;
+            if (null !== $parent && $taxonToItemStorage->contains($parent)) {
+                $parentItem = $taxonToItemStorage[$parent];
+            } elseif (!$includeRoot && $parent === $root) {
+                // If we're not including root and the parent is the root, this should be a root item (no parent)
+                $parentItem = null;
+            }
+
             $this->closureManager->createItem($item, $parentItem);
 
             foreach ($taxon->getChildren() as $child) {

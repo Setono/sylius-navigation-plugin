@@ -1,7 +1,8 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
-            taxon: Taxon
+            include_root: Include root in navigation
+            taxon: Root taxon
         item:
             channels: Restrict to channels
             label: Label

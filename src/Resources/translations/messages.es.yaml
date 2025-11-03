@@ -1,14 +1,50 @@
 setono_sylius_navigation:
     form:
         build_from_taxon:
+            include_root: Incluir raíz en navegación
+            taxon: Taxón raíz
+        item:
+            channels: Restringir a canales
+            label: Etiqueta
             taxon: Taxón
+            translations: Traducciones
         navigation:
             channels: Restringir a canales
             description: Descripción (solo uso interno)
     ui:
+        add_first_item: Agregar primer elemento
+        add_item: Agregar elemento
+        add_items: Agregar elementos
+        add_new_item: Agregar nuevo elemento
         build_from_taxon: Construir desde taxón
+        build_manually: Construir manualmente
+        build_navigation: Construir navegación
+        delete_item: Eliminar elemento
+        delete_item_confirmation: ¿Está seguro de que desea eliminar este elemento y todos sus hijos?
+        delete_items: Eliminar elementos
+        edit_item: Editar elemento
+        edit_items: Editar elementos
         edit_navigation: Editar navegación
+        empty_navigation: Esta navegación está vacía
+        help:
+            add_items: Haga clic en el botón más para agregar nuevos elementos a cualquier nivel de la navegación
+            delete_items: Haga clic en el botón de papelera para eliminar elementos y sus hijos permanentemente
+            edit_items: Haga clic en cualquier elemento para editar sus propiedades en un cuadro de diálogo modal
+            reorder_items: Arrastre y suelte elementos para reordenarlos dentro de la estructura de navegación
+        item: Elemento
+        item_type: Tipo de elemento
+        items: Elementos
+        manage_items: Gestionar elementos
         manage_navigations: Administrar navegaciones
         navigation: Navegación
+        navigation_info: Información de navegación
+        navigation_tree: Árbol de navegación
         navigations: Navegaciones
+        new_item: Nuevo elemento
         new_navigation: Nueva navegación
+        reorder_items: Reordenar elementos
+        select_item_type: Seleccionar tipo de elemento
+        select_taxon: Seleccionar un taxón
+        simple_item: Elemento simple
+        taxon: Taxón
+        taxon_item: Elemento de taxón
