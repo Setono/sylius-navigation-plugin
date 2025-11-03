@@ -1,4 +1,6 @@
 {# Display detailed information about a navigation item #}
+{% import '@SyliusUi/Macro/flags.html.twig' as flags %}
+
 <div class="ui relaxed divided list">
     {# Item Type #}
     <div class="item">
@@ -6,11 +8,7 @@
         <div class="content">
             <div class="header">{{ 'setono_sylius_navigation.ui.type'|trans }}</div>
             <div class="description">
-                {% if item.taxon is defined and item.taxon is not null %}
-                    {{ 'setono_sylius_navigation.ui.taxon_item'|trans }}
-                {% else %}
-                    {{ 'setono_sylius_navigation.ui.text_item'|trans }}
-                {% endif %}
+                {{ ('setono_sylius_navigation.ui.' ~ ssn_item_type(item))|trans }}
             </div>
         </div>
     </div>
@@ -57,11 +55,10 @@
             <div class="description">
                 <div class="ui small divided list" style="margin-top: 0.5rem;">
                     {% for translation in item.translations %}
-                        {% set localeCode = translation.locale|split('_') %}
                         <div class="item">
                             <div class="content">
-                                <i class="{{ localeCode[1]|lower }} flag"></i>
-                                <strong>{{ translation.locale }}:</strong>
+                                {{ flags.fromLocaleCode(translation.locale) }}
+                                <strong>{{ translation.locale|sylius_locale_name }}:</strong>
                                 {% if translation.label %}
                                     {{ translation.label }}
                                 {% else %}
