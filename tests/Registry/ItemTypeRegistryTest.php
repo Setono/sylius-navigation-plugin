@@ -6,7 +6,6 @@ namespace Setono\SyliusNavigationPlugin\Tests\Registry;
 
 use PHPUnit\Framework\TestCase;
 use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
-use Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Registry\ItemType;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
@@ -34,7 +33,7 @@ final class ItemTypeRegistryTest extends TestCase
             'text',
             'Text Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
         );
@@ -51,7 +50,7 @@ final class ItemTypeRegistryTest extends TestCase
             'text',
             'Text Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
         );
@@ -62,7 +61,7 @@ final class ItemTypeRegistryTest extends TestCase
         self::assertSame('text', $itemType->name);
         self::assertSame('Text Item', $itemType->label);
         self::assertSame(Item::class, $itemType->entity);
-        self::assertSame(BuilderTextItemType::class, $itemType->form);
+        self::assertSame(MockFormType::class, $itemType->form);
         self::assertSame('@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig', $itemType->template);
     }
 
@@ -94,7 +93,7 @@ final class ItemTypeRegistryTest extends TestCase
             'text',
             'Text Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
         );
@@ -103,7 +102,7 @@ final class ItemTypeRegistryTest extends TestCase
             'taxon',
             'Taxon Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
             $this->createMockFactory(),
         );
@@ -125,7 +124,7 @@ final class ItemTypeRegistryTest extends TestCase
             'text',
             'Text Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
         );
@@ -138,7 +137,7 @@ final class ItemTypeRegistryTest extends TestCase
             'text',
             'Another Text Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_other.html.twig',
             $this->createMockFactory(),
         );
@@ -153,7 +152,7 @@ final class ItemTypeRegistryTest extends TestCase
             'text',
             'Text Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
         );
@@ -162,7 +161,7 @@ final class ItemTypeRegistryTest extends TestCase
             'taxon',
             'Taxon Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
             $this->createMockFactory(),
         );
@@ -197,7 +196,7 @@ final class ItemTypeRegistryTest extends TestCase
             'first',
             'First Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_first.html.twig',
             $this->createMockFactory(),
         );
@@ -206,7 +205,7 @@ final class ItemTypeRegistryTest extends TestCase
             'second',
             'Second Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_second.html.twig',
             $this->createMockFactory(),
         );
@@ -215,7 +214,7 @@ final class ItemTypeRegistryTest extends TestCase
             'third',
             'Third Item',
             Item::class,
-            BuilderTextItemType::class,
+            MockFormType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_third.html.twig',
             $this->createMockFactory(),
         );
@@ -225,4 +224,9 @@ final class ItemTypeRegistryTest extends TestCase
 
         self::assertSame(['first', 'second', 'third'], $keys);
     }
+}
+
+// Mock form type class for testing purposes
+class MockFormType
+{
 }
