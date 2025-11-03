@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin\Tests\Renderer\Item;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Renderer\Item\DefaultItemRenderer;
 
 final class DefaultItemRendererTest extends TestCase
 {
+    use ProphecyTrait;
     private ItemInterface $item;
 
     protected function setUp(): void
@@ -23,7 +25,7 @@ final class DefaultItemRendererTest extends TestCase
      */
     public function it_always_supports_any_item(): void
     {
-        $twig = $this->createMock(\Twig\Environment::class);
+        $twig = $this->prophesize(\Twig\Environment::class)->reveal();
         $renderer = new DefaultItemRenderer($twig);
 
         self::assertTrue($renderer->supports($this->item));
@@ -35,7 +37,7 @@ final class DefaultItemRendererTest extends TestCase
      */
     public function it_uses_default_template_path(): void
     {
-        $twig = $this->createMock(\Twig\Environment::class);
+        $twig = $this->prophesize(\Twig\Environment::class)->reveal();
         $renderer = new DefaultItemRenderer($twig);
 
         $reflection = new \ReflectionClass($renderer);
@@ -53,7 +55,7 @@ final class DefaultItemRendererTest extends TestCase
     public function it_uses_custom_default_template_when_provided(): void
     {
         $customTemplate = '@App/custom_item_template.html.twig';
-        $twig = $this->createMock(\Twig\Environment::class);
+        $twig = $this->prophesize(\Twig\Environment::class)->reveal();
         $renderer = new DefaultItemRenderer($twig, $customTemplate);
 
         $reflection = new \ReflectionClass($renderer);

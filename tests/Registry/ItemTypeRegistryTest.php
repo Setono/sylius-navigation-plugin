@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin\Tests\Registry;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Registry\ItemType;
@@ -12,6 +13,8 @@ use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
 
 final class ItemTypeRegistryTest extends TestCase
 {
+    use ProphecyTrait;
+
     private ItemTypeRegistry $registry;
 
     protected function setUp(): void
@@ -21,7 +24,7 @@ final class ItemTypeRegistryTest extends TestCase
 
     private function createMockFactory(): ItemFactoryInterface
     {
-        return $this->createMock(ItemFactoryInterface::class);
+        return $this->prophesize(ItemFactoryInterface::class)->reveal();
     }
 
     /**

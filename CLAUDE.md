@@ -20,7 +20,7 @@ Follow clean code principles and SOLID design patterns when working with this co
 ### Testing Requirements
 - Write unit tests for all new functionality (if it makes sense)
 - Follow the BDD-style naming convention for test methods (e.g., `it_should_do_something_when_condition_is_met`)
-- Use the ProphecyTrait for mocking when needed
+- **MUST use Prophecy for mocking** - Use the `ProphecyTrait` and `$this->prophesize()` for all mocks, NOT PHPUnit's `$this->createMock()`
 - Ensure tests are isolated and don't depend on external state
 - Test both happy path and edge cases
 
