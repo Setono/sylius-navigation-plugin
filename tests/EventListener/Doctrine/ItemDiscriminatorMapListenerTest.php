@@ -11,12 +11,12 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusNavigationPlugin\EventListener\Doctrine\ItemDiscriminatorMapListener;
 use Setono\SyliusNavigationPlugin\Model\Item;
-use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItem;
 
 final class ItemDiscriminatorMapListenerTest extends TestCase
 {
     use ProphecyTrait;
+
     /**
      * @test
      */

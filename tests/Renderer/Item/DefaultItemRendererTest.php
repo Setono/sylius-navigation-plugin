@@ -13,6 +13,7 @@ use Setono\SyliusNavigationPlugin\Renderer\Item\DefaultItemRenderer;
 final class DefaultItemRendererTest extends TestCase
 {
     use ProphecyTrait;
+
     private ItemInterface $item;
 
     protected function setUp(): void
