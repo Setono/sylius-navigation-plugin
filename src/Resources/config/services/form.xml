@@ -33,5 +33,11 @@
             <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
             <tag name="form.type"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Form\Type\LinkItemType">
+            <argument>%setono_sylius_navigation.model.link_item.class%</argument>
+            <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
+            <tag name="form.type"/>
+        </service>
     </services>
 </container>

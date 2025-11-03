@@ -22,5 +22,13 @@
                  decorates="setono_sylius_navigation.factory.taxon_item" decoration-priority="64">
             <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\TaxonItemFactory.inner"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\Factory\LinkItemFactoryInterface"
+                 alias="Setono\SyliusNavigationPlugin\Factory\LinkItemFactory"/>
+
+        <service id="Setono\SyliusNavigationPlugin\Factory\LinkItemFactory"
+                 decorates="setono_sylius_navigation.factory.link_item" decoration-priority="64">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Factory\LinkItemFactory.inner"/>
+        </service>
     </services>
 </container>

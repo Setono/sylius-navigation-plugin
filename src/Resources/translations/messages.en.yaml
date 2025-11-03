@@ -8,6 +8,15 @@ setono_sylius_navigation:
             label: Label
             taxon: Taxon
             translations: Translations
+        link_item:
+            url: URL
+            open_in_new_tab: Open in new tab
+            nofollow: Nofollow
+            nofollow_help: 'Tells search engines not to follow this link'
+            noopener: Noopener
+            noopener_help: 'Prevents the new page from accessing the window.opener property (security)'
+            noreferrer: Noreferrer
+            noreferrer_help: 'Prevents passing referrer information to the target site'
         navigation:
             channels: Restrict to channels
             description: Description (only used internally)
@@ -30,7 +39,12 @@ setono_sylius_navigation:
         from_taxon: from taxon
         item_information: Item Information
         labels_by_locale: Labels by Locale
+        link_item: Link item
         linked_taxon: Linked Taxon
+        link_url: Link URL
+        link_attributes: Link Attributes
+        opens_in_new_tab: Opens in new tab
+        opens_in_same_tab: Opens in same tab
         no_label: No label set
         text_item: Text item
         type: Type

@@ -1,0 +1,3 @@
+{# @var item \Setono\SyliusNavigationPlugin\Model\LinkItemInterface #}
+{# @var attributes \Setono\SyliusNavigationPlugin\Renderer\Item\ItemAttributes #}
+<a href="{{ item.url }}"{{ attributes }}{% if item.target %} target="{{ item.target }}"{% endif %}{% if item.rel %} rel="{{ item.rel }}"{% endif %}>{{ item.label }}</a>

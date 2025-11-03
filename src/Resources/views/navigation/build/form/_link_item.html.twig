@@ -1,0 +1,29 @@
+{% form_theme form '@SyliusAdmin/Form/theme.html.twig' %}
+{% from '@SyliusAdmin/Macro/translationForm.html.twig' import translationForm %}
+
+{{ form_start(form, {'attr': {'class': 'ui form', 'novalidate': 'novalidate'}}) }}
+    {{ form_row(form.url, {
+        'label': '<i class="linkify icon"></i> ' ~ form.url.vars.label|trans,
+        'label_html': true,
+        'help': 'Enter the full URL (e.g., https://example.com)',
+    }) }}
+
+    {{ form_row(form.openInNewTab, {
+        'label': '<i class="external icon"></i> ' ~ form.openInNewTab.vars.label|trans,
+        'label_html': true,
+    }) }}
+
+    <div class="field">
+        <label><i class="shield icon"></i> {{ 'setono_sylius_navigation.ui.link_attributes'|trans }}</label>
+        {{ form_row(form.nofollow) }}
+        {{ form_row(form.noopener) }}
+        {{ form_row(form.noreferrer) }}
+    </div>
+
+    <div class="field">
+        {{ translationForm(form.translations) }}
+    </div>
+
+    {{ form_row(form.enabled) }}
+    {{ form_row(form.channels) }}
+{{ form_end(form) }}
