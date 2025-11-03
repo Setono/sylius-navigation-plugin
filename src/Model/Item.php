@@ -6,6 +6,8 @@ namespace Setono\SyliusNavigationPlugin\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Setono\SyliusNavigationPlugin\Attribute\ItemType;
+use Setono\SyliusNavigationPlugin\Form\Type\ItemType as ItemFormType;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
@@ -15,7 +17,13 @@ use function Symfony\Component\String\u;
 /**
  * @method ItemTranslationInterface getTranslation(?string $locale = null)
  */
-abstract class Item implements ItemInterface
+#[ItemType(
+    name: 'text',
+    formType: ItemFormType::class,
+    template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_text_item.html.twig',
+    label: 'Text Item',
+)]
+class Item implements ItemInterface
 {
     use TimestampableTrait;
     use ToggleableTrait;

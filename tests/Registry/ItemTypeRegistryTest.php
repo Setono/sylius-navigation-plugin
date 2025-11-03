@@ -7,7 +7,7 @@ namespace Setono\SyliusNavigationPlugin\Tests\Registry;
 use PHPUnit\Framework\TestCase;
 use Setono\SyliusNavigationPlugin\Factory\ItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Form\Type\BuilderTextItemType;
-use Setono\SyliusNavigationPlugin\Model\TextItem;
+use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Registry\ItemType;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
 
@@ -33,7 +33,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'text',
             'Text Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
@@ -50,7 +50,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'text',
             'Text Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
@@ -61,7 +61,7 @@ final class ItemTypeRegistryTest extends TestCase
         self::assertInstanceOf(ItemType::class, $itemType);
         self::assertSame('text', $itemType->name);
         self::assertSame('Text Item', $itemType->label);
-        self::assertSame(TextItem::class, $itemType->entity);
+        self::assertSame(Item::class, $itemType->entity);
         self::assertSame(BuilderTextItemType::class, $itemType->form);
         self::assertSame('@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig', $itemType->template);
     }
@@ -93,7 +93,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'text',
             'Text Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
@@ -102,7 +102,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'taxon',
             'Taxon Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
             $this->createMockFactory(),
@@ -124,7 +124,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'text',
             'Text Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
@@ -132,12 +132,12 @@ final class ItemTypeRegistryTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('An item type with name "text" is already registered');
-        $this->expectExceptionMessage(TextItem::class);
+        $this->expectExceptionMessage(Item::class);
 
         $this->registry->register(
             'text',
             'Another Text Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_other.html.twig',
             $this->createMockFactory(),
@@ -152,7 +152,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'text',
             'Text Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
             $this->createMockFactory(),
@@ -161,7 +161,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'taxon',
             'Taxon Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
             $this->createMockFactory(),
@@ -196,7 +196,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'first',
             'First Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_first.html.twig',
             $this->createMockFactory(),
@@ -205,7 +205,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'second',
             'Second Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_second.html.twig',
             $this->createMockFactory(),
@@ -214,7 +214,7 @@ final class ItemTypeRegistryTest extends TestCase
         $this->registry->register(
             'third',
             'Third Item',
-            TextItem::class,
+            Item::class,
             BuilderTextItemType::class,
             '@SetonoSyliusNavigationPlugin/navigation/build/form/_third.html.twig',
             $this->createMockFactory(),

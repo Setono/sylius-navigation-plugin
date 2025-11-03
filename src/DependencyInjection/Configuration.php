@@ -10,7 +10,6 @@ use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemTranslation;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
 use Setono\SyliusNavigationPlugin\Model\TaxonItem;
-use Setono\SyliusNavigationPlugin\Model\TextItem;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepository;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
@@ -99,38 +98,6 @@ final class Configuration implements ConfigurationInterface
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->scalarNode('model')->defaultValue(TaxonItem::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('repository')->cannotBeEmpty()->end()
-                                        ->scalarNode('form')->defaultValue(DefaultResourceType::class)->end()
-                                        ->scalarNode('factory')->defaultValue(TranslatableFactory::class)->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('translation')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->variableNode('options')->end()
-                                        ->arrayNode('classes')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('model')->defaultValue(ItemTranslation::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('repository')->cannotBeEmpty()->end()
-                                                ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                                ->scalarNode('form')->defaultValue(DefaultResourceType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->arrayNode('text_item')
-                            ->addDefaultsIfNotSet()
-                            ->children()
-                                ->variableNode('options')->end()
-                                ->arrayNode('classes')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->scalarNode('model')->defaultValue(TextItem::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
                                         ->scalarNode('form')->defaultValue(DefaultResourceType::class)->end()

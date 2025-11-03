@@ -37,8 +37,7 @@ final class ItemDiscriminatorMapListener
         foreach ($this->resources as $resource) {
             ['model' => $model] = $resource['classes'];
 
-            // Include both the base Item class and child classes that implement ItemInterface
-            if (Item::class === $model || !is_a($model, ItemInterface::class, true)) {
+            if (!is_a($model, ItemInterface::class, true)) {
                 continue;
             }
 

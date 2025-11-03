@@ -28,12 +28,6 @@
             <tag name="form.type"/>
         </service>
 
-        <service id="Setono\SyliusNavigationPlugin\Form\Type\TextItemType">
-            <argument>%setono_sylius_navigation.model.text_item.class%</argument>
-            <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
-            <tag name="form.type"/>
-        </service>
-
         <service id="Setono\SyliusNavigationPlugin\Form\Type\TaxonItemType">
             <argument>%setono_sylius_navigation.model.taxon_item.class%</argument>
             <argument>%setono_sylius_navigation.form_type.item.validation_groups%</argument>
