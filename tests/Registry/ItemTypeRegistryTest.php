@@ -227,9 +227,150 @@ final class ItemTypeRegistryTest extends TestCase
 
         self::assertSame(['first', 'second', 'third'], $keys);
     }
+
+    /**
+     * @test
+     */
+    public function it_retrieves_item_type_by_entity_class(): void
+    {
+        $this->registry->register(
+            'text',
+            'Text Item',
+            Item::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
+        );
+
+        $itemType = $this->registry->getByEntity(Item::class);
+
+        self::assertInstanceOf(ItemType::class, $itemType);
+        self::assertSame('text', $itemType->name);
+        self::assertSame('Text Item', $itemType->label);
+        self::assertSame(Item::class, $itemType->entity);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_when_entity_class_is_not_registered(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('No item type registered for entity class "NonExistentClass"');
+
+        $this->registry->getByEntity('NonExistentClass');
+    }
+
+    /**
+     * @test
+     */
+    public function it_includes_available_entities_in_exception_message_when_entity_not_found(): void
+    {
+        $this->registry->register(
+            'text',
+            'Text Item',
+            Item::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
+        );
+
+        $this->registry->register(
+            'link',
+            'Link Item',
+            MockLinkItem::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_link.html.twig',
+            $this->createMockFactory(),
+        );
+
+        try {
+            $this->registry->getByEntity('NonExistentClass');
+            self::fail('Expected InvalidArgumentException was not thrown');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString(Item::class, $e->getMessage());
+            self::assertStringContainsString(MockLinkItem::class, $e->getMessage());
+            self::assertStringContainsString('(text)', $e->getMessage());
+            self::assertStringContainsString('(link)', $e->getMessage());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_matches_entity_exactly_without_checking_inheritance(): void
+    {
+        // Register a base class
+        $this->registry->register(
+            'text',
+            'Text Item',
+            Item::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
+        );
+
+        // Try to get by subclass - should fail because we only do exact matching
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('No item type registered for entity class');
+
+        $this->registry->getByEntity(MockLinkItem::class);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_correct_item_type_when_multiple_types_are_registered(): void
+    {
+        $this->registry->register(
+            'text',
+            'Text Item',
+            Item::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_text.html.twig',
+            $this->createMockFactory(),
+        );
+
+        $this->registry->register(
+            'link',
+            'Link Item',
+            MockLinkItem::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_link.html.twig',
+            $this->createMockFactory(),
+        );
+
+        $this->registry->register(
+            'taxon',
+            'Taxon Item',
+            MockTaxonItem::class,
+            MockFormType::class,
+            '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon.html.twig',
+            $this->createMockFactory(),
+        );
+
+        // Verify each entity returns its specific type
+        $textType = $this->registry->getByEntity(Item::class);
+        self::assertSame('text', $textType->name);
+
+        $linkType = $this->registry->getByEntity(MockLinkItem::class);
+        self::assertSame('link', $linkType->name);
+
+        $taxonType = $this->registry->getByEntity(MockTaxonItem::class);
+        self::assertSame('taxon', $taxonType->name);
+    }
 }
 
 // Mock form type class for testing purposes
 class MockFormType
+{
+}
+
+// Mock entity classes for testing
+class MockLinkItem extends Item
+{
+}
+
+class MockTaxonItem extends Item
 {
 }

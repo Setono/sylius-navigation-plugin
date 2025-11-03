@@ -49,13 +49,14 @@ final class BuildController extends AbstractController
         Request $request,
         NavigationInterface $navigation,
         ClosureRepositoryInterface $closureRepository,
+        ItemTypeRegistryInterface $itemTypeRegistry,
     ): JsonResponse {
         // Get node ID from request (for lazy loading)
         $nodeId = $request->query->get('id', '#');
 
         if ($nodeId === '#') {
             // Load root level (first level items)
-            $tree = $this->buildTreeStructure($navigation, $closureRepository, false); // false = don't load children recursively
+            $tree = $this->buildTreeStructure($navigation, $closureRepository, $itemTypeRegistry, false); // false = don't load children recursively
         } else {
             // Load children of specific node
             $itemManager = $this->getManager($navigation);
@@ -68,7 +69,7 @@ final class BuildController extends AbstractController
             $children = $this->getDirectChildren($parentItem, $closureRepository);
             $tree = [];
             foreach ($children as $child) {
-                $tree[] = $this->buildItemTree($child, $closureRepository, false); // false = don't load children recursively
+                $tree[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, false); // false = don't load children recursively
             }
         }
 
@@ -271,7 +272,7 @@ final class BuildController extends AbstractController
                 'item' => [
                     'id' => $item->getId(),
                     'label' => $this->getItemLabel($item),
-                    'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
+                    'type' => $itemTypeRegistry->getByEntity($item::class)->name,
                     'enabled' => $item->isEnabled(),
                 ],
             ], Response::HTTP_CREATED);
@@ -296,9 +297,9 @@ final class BuildController extends AbstractController
         Environment $twig,
     ): JsonResponse {
         try {
-            // Get the appropriate form type from registry based on item type
-            $type = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
-            $formClass = $itemTypeRegistry->get($type)->form;
+            // Get the appropriate form type from registry based on item entity class
+            $itemType = $itemTypeRegistry->getByEntity($item::class);
+            $formClass = $itemType->form;
             $form = $formFactory->create($formClass, $item);
 
             // Process the form data using handleRequest
@@ -343,7 +344,7 @@ final class BuildController extends AbstractController
                 'item' => [
                     'id' => $item->getId(),
                     'label' => $this->getItemLabel($item),
-                    'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'simple',
+                    'type' => $itemTypeRegistry->getByEntity($item::class)->name,
                     'enabled' => $item->isEnabled(),
                 ],
             ]);
@@ -452,6 +453,7 @@ final class BuildController extends AbstractController
     private function buildTreeStructure(
         NavigationInterface $navigation,
         ClosureRepositoryInterface $closureRepository,
+        ItemTypeRegistryInterface $itemTypeRegistry,
         bool $recursive = true,
     ): array {
         // Get root items (items with no parent)
@@ -459,7 +461,7 @@ final class BuildController extends AbstractController
         $childrenArray = [];
 
         foreach ($rootItems as $rootItem) {
-            $childrenArray[] = $this->buildItemTree($rootItem, $closureRepository, $recursive);
+            $childrenArray[] = $this->buildItemTree($rootItem, $closureRepository, $itemTypeRegistry, $recursive);
         }
 
         return $childrenArray;
@@ -507,6 +509,7 @@ final class BuildController extends AbstractController
     private function buildItemTree(
         ItemInterface $item,
         ClosureRepositoryInterface $closureRepository,
+        ItemTypeRegistryInterface $itemTypeRegistry,
         bool $recursive = true,
     ): array {
         $children = $this->getDirectChildren($item, $closureRepository);
@@ -516,30 +519,30 @@ final class BuildController extends AbstractController
         if ($recursive) {
             // Load all children recursively
             foreach ($children as $child) {
-                $childrenArray[] = $this->buildItemTree($child, $closureRepository, true);
+                $childrenArray[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, true);
             }
         }
 
         // Determine the actual item type for form selection
-        $itemType = $item instanceof TaxonItemInterface ? 'taxon' : 'text';
+        $itemType = $itemTypeRegistry->getByEntity($item::class);
 
         // jsTree-compatible format
         $node = [
             'id' => (string) $item->getId(), // jsTree expects string IDs
             'text' => $this->getItemLabel($item), // jsTree uses 'text' instead of 'label'
-            'type' => $item instanceof TaxonItemInterface ? 'taxon' : 'default', // jsTree types for icons
+            'type' => $itemType->name, // jsTree types for icons
             'state' => [
                 'opened' => false, // Don't auto-expand for lazy loading
                 'disabled' => !$item->isEnabled(), // Disabled state for jsTree
             ],
             'a_attr' => [
                 'data-enabled' => $item->isEnabled() ? 'true' : 'false', // Custom attribute for enabled status
-                'data-item-type' => $itemType, // Store actual item type for edit forms
+                'data-item-type' => $itemType->name, // Store actual item type for edit forms
             ],
             'data' => [ // Custom data for our application
                 'enabled' => $item->isEnabled(),
                 'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
-                'item_type' => $itemType, // Store actual item type
+                'item_type' => $itemType->name, // Store actual item type
             ],
         ];
 

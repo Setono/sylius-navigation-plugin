@@ -62,6 +62,7 @@ The plugin includes a test Symfony application in `tests/Application/` for devel
 - Navigate to `tests/Application/` directory
 - Run `yarn install && yarn build` to build assets
 - Use standard Symfony commands for the test app
+- **Sylius Backend Credentials**: Username: `sylius`, Password: `sylius`
 
 ## Bash Tools Recommendations
 

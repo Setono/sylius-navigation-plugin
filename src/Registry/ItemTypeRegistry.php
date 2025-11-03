@@ -46,4 +46,19 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
     {
         return $this->types;
     }
+
+    public function getByEntity(string $entity): ItemType
+    {
+        foreach ($this->types as $type) {
+            if ($type->entity === $entity) {
+                return $type;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'No item type registered for entity class "%s". Available entities: %s',
+            $entity,
+            implode(', ', array_map(static fn (ItemType $type): string => sprintf('%s (%s)', $type->entity, $type->name), $this->types)),
+        ));
+    }
 }

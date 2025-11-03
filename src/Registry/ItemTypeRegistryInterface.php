@@ -31,4 +31,13 @@ interface ItemTypeRegistryInterface
      * @return array<string, ItemType>
      */
     public function all(): array;
+
+    /**
+     * Get an item type by entity class name
+     *
+     * @param class-string $entity The fully qualified entity class name
+     *
+     * @throws \InvalidArgumentException if no item type is registered for the entity
+     */
+    public function getByEntity(string $entity): ItemType;
 }
