@@ -6,7 +6,7 @@ namespace Setono\SyliusNavigationPlugin\Tests\DependencyInjection\Compiler;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use Setono\SyliusNavigationPlugin\Attribute\ItemType;
-use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\RegisterNavigationItemsPass;
+use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\RegisterItemTypesPass;
 use Setono\SyliusNavigationPlugin\Form\Type\ItemType as ItemFormType;
 use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistry;
@@ -15,11 +15,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-final class RegisterNavigationItemsPassTest extends AbstractCompilerPassTestCase
+final class RegisterItemTypesPassTest extends AbstractCompilerPassTestCase
 {
     protected function registerCompilerPass(ContainerBuilder $container): void
     {
-        $container->addCompilerPass(new RegisterNavigationItemsPass());
+        $container->addCompilerPass(new RegisterItemTypesPass());
     }
 
     /**

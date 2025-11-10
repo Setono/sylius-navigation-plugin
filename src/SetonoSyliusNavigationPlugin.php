@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin;
 
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
-use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\RegisterNavigationItemsPass;
+use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\RegisterItemTypesPass;
 use Setono\SyliusNavigationPlugin\DependencyInjection\Compiler\ResolveTargetEntitiesPass;
 use Setono\SyliusNavigationPlugin\Renderer\Item\CompositeItemRenderer;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
@@ -33,6 +33,6 @@ final class SetonoSyliusNavigationPlugin extends AbstractResourceBundle
             'setono_sylius_navigation.item_renderer',
         ));
 
-        $container->addCompilerPass(new RegisterNavigationItemsPass());
+        $container->addCompilerPass(new RegisterItemTypesPass());
     }
 }

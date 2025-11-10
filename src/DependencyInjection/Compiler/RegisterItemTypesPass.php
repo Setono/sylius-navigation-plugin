@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 use function Symfony\Component\String\u;
 
-final class RegisterNavigationItemsPass implements CompilerPassInterface
+final class RegisterItemTypesPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
