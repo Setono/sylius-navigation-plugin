@@ -56,17 +56,27 @@ final class CachedNavigationRenderer implements NavigationRendererInterface
         return $result;
     }
 
-    public function invalidate(NavigationInterface|string $navigation): void
+    public function invalidate(NavigationInterface|string ...$navigations): void
     {
-        if ($this->cachePool instanceof TagAwareCacheInterface) {
-            try {
-                $this->cachePool->invalidateTags([self::getTag($navigation)]);
-            } catch (InvalidArgumentException) {
-                // Tag invalidation failed, fall back to clearing all cache
-                $this->cachePool->clear();
-            }
-        } else {
+        if ([] === $navigations) {
+            return;
+        }
+
+        if (!$this->cachePool instanceof TagAwareCacheInterface) {
             // Cache pool doesn't support tags, clear everything
+            $this->invalidateAll();
+
+            return;
+        }
+
+        try {
+            $tags = array_unique(array_map(
+                static fn (NavigationInterface|string $navigation): string => self::getTag($navigation),
+                $navigations,
+            ));
+            $this->cachePool->invalidateTags($tags);
+        } catch (InvalidArgumentException) {
+            // Tag invalidation failed, fall back to clearing all cache
             $this->cachePool->clear();
         }
     }

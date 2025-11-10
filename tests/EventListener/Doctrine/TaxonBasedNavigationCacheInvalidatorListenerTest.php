@@ -130,8 +130,29 @@ final class TaxonBasedNavigationCacheInvalidatorListenerTest extends TestCase
         $eventArgs = new PostUpdateEventArgs($taxon, $entityManager);
 
         $this->taxonItemRepository->findByTaxon($taxon)->willReturn([$taxonItem1, $taxonItem2]);
+        // With variadic invalidate, all tags are invalidated in a single call
+        $this->cachePool->invalidateTags(['setono_navigation_main-menu', 'setono_navigation_footer-menu'])->shouldBeCalledOnce();
+
+        $this->listener->postUpdate($eventArgs);
+    }
+
+    /**
+     * @test
+     */
+    public function it_deduplicates_navigations_when_same_navigation_appears_multiple_times(): void
+    {
+        $taxon = $this->createTaxon('category');
+        $navigation = $this->createNavigation('main-menu');
+        $taxonItem1 = $this->createTaxonItem($taxon, $navigation);
+        $taxonItem2 = $this->createTaxonItem($taxon, $navigation);
+        $taxonItem3 = $this->createTaxonItem($taxon, $navigation);
+
+        $entityManager = $this->prophesize(EntityManagerInterface::class)->reveal();
+        $eventArgs = new PostUpdateEventArgs($taxon, $entityManager);
+
+        $this->taxonItemRepository->findByTaxon($taxon)->willReturn([$taxonItem1, $taxonItem2, $taxonItem3]);
+        // Should only invalidate once even though the same navigation appears 3 times
         $this->cachePool->invalidateTags(['setono_navigation_main-menu'])->shouldBeCalledOnce();
-        $this->cachePool->invalidateTags(['setono_navigation_footer-menu'])->shouldBeCalledOnce();
 
         $this->listener->postUpdate($eventArgs);
     }

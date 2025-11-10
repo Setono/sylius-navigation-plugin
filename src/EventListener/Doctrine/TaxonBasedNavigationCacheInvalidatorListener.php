@@ -48,10 +48,9 @@ final class TaxonBasedNavigationCacheInvalidatorListener
             return;
         }
 
-        // Find all TaxonItems that reference this taxon
         $taxonItems = $this->taxonItemRepository->findByTaxon($obj);
 
-        // Invalidate cache for each navigation that contains a TaxonItem with this taxon
+        $navigations = [];
         foreach ($taxonItems as $taxonItem) {
             if (!$taxonItem instanceof TaxonItemInterface) {
                 continue;
@@ -59,8 +58,12 @@ final class TaxonBasedNavigationCacheInvalidatorListener
 
             $navigation = $taxonItem->getNavigation();
             if (null !== $navigation) {
-                $this->cachedRenderer->invalidate($navigation);
+                $navigations[] = $navigation;
             }
+        }
+
+        if ([] !== $navigations) {
+            $this->cachedRenderer->invalidate(...$navigations);
         }
     }
 }
