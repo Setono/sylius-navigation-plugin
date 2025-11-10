@@ -39,32 +39,23 @@ return [
 ];
 ```
 
-### 3. Import configuration
-
-Create or update `config/packages/setono_sylius_navigation.yaml`:
-
-```yaml
-imports:
-    - { resource: "@SetonoSyliusNavigationPlugin/config/config.yaml" }
-```
-
-### 4. Import routing
+### 3. Import routing
 
 Create `config/routes/setono_sylius_navigation.yaml`:
 
 ```yaml
 setono_sylius_navigation:
-    resource: "@SetonoSyliusNavigationPlugin/config/routes.yaml"
+    resource: "@SetonoSyliusNavigationPlugin/Resources/config/routes.yaml"
 ```
 
-### 5. Update database schema
+### 4. Update database schema
 
 ```bash
 php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate
 ```
 
-### 6. Install assets
+### 5. Install assets
 
 ```bash
 php bin/console assets:install
