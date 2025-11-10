@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusNavigationPlugin\Tests\Form\Type;
 
 use Prophecy\PhpUnit\ProphecyTrait;
+use Setono\SyliusNavigationPlugin\Controller\Command\BuildFromTaxonCommand;
 use Setono\SyliusNavigationPlugin\Form\Type\BuildFromTaxonType;
 use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
 use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
@@ -36,11 +37,9 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         self::assertTrue($form->isSynchronized());
 
         $data = $form->getData();
-        self::assertIsArray($data);
-        self::assertArrayHasKey('includeRoot', $data);
-        self::assertTrue($data['includeRoot']);
-        self::assertArrayHasKey('maxDepth', $data);
-        self::assertSame(3, $data['maxDepth']);
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertTrue($data->includeRoot);
+        self::assertSame(3, $data->maxDepth);
 
         // Note: taxon field is a ResourceAutocompleteChoiceType which expects entity objects
         // In unit tests we can only verify the field exists, not test actual taxon selection
@@ -86,7 +85,8 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         self::assertTrue($form->isSynchronized());
 
         $data = $form->getData();
-        self::assertFalse($data['includeRoot']);
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertFalse($data->includeRoot);
     }
 
     /**
@@ -105,7 +105,8 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         self::assertTrue($form->isSynchronized());
 
         $data = $form->getData();
-        self::assertNull($data['maxDepth']);
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertNull($data->maxDepth);
     }
 
     /**
@@ -124,7 +125,8 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         self::assertTrue($form->isSynchronized());
 
         $data = $form->getData();
-        self::assertNull($data['maxDepth']);
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertNull($data->maxDepth);
     }
 
     /**
@@ -160,7 +162,8 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         self::assertTrue($form->isSynchronized());
 
         $data = $form->getData();
-        self::assertSame(5, $data['maxDepth']);
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertSame(5, $data->maxDepth);
     }
 
     protected function getExtensions(): array

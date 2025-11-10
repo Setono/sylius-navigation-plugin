@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Form\Type;
 
+use Setono\SyliusNavigationPlugin\Controller\Command\BuildFromTaxonCommand;
 use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
-use Sylius\Component\Core\Model\TaxonInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 
 /**
- * @extends AbstractType<array{taxon: TaxonInterface, includeRoot: bool, maxDepth: int|null}>
+ * @extends AbstractType<BuildFromTaxonCommand>
  */
 final class BuildFromTaxonType extends AbstractType
 {
@@ -41,5 +42,12 @@ final class BuildFromTaxonType extends AbstractType
                 ],
             ])
         ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => BuildFromTaxonCommand::class,
+        ]);
     }
 }

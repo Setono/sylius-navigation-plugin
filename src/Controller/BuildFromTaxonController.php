@@ -6,6 +6,7 @@ namespace Setono\SyliusNavigationPlugin\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
+use Setono\SyliusNavigationPlugin\Controller\Command\BuildFromTaxonCommand;
 use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Form\Type\BuildFromTaxonType;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
@@ -43,21 +44,12 @@ final class BuildFromTaxonController extends AbstractController
             return $this->redirectToRoute('setono_sylius_navigation_admin_navigation_index');
         }
 
-        $form = $this->createForm(BuildFromTaxonType::class);
+        $command = new BuildFromTaxonCommand();
+        $form = $this->createForm(BuildFromTaxonType::class, $command);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-            Assert::isArray($data);
-
-            /** @var TaxonInterface|null $taxon */
-            $taxon = $data['taxon'] ?? null;
-            Assert::isInstanceOf($taxon, TaxonInterface::class);
-
-            $includeRoot = (bool) ($data['includeRoot'] ?? false);
-            $maxDepth = isset($data['maxDepth']) && is_numeric($data['maxDepth']) ? (int) $data['maxDepth'] : null;
-
-            $this->build($navigation, $taxon, $includeRoot, $maxDepth);
+            $this->build($navigation, $command);
 
             $this->addFlash('success', 'setono_sylius_navigation.navigation_built');
 
@@ -75,8 +67,10 @@ final class BuildFromTaxonController extends AbstractController
         ]);
     }
 
-    private function build(NavigationInterface $navigation, TaxonInterface $root, bool $includeRoot = true, ?int $maxDepth = null): void
+    private function build(NavigationInterface $navigation, BuildFromTaxonCommand $command): void
     {
+        Assert::isInstanceOf($command->taxon, TaxonInterface::class);
+
         // Remove all existing items for this navigation
         $existingItems = $this->closureRepository->findRootItems($navigation);
         foreach ($existingItems as $item) {
@@ -90,11 +84,11 @@ final class BuildFromTaxonController extends AbstractController
         $taxonDepthStorage = new \SplObjectStorage();
 
         /** @var list<TaxonInterface> $taxons */
-        $taxons = $includeRoot ? [$root] : iterator_to_array($root->getChildren());
+        $taxons = $command->includeRoot ? [$command->taxon] : iterator_to_array($command->taxon->getChildren());
 
         // Initialize depth for root taxons
         foreach ($taxons as $taxon) {
-            $taxonDepthStorage->attach($taxon, $includeRoot ? 1 : 1);
+            $taxonDepthStorage->attach($taxon, $command->includeRoot ? 1 : 1);
         }
 
         while ([] !== $taxons) {
@@ -115,7 +109,7 @@ final class BuildFromTaxonController extends AbstractController
             $parentItem = null;
             if (null !== $parent && $taxonToItemStorage->contains($parent)) {
                 $parentItem = $taxonToItemStorage[$parent];
-            } elseif (!$includeRoot && $parent === $root) {
+            } elseif (!$command->includeRoot && $parent === $command->taxon) {
                 // If we're not including root and the parent is the root, this should be a root item (no parent)
                 $parentItem = null;
             }
@@ -123,7 +117,7 @@ final class BuildFromTaxonController extends AbstractController
             $this->closureManager->createItem($item, $parentItem);
 
             // Only add children if we haven't reached max depth
-            if (null === $maxDepth || $currentDepth < $maxDepth) {
+            if (null === $command->maxDepth || $currentDepth < $command->maxDepth) {
                 foreach ($taxon->getChildren() as $child) {
                     $taxons[] = $child;
                     $taxonDepthStorage->attach($child, $currentDepth + 1);

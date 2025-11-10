@@ -12,6 +12,7 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Setono\SyliusNavigationPlugin\Controller\BuildFromTaxonController;
+use Setono\SyliusNavigationPlugin\Controller\Command\BuildFromTaxonCommand;
 use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
@@ -107,7 +108,12 @@ final class BuildFromTaxonControllerTest extends TestCase
         $this->managerRegistry->getManagerForClass(Argument::any())->willReturn($manager->reveal());
 
         // Call build with maxDepth = 3
-        $buildMethod->invoke($this->controller, $navigation, $root->reveal(), true, 3);
+        $command = new BuildFromTaxonCommand();
+        $command->taxon = $root->reveal();
+        $command->includeRoot = true;
+        $command->maxDepth = 3;
+
+        $buildMethod->invoke($this->controller, $navigation, $command);
     }
 
     /**
@@ -160,7 +166,12 @@ final class BuildFromTaxonControllerTest extends TestCase
         $this->managerRegistry->getManagerForClass(Argument::any())->willReturn($manager->reveal());
 
         // Call build with maxDepth = null (unlimited)
-        $buildMethod->invoke($this->controller, $navigation, $root->reveal(), true, null);
+        $command = new BuildFromTaxonCommand();
+        $command->taxon = $root->reveal();
+        $command->includeRoot = true;
+        $command->maxDepth = null;
+
+        $buildMethod->invoke($this->controller, $navigation, $command);
     }
 
     /**
@@ -209,7 +220,12 @@ final class BuildFromTaxonControllerTest extends TestCase
         $this->managerRegistry->getManagerForClass(Argument::any())->willReturn($manager->reveal());
 
         // Call build with maxDepth = 2 and includeRoot = false
-        $buildMethod->invoke($this->controller, $navigation, $root->reveal(), false, 2);
+        $command = new BuildFromTaxonCommand();
+        $command->taxon = $root->reveal();
+        $command->includeRoot = false;
+        $command->maxDepth = 2;
+
+        $buildMethod->invoke($this->controller, $navigation, $command);
     }
 
     /**
