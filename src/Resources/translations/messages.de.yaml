@@ -2,6 +2,8 @@ setono_sylius_navigation:
     form:
         build_from_taxon:
             include_root: Wurzel in Navigation einbeziehen
+            max_depth: Maximale Tiefe
+            max_depth_help: Begrenzen Sie die Tiefenbauebenen (leer lassen für unbegrenzt)
             taxon: Stamm-Taxon
         item:
             channels: Auf Kanäle beschränken

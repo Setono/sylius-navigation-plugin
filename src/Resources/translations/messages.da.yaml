@@ -2,6 +2,8 @@ setono_sylius_navigation:
     form:
         build_from_taxon:
             include_root: Inkluder rod i navigation
+            max_depth: Maksimal dybde
+            max_depth_help: Begræns hvor mange niveauer dybt der skal bygges (lad tom for ubegrænset)
             taxon: Taksonomi
         item:
             channels: Begræns til kanaler

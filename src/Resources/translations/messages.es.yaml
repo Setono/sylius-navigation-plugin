@@ -2,6 +2,8 @@ setono_sylius_navigation:
     form:
         build_from_taxon:
             include_root: Incluir raíz en navegación
+            max_depth: Profundidad máxima
+            max_depth_help: Limitar la profundidad de construcción (dejar en blanco para ilimitado)
             taxon: Taxón raíz
         item:
             channels: Restringir a canales

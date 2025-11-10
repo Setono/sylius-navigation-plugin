@@ -55,8 +55,9 @@ final class BuildFromTaxonController extends AbstractController
             Assert::isInstanceOf($taxon, TaxonInterface::class);
 
             $includeRoot = (bool) ($data['includeRoot'] ?? false);
+            $maxDepth = isset($data['maxDepth']) && is_numeric($data['maxDepth']) ? (int) $data['maxDepth'] : null;
 
-            $this->build($navigation, $taxon, $includeRoot);
+            $this->build($navigation, $taxon, $includeRoot, $maxDepth);
 
             $this->addFlash('success', 'setono_sylius_navigation.navigation_built');
 
@@ -74,7 +75,7 @@ final class BuildFromTaxonController extends AbstractController
         ]);
     }
 
-    private function build(NavigationInterface $navigation, TaxonInterface $root, bool $includeRoot = true): void
+    private function build(NavigationInterface $navigation, TaxonInterface $root, bool $includeRoot = true, ?int $maxDepth = null): void
     {
         // Remove all existing items for this navigation
         $existingItems = $this->closureRepository->findRootItems($navigation);
@@ -85,12 +86,23 @@ final class BuildFromTaxonController extends AbstractController
         /** @var \SplObjectStorage<TaxonInterface, ItemInterface> $taxonToItemStorage */
         $taxonToItemStorage = new \SplObjectStorage();
 
+        /** @var \SplObjectStorage<TaxonInterface, int> $taxonDepthStorage */
+        $taxonDepthStorage = new \SplObjectStorage();
+
         /** @var list<TaxonInterface> $taxons */
         $taxons = $includeRoot ? [$root] : iterator_to_array($root->getChildren());
+
+        // Initialize depth for root taxons
+        foreach ($taxons as $taxon) {
+            $taxonDepthStorage->attach($taxon, $includeRoot ? 1 : 1);
+        }
 
         while ([] !== $taxons) {
             $taxon = array_shift($taxons);
             $parent = $taxon->getParent();
+
+            // Get current depth
+            $currentDepth = $taxonDepthStorage->contains($taxon) ? $taxonDepthStorage[$taxon] : 1;
 
             $item = $this->createItemFromTaxon($taxon, $navigation);
             $this->getManager($item)->persist($item);
@@ -110,8 +122,12 @@ final class BuildFromTaxonController extends AbstractController
 
             $this->closureManager->createItem($item, $parentItem);
 
-            foreach ($taxon->getChildren() as $child) {
-                $taxons[] = $child;
+            // Only add children if we haven't reached max depth
+            if (null === $maxDepth || $currentDepth < $maxDepth) {
+                foreach ($taxon->getChildren() as $child) {
+                    $taxons[] = $child;
+                    $taxonDepthStorage->attach($child, $currentDepth + 1);
+                }
             }
         }
 

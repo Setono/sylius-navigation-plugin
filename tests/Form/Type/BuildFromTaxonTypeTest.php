@@ -27,6 +27,7 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         $formData = [
             'taxon' => 'test_taxon',
             'includeRoot' => true,
+            'maxDepth' => 3,
         ];
 
         $form = $this->factory->create(BuildFromTaxonType::class);
@@ -38,6 +39,8 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
         self::assertIsArray($data);
         self::assertArrayHasKey('includeRoot', $data);
         self::assertTrue($data['includeRoot']);
+        self::assertArrayHasKey('maxDepth', $data);
+        self::assertSame(3, $data['maxDepth']);
 
         // Note: taxon field is a ResourceAutocompleteChoiceType which expects entity objects
         // In unit tests we can only verify the field exists, not test actual taxon selection
@@ -65,6 +68,7 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
 
         self::assertArrayHasKey('taxon', $view->children);
         self::assertArrayHasKey('includeRoot', $view->children);
+        self::assertArrayHasKey('maxDepth', $view->children);
     }
 
     /**
@@ -83,6 +87,80 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
 
         $data = $form->getData();
         self::assertFalse($data['includeRoot']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_null_max_depth(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => null,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertNull($data['maxDepth']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_empty_max_depth(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => '',
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertNull($data['maxDepth']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_validates_max_depth_must_be_positive(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => -1,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertFalse($form->isValid());
+        self::assertTrue($form->get('maxDepth')->getErrors()->count() > 0);
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_positive_max_depth(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => 5,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertSame(5, $data['maxDepth']);
     }
 
     protected function getExtensions(): array

@@ -2,6 +2,8 @@ setono_sylius_navigation:
     form:
         build_from_taxon:
             include_root: Hoofdniveau opnemen in navigatie
+            max_depth: Maximale diepte
+            max_depth_help: Beperk hoe diep je wilt bouwen (leeg laten voor onbeperkt)
             taxon: Hoofdtaxon
         item:
             channels: Beperken tot kanalen

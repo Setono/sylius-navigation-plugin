@@ -31,6 +31,7 @@
                 {{ form_start(form, { 'attr': { 'class': 'ui form' } }) }}
                     {{ form_row(form.taxon) }}
                     {{ form_row(form.includeRoot) }}
+                    {{ form_row(form.maxDepth) }}
 
                     {% if hasItems %}
                         <div class="ui warning message">

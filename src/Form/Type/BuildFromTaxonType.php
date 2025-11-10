@@ -8,11 +8,13 @@ use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Positive;
 
 /**
- * @extends AbstractType<array{taxon: TaxonInterface, includeRoot: bool}>
+ * @extends AbstractType<array{taxon: TaxonInterface, includeRoot: bool, maxDepth: int|null}>
  */
 final class BuildFromTaxonType extends AbstractType
 {
@@ -29,6 +31,14 @@ final class BuildFromTaxonType extends AbstractType
                 'label' => 'setono_sylius_navigation.form.build_from_taxon.include_root',
                 'required' => false,
                 'data' => false,
+            ])
+            ->add('maxDepth', IntegerType::class, [
+                'label' => 'setono_sylius_navigation.form.build_from_taxon.max_depth',
+                'help' => 'setono_sylius_navigation.form.build_from_taxon.max_depth_help',
+                'required' => false,
+                'constraints' => [
+                    new Positive(),
+                ],
             ])
         ;
     }
