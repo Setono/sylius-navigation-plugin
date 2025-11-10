@@ -25,6 +25,7 @@ final class DefaultItemRenderer implements ItemRendererInterface
             $this->defaultTemplate,
         ]);
 
+        /** @phpstan-ignore argument.type */
         return $this->twig->render($template, [
             'item' => $item,
             'attributes' => new Attributes($attributes),

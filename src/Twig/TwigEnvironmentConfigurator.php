@@ -23,8 +23,10 @@ final class TwigEnvironmentConfigurator
         $this->decorated->configure($environment);
 
         if (class_exists(EscaperRuntime::class)) {
+            /** @phpstan-ignore method.notFound */
             $environment->getRuntime(EscaperRuntime::class)->addSafeClass(Attributes::class, ['html']);
         } elseif ($environment->hasExtension(EscaperExtension::class)) {
+            /** @phpstan-ignore method.notFound */
             $environment->getExtension(EscaperExtension::class)->addSafeClass(Attributes::class, ['html']);
         }
     }
