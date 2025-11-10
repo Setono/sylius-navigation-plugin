@@ -13,7 +13,7 @@ use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer;
 
-final class InvalidateNavigationCacheListener
+final class ItemBasedNavigationCacheInvalidatorListener
 {
     public function __construct(private readonly CachedNavigationRenderer $cachedRenderer)
     {

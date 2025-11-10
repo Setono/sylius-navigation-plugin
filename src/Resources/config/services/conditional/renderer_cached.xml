@@ -10,7 +10,7 @@
             <argument type="service" id="sylius.context.locale"/>
         </service>
 
-        <service id="Setono\SyliusNavigationPlugin\EventListener\Doctrine\InvalidateNavigationCacheListener">
+        <service id="Setono\SyliusNavigationPlugin\EventListener\Doctrine\ItemBasedNavigationCacheInvalidatorListener">
             <argument type="service" id="Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer"/>
 
             <tag name="doctrine.event_listener" event="postUpdate"/>
