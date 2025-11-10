@@ -17,7 +17,7 @@ final class ItemType
         public readonly ?string $name,
 
         /**
-         * The form type class to use for this entity
+         * The form type class to use for the entity
          *
          * @var class-string<FormTypeInterface<mixed>> $formType
          */
@@ -30,7 +30,7 @@ final class ItemType
         public readonly ?string $template = null,
 
         /**
-         * Human-readable label for the item type (used in dropdowns)
+         * Human-readable label for the item type.
          * If null, will be generated from the name
          */
         public readonly ?string $label = null,

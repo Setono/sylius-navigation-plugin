@@ -33,7 +33,6 @@ final class RegisterItemTypesPass implements CompilerPassInterface
         foreach ($resources as $resourceName => $resource) {
             $entity = $resource['classes']['model'];
 
-            // Only process classes that implement ItemInterface
             if (!is_a($entity, ItemInterface::class, true)) {
                 continue;
             }
@@ -42,7 +41,7 @@ final class RegisterItemTypesPass implements CompilerPassInterface
             $attributes = self::getItemTypeAttributeFromHierarchy($reflectionClass);
 
             if ([] === $attributes) {
-                continue; // Skip entities without ItemType attribute
+                continue;
             }
 
             /** @var ItemType $metadata */
@@ -58,7 +57,6 @@ final class RegisterItemTypesPass implements CompilerPassInterface
             // e.g., 'setono_sylius_navigation.text_item' -> 'setono_sylius_navigation.factory.text_item'
             $factoryServiceId = str_replace('.', '.factory.', $resourceName);
 
-            // Validate that the factory service exists
             if (!$container->has($factoryServiceId)) {
                 throw new ServiceNotFoundException(sprintf(
                     'Factory service "%s" not found for item type "%s". Expected service to be registered by Sylius Resource Bundle.',
