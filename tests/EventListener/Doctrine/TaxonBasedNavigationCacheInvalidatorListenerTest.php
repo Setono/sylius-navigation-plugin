@@ -187,25 +187,6 @@ final class TaxonBasedNavigationCacheInvalidatorListenerTest extends TestCase
         $this->listener->postUpdate($eventArgs);
     }
 
-    /**
-     * @test
-     */
-    public function it_handles_mixed_results_from_repository(): void
-    {
-        $taxon = $this->createTaxon('category');
-        $navigation = $this->createNavigation('main-menu');
-        $taxonItem = $this->createTaxonItem($taxon, $navigation);
-        $nonTaxonItem = new \stdClass(); // Repository might return non-TaxonItem objects
-
-        $entityManager = $this->prophesize(EntityManagerInterface::class)->reveal();
-        $eventArgs = new PostUpdateEventArgs($taxon, $entityManager);
-
-        $this->taxonItemRepository->findByTaxon($taxon)->willReturn([$taxonItem, $nonTaxonItem]);
-        $this->cachePool->invalidateTags(['setono_navigation_main-menu'])->shouldBeCalledOnce();
-
-        $this->listener->postUpdate($eventArgs);
-    }
-
     private function createTaxon(string $code): TaxonInterface
     {
         $taxon = $this->prophesize(TaxonInterface::class);

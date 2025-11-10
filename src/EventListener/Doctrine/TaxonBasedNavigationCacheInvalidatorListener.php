@@ -48,22 +48,13 @@ final class TaxonBasedNavigationCacheInvalidatorListener
             return;
         }
 
-        $taxonItems = $this->taxonItemRepository->findByTaxon($obj);
+        $navigations = array_filter(
+            array_map(
+                static fn (TaxonItemInterface $item) => $item->getNavigation(),
+                $this->taxonItemRepository->findByTaxon($obj),
+            ),
+        );
 
-        $navigations = [];
-        foreach ($taxonItems as $taxonItem) {
-            if (!$taxonItem instanceof TaxonItemInterface) {
-                continue;
-            }
-
-            $navigation = $taxonItem->getNavigation();
-            if (null !== $navigation) {
-                $navigations[] = $navigation;
-            }
-        }
-
-        if ([] !== $navigations) {
-            $this->cachedRenderer->invalidate(...$navigations);
-        }
+        [] !== $navigations && $this->cachedRenderer->invalidate(...$navigations);
     }
 }
