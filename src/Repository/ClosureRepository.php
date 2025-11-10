@@ -14,10 +14,15 @@ class ClosureRepository extends EntityRepository implements ClosureRepositoryInt
 {
     public function findAncestors(ItemInterface $item): array
     {
-        $objs = $this->findBy([
-            'descendant' => $item,
-        ]);
+        $qb = $this->createQueryBuilder('c')
+            ->where('c.descendant = :item')
+            ->setParameter('item', $item)
+            ->orderBy('c.depth', 'ASC');
 
+        $objs = $qb->getQuery()->getResult();
+
+        Assert::isArray($objs);
+        Assert::isList($objs);
         Assert::allIsInstanceOf($objs, ClosureInterface::class);
 
         return $objs;

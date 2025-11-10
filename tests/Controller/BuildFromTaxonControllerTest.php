@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Tests\Controller;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
@@ -79,10 +78,10 @@ final class BuildFromTaxonControllerTest extends TestCase
             $grandchild1Item,
         );
 
-        // Verify that only 3 items are created via closureManager
-        $this->closureManager->createItem($rootItem, null)->shouldBeCalledOnce();
-        $this->closureManager->createItem($child1Item, $rootItem)->shouldBeCalledOnce();
-        $this->closureManager->createItem($grandchild1Item, $child1Item)->shouldBeCalledOnce();
+        // Verify that only 3 items are created via closureManager (without flush)
+        $this->closureManager->createItem($rootItem, null, false)->shouldBeCalledOnce();
+        $this->closureManager->createItem($child1Item, $rootItem, false)->shouldBeCalledOnce();
+        $this->closureManager->createItem($grandchild1Item, $child1Item, false)->shouldBeCalledOnce();
 
         // This reflection-based approach allows us to test the private build method
         $buildMethod = new \ReflectionMethod($this->controller, 'build');
@@ -144,11 +143,11 @@ final class BuildFromTaxonControllerTest extends TestCase
             $greatGrandchild1Item,
         );
 
-        // Verify that all 4 items are created
-        $this->closureManager->createItem($rootItem, null)->shouldBeCalledOnce();
-        $this->closureManager->createItem($child1Item, $rootItem)->shouldBeCalledOnce();
-        $this->closureManager->createItem($grandchild1Item, $child1Item)->shouldBeCalledOnce();
-        $this->closureManager->createItem($greatGrandchild1Item, $grandchild1Item)->shouldBeCalledOnce();
+        // Verify that all 4 items are created (without flush)
+        $this->closureManager->createItem($rootItem, null, false)->shouldBeCalledOnce();
+        $this->closureManager->createItem($child1Item, $rootItem, false)->shouldBeCalledOnce();
+        $this->closureManager->createItem($grandchild1Item, $child1Item, false)->shouldBeCalledOnce();
+        $this->closureManager->createItem($greatGrandchild1Item, $grandchild1Item, false)->shouldBeCalledOnce();
 
         $buildMethod = new \ReflectionMethod($this->controller, 'build');
         $buildMethod->setAccessible(true);
@@ -208,9 +207,9 @@ final class BuildFromTaxonControllerTest extends TestCase
             $grandchild1Item,
         );
 
-        // Verify only 2 items created
-        $this->closureManager->createItem($child1Item, null)->shouldBeCalledOnce();
-        $this->closureManager->createItem($grandchild1Item, $child1Item)->shouldBeCalledOnce();
+        // Verify only 2 items created (without flush)
+        $this->closureManager->createItem($child1Item, null, false)->shouldBeCalledOnce();
+        $this->closureManager->createItem($grandchild1Item, $child1Item, false)->shouldBeCalledOnce();
 
         $buildMethod = new \ReflectionMethod($this->controller, 'build');
         $buildMethod->setAccessible(true);

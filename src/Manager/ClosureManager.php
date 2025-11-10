@@ -23,7 +23,7 @@ final class ClosureManager implements ClosureManagerInterface
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function createItem(ItemInterface $item, ItemInterface $parent = null): void
+    public function createItem(ItemInterface $item, ItemInterface $parent = null, bool $flush = true): void
     {
         $selfClosure = $this->closureFactory->createSelfRelationship($item);
 
@@ -42,7 +42,9 @@ final class ClosureManager implements ClosureManagerInterface
             }
         }
 
-        $manager->flush();
+        if ($flush) {
+            $manager->flush();
+        }
     }
 
     public function removeTree(ItemInterface $root): void

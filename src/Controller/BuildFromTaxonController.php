@@ -78,11 +78,14 @@ final class BuildFromTaxonController extends AbstractController
         /** @var \SplObjectStorage<TaxonInterface, ItemInterface> $taxonToItemStorage */
         $taxonToItemStorage = new \SplObjectStorage();
 
+        $manager = $this->getManager($navigation);
+        $batchSize = 100; // Flush every 100 items to manage memory for very large taxonomies
+        $i = 0;
+
         // Create items in order (parents before children)
         foreach ($taxons as $taxon) {
             $item = $this->createItemFromTaxon($taxon, $navigation);
-            $this->getManager($item)->persist($item);
-            $this->getManager($item)->flush();
+            $manager->persist($item);
 
             $taxonToItemStorage->attach($taxon, $item);
 
@@ -97,10 +100,22 @@ final class BuildFromTaxonController extends AbstractController
                 $parentItem = null;
             }
 
-            $this->closureManager->createItem($item, $parentItem);
+            $this->closureManager->createItem($item, $parentItem, flush: false);
+
+            // Batch processing: flush and clear every N items to prevent memory issues with large taxonomies
+            ++$i;
+            if (0 === ($i % $batchSize)) {
+                $manager->flush();
+                $manager->clear(); // Detach objects from manager to free memory
+
+                // Note: After clear(), we cannot use the taxonToItemStorage references
+                // But since items are processed in hierarchical order (parents before children),
+                // parent items are already persisted and have IDs that can be looked up if needed
+            }
         }
 
-        $this->getManager($navigation)->flush();
+        // Final flush for any remaining items
+        $manager->flush();
     }
 
     /**

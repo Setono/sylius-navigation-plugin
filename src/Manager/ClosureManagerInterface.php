@@ -8,7 +8,12 @@ use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 
 interface ClosureManagerInterface
 {
-    public function createItem(ItemInterface $item, ItemInterface $parent = null): void;
+    /**
+     * Creates closure relationships for an item.
+     *
+     * @param bool $flush Whether to flush changes to the database immediately. Set to false for batch operations.
+     */
+    public function createItem(ItemInterface $item, ItemInterface $parent = null, bool $flush = true): void;
 
     /**
      * Removes the whole closure tree given a root item
