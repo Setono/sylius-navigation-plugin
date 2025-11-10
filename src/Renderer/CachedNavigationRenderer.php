@@ -71,7 +71,7 @@ final class CachedNavigationRenderer implements NavigationRendererInterface
 
         try {
             $tags = array_unique(array_map(
-                static fn (NavigationInterface|string $navigation): string => self::getTag($navigation),
+                self::getTag(...),
                 $navigations,
             ));
             $this->cachePool->invalidateTags($tags);
