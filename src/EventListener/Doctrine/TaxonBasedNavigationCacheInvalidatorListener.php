@@ -55,6 +55,6 @@ final class TaxonBasedNavigationCacheInvalidatorListener
             ),
         );
 
-        [] !== $navigations && $this->cachedRenderer->invalidate(...$navigations);
+        $this->cachedRenderer->invalidate(...$navigations);
     }
 }
