@@ -14,7 +14,6 @@ use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
-use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +25,6 @@ final class BuildFromTaxonController extends AbstractController
     use ORMTrait;
 
     public function __construct(
-        private readonly NavigationRepositoryInterface $navigationRepository,
         private readonly TaxonItemFactoryInterface $taxonItemFactory,
         private readonly ClosureManagerInterface $closureManager,
         private readonly ClosureRepositoryInterface $closureRepository,
@@ -35,15 +33,8 @@ final class BuildFromTaxonController extends AbstractController
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function __invoke(Request $request, int $id): Response
+    public function __invoke(Request $request, NavigationInterface $navigation): Response
     {
-        $navigation = $this->navigationRepository->find($id);
-        if (!$navigation instanceof NavigationInterface) {
-            $this->addFlash('error', 'setono_sylius_navigation.navigation_not_found');
-
-            return $this->redirectToRoute('setono_sylius_navigation_admin_navigation_index');
-        }
-
         $command = new BuildFromTaxonCommand();
         $form = $this->createForm(BuildFromTaxonType::class, $command);
         $form->handleRequest($request);

@@ -20,14 +20,11 @@ use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItem;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
-use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
 final class BuildFromTaxonControllerTest extends TestCase
 {
     use ProphecyTrait;
-
-    private ObjectProphecy $navigationRepository;
 
     private ObjectProphecy $taxonItemFactory;
 
@@ -41,14 +38,12 @@ final class BuildFromTaxonControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->navigationRepository = $this->prophesize(NavigationRepositoryInterface::class);
         $this->taxonItemFactory = $this->prophesize(TaxonItemFactoryInterface::class);
         $this->closureManager = $this->prophesize(ClosureManagerInterface::class);
         $this->closureRepository = $this->prophesize(ClosureRepositoryInterface::class);
         $this->managerRegistry = $this->prophesize(ManagerRegistry::class);
 
         $this->controller = new BuildFromTaxonController(
-            $this->navigationRepository->reveal(),
             $this->taxonItemFactory->reveal(),
             $this->closureManager->reveal(),
             $this->closureRepository->reveal(),
@@ -99,7 +94,6 @@ final class BuildFromTaxonControllerTest extends TestCase
         $buildMethod = new \ReflectionMethod($this->controller, 'build');
         $buildMethod->setAccessible(true);
 
-        $this->navigationRepository->find(Argument::any())->willReturn($navigation);
         $this->closureRepository->findRootItems($navigation)->willReturn([]);
 
         $manager = $this->prophesize(EntityManagerInterface::class);
@@ -157,7 +151,6 @@ final class BuildFromTaxonControllerTest extends TestCase
         $buildMethod = new \ReflectionMethod($this->controller, 'build');
         $buildMethod->setAccessible(true);
 
-        $this->navigationRepository->find(Argument::any())->willReturn($navigation);
         $this->closureRepository->findRootItems($navigation)->willReturn([]);
 
         $manager = $this->prophesize(EntityManagerInterface::class);
@@ -211,7 +204,6 @@ final class BuildFromTaxonControllerTest extends TestCase
         $buildMethod = new \ReflectionMethod($this->controller, 'build');
         $buildMethod->setAccessible(true);
 
-        $this->navigationRepository->find(Argument::any())->willReturn($navigation);
         $this->closureRepository->findRootItems($navigation)->willReturn([]);
 
         $manager = $this->prophesize(EntityManagerInterface::class);
