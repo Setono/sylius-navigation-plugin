@@ -33,6 +33,11 @@ setono_sylius_navigation:
             delete_items: Klikk på søppelbøtte-knappen for å fjerne elementer og deres barn permanent
             edit_items: Klikk på et element for å redigere egenskapene i en modal dialogboks
             reorder_items: Dra og slipp elementer for å endre rekkefølgen i navigasjonsstrukturen
+            build_from_taxon:
+                description: Generer automatisk navigasjonselementer fra din eksisterende taksonomi. Velg en rot-taksonomi, og alle dens underordnede vil bli lagt til som menyelementer med bevaring av den hierarkiske strukturen.
+                options: Du kan tilpasse byggeprosessen ved å bruke følgende alternativer:
+                include_root: Når aktivert, vil den valgte taksonomien selv bli inkludert som et navigasjonselement. Når deaktivert, vil bare dens underordnede bli lagt til.
+                max_depth: Begrenser hvor mange nivåer som skal inkluderes i navigasjonen. For eksempel betyr en verdi på 2 to nivåer (rot + direkte underordnede), en verdi på 3 betyr 3 nivåer (rot + underordnede + barnebarn). La stå tomt for å inkludere alle nivåer.
         item: Element
         item_type: Elementtype
         items: Elementer

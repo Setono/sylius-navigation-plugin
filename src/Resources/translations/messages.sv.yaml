@@ -33,6 +33,11 @@ setono_sylius_navigation:
             delete_items: Klicka på papperskorgsknappen för att permanent ta bort objekt och deras underordnade objekt
             edit_items: Klicka på vilket objekt som helst för att redigera dess egenskaper i en modal dialogruta
             reorder_items: Dra och släpp objekt för att ändra ordning i navigationsstrukturen
+            build_from_taxon:
+                description: Generera automatiskt navigationsobjekt från din befintliga taxonomi. Välj ett rot-taxon och alla dess underordnade kommer att läggas till som menyalternativ med bevarad hierarkisk struktur.
+                options: Du kan anpassa byggprocessen med följande alternativ:
+                include_root: När aktiverad kommer det valda taxonet själv att inkluderas som ett navigationsobjekt. När inaktiverad kommer endast dess underordnade att läggas till.
+                max_depth: Begränsar hur många nivåer som ska inkluderas i navigationen. Till exempel betyder ett värde på 2 två nivåer (rot + direkta underordnade), ett värde på 3 betyder 3 nivåer (rot + underordnade + barnbarn). Lämna tomt för att inkludera alla nivåer.
         item: Objekt
         item_type: Objekttyp
         items: Objekt

@@ -34,7 +34,7 @@
                     {{ form_row(form.maxDepth) }}
 
                     {% if hasItems %}
-                        <div class="ui warning message">
+                        <div class="ui info message">
                             <div class="header">Navigation already built</div>
                             Please notice that this navigation has already been built and if you build it again, the existing navigation will be overwritten.
                         </div>
@@ -49,9 +49,12 @@
             </div>
             <div class="column">
                 <h4 class="ui large header">{{ 'setono_sylius_navigation.ui.build_from_taxon'|trans }}</h4>
-                {# todo translate #}
-                <p>When you build a navigation from an existing taxon, you select a taxon from your taxonomy tree, and all taxons beneath that taxon will be automatically added to your navigation.</p>
-                <p>The taxon you select will be the root item of your navigation.</p>
+                <p>{{ 'setono_sylius_navigation.ui.help.build_from_taxon.description'|trans }}</p>
+                <p>{{ 'setono_sylius_navigation.ui.help.build_from_taxon.options'|trans }}</p>
+                <ul>
+                    <li><strong>{{ 'setono_sylius_navigation.form.build_from_taxon.include_root'|trans }}:</strong> {{ 'setono_sylius_navigation.ui.help.build_from_taxon.include_root'|trans }}</li>
+                    <li><strong>{{ 'setono_sylius_navigation.form.build_from_taxon.max_depth'|trans }}:</strong> {{ 'setono_sylius_navigation.ui.help.build_from_taxon.max_depth'|trans }}</li>
+                </ul>
             </div>
         </div>
     </div>

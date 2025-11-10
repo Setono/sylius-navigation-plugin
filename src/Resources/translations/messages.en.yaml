@@ -55,6 +55,11 @@ setono_sylius_navigation:
             delete_items: Click the trash button to remove items and their children permanently
             edit_items: Click on any item to edit its properties in a modal dialog
             reorder_items: Drag and drop items to reorder them within the navigation structure
+            build_from_taxon:
+                description: Automatically generate navigation items from your existing taxonomy. Select a root taxon, and all its descendants will be added as menu items preserving the hierarchical structure.
+                options: 'You can customize the build process using the following options:'
+                include_root: When enabled, the selected taxon itself will be included as a navigation item. When disabled, only its children will be added.
+                max_depth: Restricts how many levels to include in the navigation. For example, a value of 2 means 2 levels (root + direct children), a value of 3 means 3 levels (root + children + grandchildren). Leave empty to include all levels.
         item: Item
         item_type: Item type
         items: Items

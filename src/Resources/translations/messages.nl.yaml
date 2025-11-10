@@ -33,6 +33,11 @@ setono_sylius_navigation:
             delete_items: Klik op de prullenbakknop om items en hun onderliggende items permanent te verwijderen
             edit_items: Klik op een item om de eigenschappen in een modaal dialoogvenster te bewerken
             reorder_items: Sleep en zet items neer om ze opnieuw te ordenen binnen de navigatiestructuur
+            build_from_taxon:
+                description: Genereer automatisch navigatie-items vanuit uw bestaande taxonomie. Selecteer een hoofdtaxon en al zijn onderliggende elementen worden toegevoegd als menu-items met behoud van de hiërarchische structuur.
+                options: U kunt het bouwproces aanpassen met de volgende opties:
+                include_root: Wanneer ingeschakeld, wordt het geselecteerde taxon zelf opgenomen als navigatie-item. Wanneer uitgeschakeld, worden alleen de onderliggende elementen toegevoegd.
+                max_depth: Beperkt hoeveel niveaus in de navigatie worden opgenomen. Bijvoorbeeld, een waarde van 2 betekent 2 niveaus (hoofdniveau + directe onderliggende), een waarde van 3 betekent 3 niveaus (hoofdniveau + onderliggende + kleinkinderen). Laat leeg om alle niveaus op te nemen.
         item: Item
         item_type: Itemtype
         items: Items

@@ -33,6 +33,11 @@ setono_sylius_navigation:
             delete_items: Kliknij przycisk kosza, aby trwale usunąć elementy i ich elementy podrzędne
             edit_items: Kliknij dowolny element, aby edytować jego właściwości w oknie modalnym
             reorder_items: Przeciągnij i upuść elementy, aby zmienić ich kolejność w strukturze nawigacji
+            build_from_taxon:
+                description: Automatycznie generuj elementy nawigacji z istniejącej taksonomii. Wybierz główny takson, a wszystkie jego elementy potomne zostaną dodane jako pozycje menu zachowując strukturę hierarchiczną.
+                options: Możesz dostosować proces budowy używając następujących opcji:
+                include_root: Gdy włączone, wybrany takson zostanie uwzględniony jako element nawigacji. Gdy wyłączone, dodane zostaną tylko jego elementy podrzędne.
+                max_depth: Ogranicza liczbę poziomów do uwzględnienia w nawigacji. Na przykład wartość 2 oznacza 2 poziomy (korzeń + bezpośrednie elementy podrzędne), wartość 3 oznacza 3 poziomy (korzeń + elementy podrzędne + wnuki). Pozostaw puste, aby uwzględnić wszystkie poziomy.
         item: Element
         item_type: Typ elementu
         items: Elementy

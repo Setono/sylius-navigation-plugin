@@ -33,6 +33,11 @@ setono_sylius_navigation:
             delete_items: Haga clic en el botón de papelera para eliminar elementos y sus hijos permanentemente
             edit_items: Haga clic en cualquier elemento para editar sus propiedades en un cuadro de diálogo modal
             reorder_items: Arrastre y suelte elementos para reordenarlos dentro de la estructura de navegación
+            build_from_taxon:
+                description: Genere automáticamente elementos de navegación a partir de su taxonomía existente. Seleccione un taxón raíz y todos sus descendientes se añadirán como elementos del menú conservando la estructura jerárquica.
+                options: Puede personalizar el proceso de construcción utilizando las siguientes opciones:
+                include_root: Cuando está habilitado, el taxón seleccionado se incluirá como elemento de navegación. Cuando está deshabilitado, solo se añadirán sus hijos.
+                max_depth: Restringe cuántos niveles incluir en la navegación. Por ejemplo, un valor de 2 significa 2 niveles (raíz + hijos directos), un valor de 3 significa 3 niveles (raíz + hijos + nietos). Deje vacío para incluir todos los niveles.
         item: Elemento
         item_type: Tipo de elemento
         items: Elementos
