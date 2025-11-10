@@ -67,8 +67,6 @@ final class RegisterItemTypesPass implements CompilerPassInterface
                 ));
             }
 
-            // Register the item type with the registry
-            // Pass a Reference to the factory service so it gets injected as FactoryInterface instance
             $registryDefinition->addMethodCall('register', [
                 $name,
                 $metadata->label ?? sprintf('setono_sylius_navigation.item_types.%s', $name),
