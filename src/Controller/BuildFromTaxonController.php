@@ -102,15 +102,11 @@ final class BuildFromTaxonController extends AbstractController
 
             $this->closureManager->createItem($item, $parentItem, flush: false);
 
-            // Batch processing: flush and clear every N items to prevent memory issues with large taxonomies
+            // Batch processing: flush every N items to optimize database writes
             ++$i;
             if (0 === ($i % $batchSize)) {
                 $manager->flush();
-                $manager->clear(); // Detach objects from manager to free memory
-
-                // Note: After clear(), we cannot use the taxonToItemStorage references
-                // But since items are processed in hierarchical order (parents before children),
-                // parent items are already persisted and have IDs that can be looked up if needed
+                // Note: We keep entities attached to preserve references in $taxonToItemStorage
             }
         }
 
