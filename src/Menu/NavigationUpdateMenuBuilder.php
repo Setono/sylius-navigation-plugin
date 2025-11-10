@@ -37,7 +37,7 @@ class NavigationUpdateMenuBuilder
             $this->factory
             ->createItem('build_from_taxon', [
                 'route' => 'setono_sylius_navigation_admin_navigation_build_from_taxon',
-                'routeParameters' => ['id' => $navigation->getId()],
+                'routeParameters' => ['navigation' => $navigation->getId()],
             ])
             ->setAttribute('type', 'link')
             ->setLabel('setono_sylius_navigation.ui.build_from_taxon')

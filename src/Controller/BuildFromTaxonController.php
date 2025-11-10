@@ -68,36 +68,28 @@ final class BuildFromTaxonController extends AbstractController
             $this->closureManager->removeTree($item);
         }
 
+        // Fetch all descendants in a single query using nested set
+        $taxons = $this->fetchDescendants($command->taxon, $command->includeRoot, $command->maxDepth);
+
+        if ([] === $taxons) {
+            return;
+        }
+
         /** @var \SplObjectStorage<TaxonInterface, ItemInterface> $taxonToItemStorage */
         $taxonToItemStorage = new \SplObjectStorage();
 
-        /** @var \SplObjectStorage<TaxonInterface, int> $taxonDepthStorage */
-        $taxonDepthStorage = new \SplObjectStorage();
-
-        /** @var list<TaxonInterface> $taxons */
-        $taxons = $command->includeRoot ? [$command->taxon] : iterator_to_array($command->taxon->getChildren());
-
-        // Initialize depth for root taxons
+        // Create items in order (parents before children)
         foreach ($taxons as $taxon) {
-            $taxonDepthStorage->attach($taxon, $command->includeRoot ? 1 : 1);
-        }
-
-        while ([] !== $taxons) {
-            $taxon = array_shift($taxons);
-            $parent = $taxon->getParent();
-
-            // Get current depth
-            $currentDepth = $taxonDepthStorage->contains($taxon) ? $taxonDepthStorage[$taxon] : 1;
-
             $item = $this->createItemFromTaxon($taxon, $navigation);
             $this->getManager($item)->persist($item);
             $this->getManager($item)->flush();
 
             $taxonToItemStorage->attach($taxon, $item);
 
-            // Create closure relationships - parent is either the parent taxon's item or null (for root items)
-            // When not including root, children of root should have no parent (become root items themselves)
+            // Determine parent item
+            $parent = $taxon->getParent();
             $parentItem = null;
+
             if (null !== $parent && $taxonToItemStorage->contains($parent)) {
                 $parentItem = $taxonToItemStorage[$parent];
             } elseif (!$command->includeRoot && $parent === $command->taxon) {
@@ -106,17 +98,55 @@ final class BuildFromTaxonController extends AbstractController
             }
 
             $this->closureManager->createItem($item, $parentItem);
-
-            // Only add children if we haven't reached max depth
-            if (null === $command->maxDepth || $currentDepth < $command->maxDepth) {
-                foreach ($taxon->getChildren() as $child) {
-                    $taxons[] = $child;
-                    $taxonDepthStorage->attach($child, $currentDepth + 1);
-                }
-            }
         }
 
         $this->getManager($navigation)->flush();
+    }
+
+    /**
+     * Fetch descendants using nested set (single query)
+     *
+     * @return list<TaxonInterface>
+     */
+    private function fetchDescendants(TaxonInterface $root, bool $includeRoot, ?int $maxDepth): array
+    {
+        $entityManager = $this->getManager($root);
+        $qb = $entityManager->createQueryBuilder();
+
+        $qb->select('t')
+            ->from($root::class, 't');
+
+        if ($includeRoot) {
+            // Include root and all descendants
+            $qb->where('t.left >= :left')
+                ->andWhere('t.right <= :right')
+                ->setParameter('left', $root->getLeft())
+                ->setParameter('right', $root->getRight());
+
+            if (null !== $maxDepth) {
+                $qb->andWhere('t.level <= :maxLevel')
+                    ->setParameter('maxLevel', $root->getLevel() + $maxDepth - 1);
+            }
+        } else {
+            // Exclude root, only descendants
+            $qb->where('t.left > :left')
+                ->andWhere('t.right < :right')
+                ->setParameter('left', $root->getLeft())
+                ->setParameter('right', $root->getRight());
+
+            if (null !== $maxDepth) {
+                $qb->andWhere('t.level <= :maxLevel')
+                    ->setParameter('maxLevel', $root->getLevel() + $maxDepth);
+            }
+        }
+
+        // Order by left to ensure parents come before children
+        $qb->orderBy('t.left', 'ASC');
+
+        /** @var list<TaxonInterface> $result */
+        $result = $qb->getQuery()->getResult();
+
+        return $result;
     }
 
     private function createItemFromTaxon(TaxonInterface $taxon, NavigationInterface $navigation): TaxonItemInterface

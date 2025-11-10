@@ -56,21 +56,15 @@ final class BuildFromTaxonControllerTest extends TestCase
      */
     public function it_limits_depth_when_max_depth_is_set(): void
     {
-        // Create a taxon tree:
-        // Root (depth 1)
-        //   -> Child1 (depth 2)
-        //     -> Grandchild1 (depth 3)
-        //       -> GreatGrandchild1 (depth 4)
-        $root = $this->createTaxon('root', null);
-        $child1 = $this->createTaxon('child1', $root);
-        $grandchild1 = $this->createTaxon('grandchild1', $child1);
-        $greatGrandchild1 = $this->createTaxon('great-grandchild1', $grandchild1);
-
-        // Set up children relationships
-        $root->getChildren()->willReturn(new ArrayCollection([$child1->reveal()]));
-        $child1->getChildren()->willReturn(new ArrayCollection([$grandchild1->reveal()]));
-        $grandchild1->getChildren()->willReturn(new ArrayCollection([$greatGrandchild1->reveal()]));
-        $greatGrandchild1->getChildren()->willReturn(new ArrayCollection());
+        // Create a taxon tree with nested set values:
+        // Root (left=1, right=8, level=0)
+        //   -> Child1 (left=2, right=7, level=1)
+        //     -> Grandchild1 (left=3, right=6, level=2)
+        //       -> GreatGrandchild1 (left=4, right=5, level=3)
+        $root = $this->createTaxon('root', null, 1, 8, 0);
+        $child1 = $this->createTaxon('child1', $root, 2, 7, 1);
+        $grandchild1 = $this->createTaxon('grandchild1', $child1, 3, 6, 2);
+        $greatGrandchild1 = $this->createTaxon('great-grandchild1', $grandchild1, 4, 5, 3);
 
         $navigation = $this->createNavigation('test-nav');
 
@@ -96,9 +90,23 @@ final class BuildFromTaxonControllerTest extends TestCase
 
         $this->closureRepository->findRootItems($navigation)->willReturn([]);
 
+        // Mock the query builder and entity manager for nested set query
+        $query = $this->prophesize(\Doctrine\ORM\AbstractQuery::class);
+        $query->getResult()->willReturn([$root->reveal(), $child1->reveal(), $grandchild1->reveal()]);
+
+        $qb = $this->prophesize(\Doctrine\ORM\QueryBuilder::class);
+        $qb->select('t')->willReturn($qb);
+        $qb->from(Argument::any(), 't')->willReturn($qb);
+        $qb->where(Argument::any())->willReturn($qb);
+        $qb->andWhere(Argument::any())->willReturn($qb);
+        $qb->setParameter(Argument::any(), Argument::any())->willReturn($qb);
+        $qb->orderBy('t.left', 'ASC')->willReturn($qb);
+        $qb->getQuery()->willReturn($query->reveal());
+
         $manager = $this->prophesize(EntityManagerInterface::class);
         $manager->persist(Argument::any())->willReturn(null);
         $manager->flush()->willReturn(null);
+        $manager->createQueryBuilder()->willReturn($qb->reveal());
         $this->managerRegistry->getManagerForClass(Argument::any())->willReturn($manager->reveal());
 
         // Call build with maxDepth = 3
@@ -115,17 +123,11 @@ final class BuildFromTaxonControllerTest extends TestCase
      */
     public function it_builds_full_tree_when_max_depth_is_null(): void
     {
-        // Create a taxon tree with 4 levels
-        $root = $this->createTaxon('root', null);
-        $child1 = $this->createTaxon('child1', $root);
-        $grandchild1 = $this->createTaxon('grandchild1', $child1);
-        $greatGrandchild1 = $this->createTaxon('great-grandchild1', $grandchild1);
-
-        // Set up children relationships
-        $root->getChildren()->willReturn(new ArrayCollection([$child1->reveal()]));
-        $child1->getChildren()->willReturn(new ArrayCollection([$grandchild1->reveal()]));
-        $grandchild1->getChildren()->willReturn(new ArrayCollection([$greatGrandchild1->reveal()]));
-        $greatGrandchild1->getChildren()->willReturn(new ArrayCollection());
+        // Create a taxon tree with nested set values
+        $root = $this->createTaxon('root', null, 1, 8, 0);
+        $child1 = $this->createTaxon('child1', $root, 2, 7, 1);
+        $grandchild1 = $this->createTaxon('grandchild1', $child1, 3, 6, 2);
+        $greatGrandchild1 = $this->createTaxon('great-grandchild1', $grandchild1, 4, 5, 3);
 
         $navigation = $this->createNavigation('test-nav');
 
@@ -153,9 +155,23 @@ final class BuildFromTaxonControllerTest extends TestCase
 
         $this->closureRepository->findRootItems($navigation)->willReturn([]);
 
+        // Mock the query builder for nested set query
+        $query = $this->prophesize(\Doctrine\ORM\AbstractQuery::class);
+        $query->getResult()->willReturn([$root->reveal(), $child1->reveal(), $grandchild1->reveal(), $greatGrandchild1->reveal()]);
+
+        $qb = $this->prophesize(\Doctrine\ORM\QueryBuilder::class);
+        $qb->select('t')->willReturn($qb);
+        $qb->from(Argument::any(), 't')->willReturn($qb);
+        $qb->where(Argument::any())->willReturn($qb);
+        $qb->andWhere(Argument::any())->willReturn($qb);
+        $qb->setParameter(Argument::any(), Argument::any())->willReturn($qb);
+        $qb->orderBy('t.left', 'ASC')->willReturn($qb);
+        $qb->getQuery()->willReturn($query->reveal());
+
         $manager = $this->prophesize(EntityManagerInterface::class);
         $manager->persist(Argument::any())->willReturn(null);
         $manager->flush()->willReturn(null);
+        $manager->createQueryBuilder()->willReturn($qb->reveal());
         $this->managerRegistry->getManagerForClass(Argument::any())->willReturn($manager->reveal());
 
         // Call build with maxDepth = null (unlimited)
@@ -173,15 +189,10 @@ final class BuildFromTaxonControllerTest extends TestCase
     public function it_respects_max_depth_when_not_including_root(): void
     {
         // When not including root, children of root become level 1
-        $root = $this->createTaxon('root', null);
-        $child1 = $this->createTaxon('child1', $root);
-        $grandchild1 = $this->createTaxon('grandchild1', $child1);
-        $greatGrandchild1 = $this->createTaxon('great-grandchild1', $grandchild1);
-
-        $root->getChildren()->willReturn(new ArrayCollection([$child1->reveal()]));
-        $child1->getChildren()->willReturn(new ArrayCollection([$grandchild1->reveal()]));
-        $grandchild1->getChildren()->willReturn(new ArrayCollection([$greatGrandchild1->reveal()]));
-        $greatGrandchild1->getChildren()->willReturn(new ArrayCollection());
+        $root = $this->createTaxon('root', null, 1, 8, 0);
+        $child1 = $this->createTaxon('child1', $root, 2, 7, 1);
+        $grandchild1 = $this->createTaxon('grandchild1', $child1, 3, 6, 2);
+        $greatGrandchild1 = $this->createTaxon('great-grandchild1', $grandchild1, 4, 5, 3);
 
         $navigation = $this->createNavigation('test-nav');
 
@@ -206,9 +217,23 @@ final class BuildFromTaxonControllerTest extends TestCase
 
         $this->closureRepository->findRootItems($navigation)->willReturn([]);
 
+        // Mock the query builder for nested set query
+        $query = $this->prophesize(\Doctrine\ORM\AbstractQuery::class);
+        $query->getResult()->willReturn([$child1->reveal(), $grandchild1->reveal()]);
+
+        $qb = $this->prophesize(\Doctrine\ORM\QueryBuilder::class);
+        $qb->select('t')->willReturn($qb);
+        $qb->from(Argument::any(), 't')->willReturn($qb);
+        $qb->where(Argument::any())->willReturn($qb);
+        $qb->andWhere(Argument::any())->willReturn($qb);
+        $qb->setParameter(Argument::any(), Argument::any())->willReturn($qb);
+        $qb->orderBy('t.left', 'ASC')->willReturn($qb);
+        $qb->getQuery()->willReturn($query->reveal());
+
         $manager = $this->prophesize(EntityManagerInterface::class);
         $manager->persist(Argument::any())->willReturn(null);
         $manager->flush()->willReturn(null);
+        $manager->createQueryBuilder()->willReturn($qb->reveal());
         $this->managerRegistry->getManagerForClass(Argument::any())->willReturn($manager->reveal());
 
         // Call build with maxDepth = 2 and includeRoot = false
@@ -223,11 +248,14 @@ final class BuildFromTaxonControllerTest extends TestCase
     /**
      * @param ObjectProphecy|null $parent
      */
-    private function createTaxon(string $code, $parent): ObjectProphecy
+    private function createTaxon(string $code, $parent, int $left = 1, int $right = 2, int $level = 0): ObjectProphecy
     {
         $taxon = $this->prophesize(TaxonInterface::class);
         $taxon->getCode()->willReturn($code);
         $taxon->getParent()->willReturn($parent ? $parent->reveal() : null);
+        $taxon->getLeft()->willReturn($left);
+        $taxon->getRight()->willReturn($right);
+        $taxon->getLevel()->willReturn($level);
 
         return $taxon;
     }
