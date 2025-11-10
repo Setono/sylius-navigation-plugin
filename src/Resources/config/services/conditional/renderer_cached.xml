@@ -17,5 +17,14 @@
             <tag name="doctrine.event_listener" event="postRemove"/>
             <tag name="doctrine.event_listener" event="postPersist"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\EventListener\Doctrine\TaxonBasedNavigationCacheInvalidatorListener">
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer"/>
+            <argument type="service" id="setono_sylius_navigation.repository.taxon_item"/>
+
+            <tag name="doctrine.event_listener" event="postUpdate"/>
+            <tag name="doctrine.event_listener" event="postRemove"/>
+            <tag name="doctrine.event_listener" event="postPersist"/>
+        </service>
     </services>
 </container>

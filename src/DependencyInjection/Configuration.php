@@ -13,6 +13,7 @@ use Setono\SyliusNavigationPlugin\Model\Navigation;
 use Setono\SyliusNavigationPlugin\Model\TaxonItem;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepository;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepository;
+use Setono\SyliusNavigationPlugin\Repository\TaxonItemRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType;
 use Sylius\Component\Resource\Factory\Factory;
@@ -100,7 +101,7 @@ final class Configuration implements ConfigurationInterface
                                     ->children()
                                         ->scalarNode('model')->defaultValue(TaxonItem::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('repository')->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(TaxonItemRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('form')->defaultValue(DefaultResourceType::class)->end()
                                         ->scalarNode('factory')->defaultValue(TranslatableFactory::class)->end()
                                     ->end()
