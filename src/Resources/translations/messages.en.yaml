@@ -41,6 +41,7 @@ setono_sylius_navigation:
         from_taxon: from taxon
         item_information: Item Information
         labels_by_locale: Labels by Locale
+        link: Link
         link_item: Link item
         linked_taxon: Linked Taxon
         link_url: Link URL
@@ -48,6 +49,7 @@ setono_sylius_navigation:
         opens_in_new_tab: Opens in new tab
         opens_in_same_tab: Opens in same tab
         no_label: No label set
+        text: Text
         text_item: Text item
         type: Type
         help:

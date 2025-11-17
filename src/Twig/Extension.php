@@ -24,11 +24,22 @@ class Extension extends AbstractExtension
             /** @phpstan-ignore argument.type */
             new TwigFunction('ssn_item', [Runtime::class, 'item'], ['is_safe' => ['html']]),
             new TwigFunction('ssn_item_type', $this->getItemType(...)),
+            new TwigFunction('ssn_item_type_icon', $this->getItemTypeIcon(...)),
         ];
     }
 
     public function getItemType(ItemInterface $item): string
     {
         return $this->itemTypeRegistry->getByEntity($item::class)->name;
+    }
+
+    public function getItemTypeIcon(ItemInterface $item): string
+    {
+        $itemType = $this->itemTypeRegistry->getByEntity($item::class);
+        $icon = $itemType->options['icon'] ?? 'file text icon';
+
+        assert(is_string($icon));
+
+        return $icon;
     }
 }

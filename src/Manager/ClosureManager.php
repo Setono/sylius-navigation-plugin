@@ -49,29 +49,41 @@ final class ClosureManager implements ClosureManagerInterface
 
     public function removeTree(ItemInterface $root): void
     {
-        $closures = $this->closureRepository->findGraph($root);
+        $manager = $this->getManager($root);
 
-        if ([] === $closures) {
-            return;
+        // Step 1: Collect all item IDs in the subtree (including root and all descendants)
+        // The closure table includes self-references (depth=0) for all items
+        $qb = $manager->createQueryBuilder();
+        $qb->select('IDENTITY(c.descendant)')
+            ->from($this->closureRepository->getClassName(), 'c')
+            ->where('c.ancestor = :root')
+            ->setParameter('root', $root);
+
+        $result = $qb->getQuery()->getResult();
+        Assert::isArray($result);
+
+        $itemIds = array_column($result, 1);
+
+        // If no closures found, still need to delete the root item itself
+        if (empty($itemIds)) {
+            $itemIds = [$root->getId()];
         }
 
-        $manager = $this->getManager($closures[0]);
+        // Step 2: Delete all closures for items in the subtree
+        $qb = $manager->createQueryBuilder();
+        $qb->delete($this->closureRepository->getClassName(), 'c')
+            ->where('c.descendant IN (:itemIds)')
+            ->setParameter('itemIds', $itemIds);
 
-        foreach ($closures as $closure) {
-            $ancestor = $closure->getAncestor();
-            if (null !== $ancestor) {
-                $manager->remove($ancestor);
-            }
+        $qb->getQuery()->execute();
 
-            $descendant = $closure->getDescendant();
-            if (null !== $descendant) {
-                $manager->remove($descendant);
-            }
+        // Step 3: Delete all items in the subtree
+        $qb = $manager->createQueryBuilder();
+        $qb->delete(ItemInterface::class, 'i')
+            ->where('i.id IN (:itemIds)')
+            ->setParameter('itemIds', $itemIds);
 
-            $manager->remove($closure);
-        }
-
-        $manager->flush();
+        $qb->getQuery()->execute();
     }
 
     public function moveItem(ItemInterface $item, ItemInterface $newParent = null, int $position = 0): void
