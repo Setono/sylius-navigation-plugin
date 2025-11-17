@@ -76,9 +76,6 @@ final class ClosureManager implements ClosureManagerInterface
 
     public function moveItem(ItemInterface $item, ItemInterface $newParent = null, int $position = 0): void
     {
-        // For now, implement a simple move by removing existing relationships
-        // and recreating them with the new parent
-
         // Remove existing closure relationships for this item
         $existingClosures = $this->closureRepository->findAncestors($item);
         $manager = $this->getManager($item);
@@ -102,6 +99,61 @@ final class ClosureManager implements ClosureManagerInterface
             }
         }
 
+        // Update position of the moved item
+        $item->setPosition($position);
+
+        // Get all siblings (items with same parent) to adjust their positions
+        $siblings = $this->getSiblings($item, $newParent);
+
+        // Reorder siblings to make room for the moved item at the specified position
+        $currentPos = 0;
+        foreach ($siblings as $sibling) {
+            if ($sibling === $item) {
+                continue; // Skip the item being moved
+            }
+
+            if ($currentPos === $position) {
+                ++$currentPos; // Skip the position where we're inserting the moved item
+            }
+
+            $sibling->setPosition($currentPos);
+            ++$currentPos;
+        }
+
         $manager->flush();
+    }
+
+    /**
+     * Get all sibling items (items with the same parent)
+     *
+     * @return ItemInterface[]
+     */
+    private function getSiblings(ItemInterface $item, ?ItemInterface $parent): array
+    {
+        $navigation = $item->getNavigation();
+        if (null === $navigation) {
+            return [];
+        }
+
+        if (null === $parent) {
+            // Get root items for this navigation
+            return $this->closureRepository->findRootItems($navigation);
+        }
+
+        // Get direct children of the parent
+        $childClosures = $this->closureRepository->findBy([
+            'ancestor' => $parent,
+            'depth' => 1,
+        ]);
+
+        $siblings = [];
+        foreach ($childClosures as $closure) {
+            $descendant = $closure->getDescendant();
+            if ($descendant !== null) {
+                $siblings[] = $descendant;
+            }
+        }
+
+        return $siblings;
     }
 }

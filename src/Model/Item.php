@@ -32,6 +32,8 @@ class Item implements ItemInterface
 
     protected ?NavigationInterface $navigation = null;
 
+    protected int $position = 0;
+
     /** @var Collection<array-key, ChannelInterface> */
     protected Collection $channels;
 
@@ -93,6 +95,16 @@ class Item implements ItemInterface
     public function setNavigation(?NavigationInterface $navigation): void
     {
         $this->navigation = $navigation;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     protected function createTranslation(): ItemTranslation

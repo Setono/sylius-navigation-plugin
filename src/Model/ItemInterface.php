@@ -26,4 +26,8 @@ interface ItemInterface extends
     public function getNavigation(): ?NavigationInterface;
 
     public function setNavigation(?NavigationInterface $navigation): void;
+
+    public function getPosition(): int;
+
+    public function setPosition(int $position): void;
 }

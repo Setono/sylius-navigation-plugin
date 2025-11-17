@@ -583,6 +583,9 @@ final class BuildController extends AbstractController
             }
         }
 
+        // Sort children by position
+        usort($children, static fn (ItemInterface $a, ItemInterface $b) => $a->getPosition() <=> $b->getPosition());
+
         return $children;
     }
 

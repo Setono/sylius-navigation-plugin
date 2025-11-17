@@ -71,6 +71,7 @@ class ClosureRepository extends EntityRepository implements ClosureRepositoryInt
             ->leftJoin($this->getClassName(), 'c', 'WITH', 'c.descendant = item AND c.depth > 0')
             ->where('item.navigation = :navigation')
             ->andWhere('c.id IS NULL')
+            ->orderBy('item.position', 'ASC')
             ->setParameter('navigation', $navigation)
         ;
 

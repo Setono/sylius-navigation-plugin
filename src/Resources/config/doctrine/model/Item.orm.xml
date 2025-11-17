@@ -21,6 +21,7 @@
             <gedmo:timestampable on="update"/>
         </field>
         <field name="enabled" column="enabled" type="boolean" />
+        <field name="position" column="position" type="integer" />
 
         <many-to-one field="navigation" target-entity="Setono\SyliusNavigationPlugin\Model\NavigationInterface">
             <join-column name="navigation_id" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
