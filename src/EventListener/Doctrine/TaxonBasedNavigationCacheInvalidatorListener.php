@@ -9,6 +9,7 @@ use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer;
 use Setono\SyliusNavigationPlugin\Repository\TaxonItemRepositoryInterface;
@@ -48,13 +49,19 @@ final class TaxonBasedNavigationCacheInvalidatorListener
             return;
         }
 
+        // Filter out navigations that are currently being built
+        // Cache will be invalidated once when build completes
         $navigations = array_filter(
             array_map(
                 static fn (TaxonItemInterface $item) => $item->getNavigation(),
                 $this->taxonItemRepository->findByTaxon($obj),
             ),
+            static fn (?NavigationInterface $navigation): bool => null !== $navigation &&
+                $navigation->getState() !== NavigationInterface::STATE_BUILDING,
         );
 
-        $this->cachedRenderer->invalidate(...$navigations);
+        if ([] !== $navigations) {
+            $this->cachedRenderer->invalidate(...$navigations);
+        }
     }
 }

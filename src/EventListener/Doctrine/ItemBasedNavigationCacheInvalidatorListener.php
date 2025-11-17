@@ -43,6 +43,12 @@ final class ItemBasedNavigationCacheInvalidatorListener
 
         if ($obj instanceof ItemInterface) {
             $obj = $obj->getNavigation();
+
+            // Skip cache invalidation if navigation is being built
+            // Cache will be invalidated once when build completes
+            if ($obj instanceof NavigationInterface && $obj->getState() === NavigationInterface::STATE_BUILDING) {
+                return;
+            }
         }
 
         $obj instanceof NavigationInterface && $this->cachedRenderer->invalidate($obj);

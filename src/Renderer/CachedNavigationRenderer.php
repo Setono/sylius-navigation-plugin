@@ -77,7 +77,7 @@ final class CachedNavigationRenderer implements NavigationRendererInterface
             $this->cachePool->invalidateTags($tags);
         } catch (InvalidArgumentException) {
             // Tag invalidation failed, fall back to clearing all cache
-            $this->cachePool->clear();
+            $this->invalidateAll();
         }
     }
 

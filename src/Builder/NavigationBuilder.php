@@ -10,6 +10,7 @@ use Setono\SyliusNavigationPlugin\Factory\TaxonItemFactoryInterface;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
+use Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
@@ -21,6 +22,7 @@ final class NavigationBuilder implements NavigationBuilderInterface
         private readonly TaxonItemFactoryInterface $taxonItemFactory,
         private readonly ClosureManagerInterface $closureManager,
         private readonly ClosureRepositoryInterface $closureRepository,
+        private readonly ?CachedNavigationRenderer $cachedRenderer,
         ManagerRegistry $managerRegistry,
     ) {
         $this->managerRegistry = $managerRegistry;
@@ -82,10 +84,16 @@ final class NavigationBuilder implements NavigationBuilderInterface
             // Set state to completed
             $navigation->setState(NavigationInterface::STATE_COMPLETED);
             $manager->flush();
+
+            // Invalidate cache now that build is complete
+            $this->cachedRenderer?->invalidate($navigation);
         } catch (\Throwable $e) {
             // Set state to failed and re-throw
             $navigation->setState(NavigationInterface::STATE_FAILED);
             $manager->flush();
+
+            // Invalidate cache even on failure to ensure consistency
+            $this->cachedRenderer?->invalidate($navigation);
 
             throw new \RuntimeException(
                 sprintf('Failed to build navigation from taxon: %s', $e->getMessage()),
