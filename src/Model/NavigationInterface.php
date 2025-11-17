@@ -17,7 +17,19 @@ interface NavigationInterface extends
     TimestampableInterface,
     ToggleableInterface
 {
+    public const STATE_PENDING = 'pending';
+
+    public const STATE_BUILDING = 'building';
+
+    public const STATE_COMPLETED = 'completed';
+
+    public const STATE_FAILED = 'failed';
+
     public function getDescription(): ?string;
 
     public function setDescription(?string $description): void;
+
+    public function getState(): string;
+
+    public function setState(string $state): void;
 }

@@ -21,6 +21,8 @@ class Navigation implements NavigationInterface
 
     protected ?string $description = null;
 
+    protected string $state = NavigationInterface::STATE_PENDING;
+
     /** @var Collection<array-key, ChannelInterface> */
     protected Collection $channels;
 
@@ -76,5 +78,15 @@ class Navigation implements NavigationInterface
     public function hasChannel(ChannelInterface $channel): bool
     {
         return $this->channels->contains($channel);
+    }
+
+    public function getState(): string
+    {
+        return $this->state;
+    }
+
+    public function setState(string $state): void
+    {
+        $this->state = $state;
     }
 }

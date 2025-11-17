@@ -37,6 +37,14 @@ final class SetonoSyliusNavigationExtension extends AbstractResourceExtension im
 
     public function prepend(ContainerBuilder $container): void
     {
+        $container->prependExtensionConfig('framework', [
+            'messenger' => [
+                'buses' => [
+                    'setono_sylius_navigation.command_bus' => null,
+                ],
+            ],
+        ]);
+
         $container->prependExtensionConfig('sylius_grid', [
             'grids' => [
                 'setono_sylius_navigation_admin_navigation' => [

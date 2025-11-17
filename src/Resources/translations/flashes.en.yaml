@@ -1,3 +1,6 @@
 setono_sylius_navigation:
+    build_queued: Navigation build has been queued for processing
+    build_completed: Navigation build completed successfully
+    build_failed: Navigation build failed. Check logs for details.
     navigation_built: Navigation was built
     navigation_not_found: Navigation not found

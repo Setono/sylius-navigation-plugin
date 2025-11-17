@@ -13,6 +13,7 @@
 
         <field name="code" type="string" unique="true"/>
         <field name="description" type="text" nullable="true"/>
+        <field name="state" type="string" length="20"/>
         <field name="enabled" type="boolean"/>
 
         <field name="createdAt" column="created_at" type="datetime">

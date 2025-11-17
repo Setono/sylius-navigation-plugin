@@ -248,8 +248,146 @@ Both form types are registered as Symfony services with the `form.type` tag for 
 - **Validation**: Proper Symfony form validation with error handling
 - **User Experience**: Modals, confirmation dialogs, and success feedback messages
 
+## Asynchronous Processing with Symfony Messenger
+
+The "Build from Taxon" functionality uses Symfony Messenger for asynchronous processing to prevent timeouts with large taxonomies (3,000+ items).
+
+### Architecture
+
+#### Message Flow
+1. User submits "Build from Taxon" form in admin panel
+2. Controller sets navigation state to `building` and dispatches message
+3. Message is queued in configured transport (Doctrine, Redis, AMQP, etc.)
+4. Worker process consumes message and executes build
+5. Navigation state updates to `completed` or `failed` based on result
+
+#### Components
+
+**Command Message** (`src/Message/Command/BuildNavigationFromTaxon.php`)
+- Immutable value object containing build parameters
+- Properties: `navigationId`, `taxonId`, `includeRoot`, `maxDepth`
+- Serializable for message queue storage
+
+**Message Handler** (`src/Message/Handler/BuildNavigationFromTaxonHandler.php`)
+- Tagged with `#[AsMessageHandler]` attribute
+- Fetches entities by ID from message
+- Delegates to `NavigationBuilder` service
+- Logs success/failure (no flash messages in async context)
+
+**Navigation Builder Service** (`src/Builder/NavigationBuilder.php`)
+- Contains extracted business logic from controller
+- Manages navigation state transitions (`building` → `completed`/`failed`)
+- Creates items and closure relationships
+- Throws exceptions on failure for proper error handling
+
+**Controller** (`src/Controller/BuildFromTaxonController.php`)
+- Dispatches `BuildNavigationFromTaxon` message
+- Sets state to `building` immediately
+- Shows flash message: "Navigation build has been queued"
+- Redirects to navigation edit page
+
+### State Management
+
+Navigation entities have a `state` field to track build progress:
+
+| State | Description | When Set |
+|-------|-------------|----------|
+| `idle` | Default state, no build in progress | Initial state |
+| `building` | Build is currently processing | Controller before dispatch |
+| `completed` | Build finished successfully | Builder on success |
+| `failed` | Build encountered an error | Builder on exception |
+
+State translations available in `messages.*.yaml`:
+- `setono_sylius_navigation.ui.state.idle`
+- `setono_sylius_navigation.ui.state.building`
+- `setono_sylius_navigation.ui.state.completed`
+- `setono_sylius_navigation.ui.state.failed`
+
+### Configuration Required
+
+Users **must** configure Symfony Messenger transport in their application.
+
+#### Example: `config/packages/messenger.yaml`
+
+```yaml
+framework:
+    messenger:
+        transports:
+            # Option 1: Doctrine (stores in database, no additional infrastructure)
+            async: 'doctrine://default'
+
+            # Option 2: Redis (requires Redis server)
+            # async: 'redis://localhost:6379/messages'
+
+            # Option 3: AMQP/RabbitMQ (requires RabbitMQ server)
+            # async: 'amqp://guest:guest@localhost:5672/%2f/messages'
+
+        routing:
+            'Setono\SyliusNavigationPlugin\Message\Command\BuildNavigationFromTaxon': async
+```
+
+#### Running the Worker
+
+```bash
+# Run worker to process async messages
+php bin/console messenger:consume async -vv
+
+# For production, use a process manager like Supervisor
+# See: https://symfony.com/doc/current/messenger.html#supervisor-configuration
+```
+
+### Error Handling
+
+**Failed Builds:**
+- Navigation state set to `failed`
+- Error details logged with full stack trace
+- Exception message preserved in logs
+- No automatic retry (configure via Messenger retry strategy if needed)
+
+**Logging Context:**
+```php
+$this->logger->error('Failed to build navigation from taxon', [
+    'navigationId' => $command->getNavigationId(),
+    'taxonId' => $command->getTaxonId(),
+    'exception' => $e->getMessage(),
+    'trace' => $e->getTraceAsString(),
+]);
+```
+
+### Performance Benefits
+
+**Before (synchronous):**
+- HTTP timeout with 3,000+ taxons
+- User waits for entire process
+- No visibility into progress
+
+**After (asynchronous):**
+- Non-blocking HTTP request (~100ms)
+- Background processing prevents timeouts
+- State field provides progress visibility
+- Scalable to tens of thousands of items
+
+### Testing the Async Flow
+
+**Manual Testing:**
+1. Configure messenger transport (Doctrine recommended for testing)
+2. Navigate to `/admin/navigation/navigations/{id}/edit/build-from-taxon`
+3. Submit form - should see "queued" flash message
+4. Run `php bin/console messenger:consume async -vv` in terminal
+5. Watch state change: `building` → `completed`
+
+**Development Tip:**
+For immediate processing during development, use `sync` transport:
+```yaml
+framework:
+    messenger:
+        transports:
+            async: 'sync://'  # Processes immediately, no worker needed
+```
+
 ## Testing Notes
 - Tests are in `tests/` directory
 - Test application in `tests/Application/` provides full Sylius environment
 - Use `composer phpunit` to run tests
 - **Manual Testing**: Navigation builder can be tested at `/admin/navigation/navigations/{id}/build`
+- **Build from Taxon**: Test async processing at `/admin/navigation/navigations/{id}/edit/build-from-taxon`

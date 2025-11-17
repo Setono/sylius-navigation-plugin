@@ -75,5 +75,10 @@ setono_sylius_navigation:
         select_item_type: Select item type
         select_taxon: Select a taxon
         simple_item: Simple item
+        state:
+            pending: Pending
+            building: Building...
+            completed: Completed
+            failed: Failed
         taxon: Taxon
         taxon_item: Taxon item
