@@ -102,58 +102,56 @@ final class ClosureManager implements ClosureManagerInterface
         // Update position of the moved item
         $item->setPosition($position);
 
-        // Get all siblings (items with same parent) to adjust their positions
-        $siblings = $this->getSiblings($item, $newParent);
-
-        // Reorder siblings to make room for the moved item at the specified position
-        $currentPos = 0;
-        foreach ($siblings as $sibling) {
-            if ($sibling === $item) {
-                continue; // Skip the item being moved
-            }
-
-            if ($currentPos === $position) {
-                ++$currentPos; // Skip the position where we're inserting the moved item
-            }
-
-            $sibling->setPosition($currentPos);
-            ++$currentPos;
-        }
+        // Optimize: Only update positions for affected siblings using bulk SQL update
+        // This is much faster than loading all siblings into memory
+        $this->updateSiblingPositions($item, $newParent, $position);
 
         $manager->flush();
     }
 
     /**
-     * Get all sibling items (items with the same parent)
-     *
-     * @return ItemInterface[]
+     * Update sibling positions efficiently using bulk SQL update
+     * Only updates items at or after the target position
      */
-    private function getSiblings(ItemInterface $item, ?ItemInterface $parent): array
-    {
+    private function updateSiblingPositions(
+        ItemInterface $item,
+        ?ItemInterface $newParent,
+        int $position,
+    ): void {
         $navigation = $item->getNavigation();
         if (null === $navigation) {
-            return [];
+            return;
         }
 
-        if (null === $parent) {
-            // Get root items for this navigation
-            return $this->closureRepository->findRootItems($navigation);
+        $manager = $this->getManager($item);
+        $qb = $manager->createQueryBuilder();
+        $qb->update(ItemInterface::class, 'i')
+            ->set('i.position', 'i.position + 1')
+            ->where('i.navigation = :navigation')
+            ->andWhere('i.position >= :position')
+            ->andWhere('i.id != :itemId')
+            ->setParameter('navigation', $navigation)
+            ->setParameter('position', $position)
+            ->setParameter('itemId', $item->getId());
+
+        // Add parent constraint
+        if (null === $newParent) {
+            // Root items: items that don't have parent closure relationships (depth > 0)
+            $qb->andWhere('NOT EXISTS (
+                SELECT 1 FROM ' . $this->closureRepository->getClassName() . ' c
+                WHERE c.descendant = i.id AND c.depth > 0
+            )');
+        } else {
+            // Children of specific parent: items with closure relationship to parent at depth 1
+            $qb->andWhere('EXISTS (
+                SELECT 1 FROM ' . $this->closureRepository->getClassName() . ' c
+                WHERE c.descendant = i.id
+                AND c.ancestor = :parentId
+                AND c.depth = 1
+            )')
+                ->setParameter('parentId', $newParent->getId());
         }
 
-        // Get direct children of the parent
-        $childClosures = $this->closureRepository->findBy([
-            'ancestor' => $parent,
-            'depth' => 1,
-        ]);
-
-        $siblings = [];
-        foreach ($childClosures as $closure) {
-            $descendant = $closure->getDescendant();
-            if ($descendant !== null) {
-                $siblings[] = $descendant;
-            }
-        }
-
-        return $siblings;
+        $qb->getQuery()->execute();
     }
 }
