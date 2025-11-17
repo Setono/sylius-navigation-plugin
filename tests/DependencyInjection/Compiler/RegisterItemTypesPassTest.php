@@ -60,6 +60,7 @@ final class RegisterItemTypesPassTest extends AbstractCompilerPassTestCase
                 ItemFormType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_test.html.twig',
                 new Reference('setono_sylius_navigation.factory.text_item'),
+                [],
             ],
         );
     }
@@ -186,6 +187,7 @@ final class RegisterItemTypesPassTest extends AbstractCompilerPassTestCase
                 ItemFormType::class,
                 '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
                 new Reference('setono_sylius_navigation.factory.minimal_item'),
+                [],
             ],
         );
     }

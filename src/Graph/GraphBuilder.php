@@ -24,6 +24,11 @@ final class GraphBuilder implements GraphBuilderInterface
             $descendant = $closure->getDescendant();
             Assert::notNull($descendant);
 
+            // Skip disabled items
+            if (!$descendant->isEnabled()) {
+                continue;
+            }
+
             $descendantId = (int) $descendant->getId();
             if (!isset($nodes[$descendantId])) {
                 $nodes[$descendantId] = new Node($descendant);
