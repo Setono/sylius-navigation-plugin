@@ -25,10 +25,19 @@ final class ClosureManager implements ClosureManagerInterface
 
     public function createItem(ItemInterface $item, ItemInterface $parent = null, bool $flush = true): void
     {
-        $selfClosure = $this->closureFactory->createSelfRelationship($item);
+        $manager = $this->getManager($item);
 
-        $manager = $this->getManager($selfClosure);
-        $manager->persist($selfClosure);
+        // Check if self-reference already exists to prevent duplicates
+        $existingSelfClosure = $this->closureRepository->findOneBy([
+            'ancestor' => $item,
+            'descendant' => $item,
+            'depth' => 0,
+        ]);
+
+        if (null === $existingSelfClosure) {
+            $selfClosure = $this->closureFactory->createSelfRelationship($item);
+            $manager->persist($selfClosure);
+        }
 
         if (null !== $parent) {
             $ancestorClosures = $this->closureRepository->findAncestors($parent);
@@ -37,8 +46,19 @@ final class ClosureManager implements ClosureManagerInterface
                 $ancestor = $ancestorClosure->getAncestor();
                 Assert::notNull($ancestor);
 
-                $closure = $this->closureFactory->createRelationship($ancestor, $item, $ancestorClosure->getDepth() + 1);
-                $manager->persist($closure);
+                $depth = $ancestorClosure->getDepth() + 1;
+
+                // Check if this closure already exists to prevent duplicates
+                $existingClosure = $this->closureRepository->findOneBy([
+                    'ancestor' => $ancestor,
+                    'descendant' => $item,
+                    'depth' => $depth,
+                ]);
+
+                if (null === $existingClosure) {
+                    $closure = $this->closureFactory->createRelationship($ancestor, $item, $depth);
+                    $manager->persist($closure);
+                }
             }
         }
 

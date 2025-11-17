@@ -6,6 +6,10 @@
                                       http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
     <mapped-superclass name="Setono\SyliusNavigationPlugin\Model\Closure"
                        table="setono_sylius_navigation__closure">
+        <unique-constraints>
+            <unique-constraint columns="ancestor_id,descendant_id,depth" name="uniq_closure_ancestor_descendant_depth"/>
+        </unique-constraints>
+
         <id name="id" type="integer">
             <generator strategy="AUTO"/>
         </id>
