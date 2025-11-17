@@ -14,7 +14,7 @@ class NavigationBuilder {
         this.init();
     }
 
-    init() {
+    async init() {
         // Wait for jQuery and jsTree to be available
         if (typeof jQuery === 'undefined' || typeof jQuery.jstree === 'undefined') {
             console.error('jQuery or jsTree not loaded');
@@ -22,8 +22,10 @@ class NavigationBuilder {
         }
 
         this.initializeUI();
+
+        // Load item types first, then initialize tree so icons are available
+        await this.loadItemTypes();
         this.initializeTree();
-        this.loadItemTypes();
     }
 
     initializeUI() {
@@ -118,14 +120,7 @@ class NavigationBuilder {
                     return self.getContextMenuItems(node);
                 }
             },
-            'types': {
-                'default': {
-                    'icon': 'file text icon'
-                },
-                'taxon': {
-                    'icon': 'tag icon'
-                }
-            }
+            'types': this.getJsTreeTypes()
         })
         .on('ready.jstree', function() {
             self.tree = jQuery.jstree.reference('#navigation-tree');
@@ -147,6 +142,25 @@ class NavigationBuilder {
         });
     }
 
+    getJsTreeTypes() {
+        const types = {
+            'default': {
+                'icon': 'file text icon'
+            }
+        };
+
+        // Build types from loaded itemTypes metadata
+        if (this.itemTypes) {
+            Object.entries(this.itemTypes).forEach(([type, metadata]) => {
+                types[type] = {
+                    'icon': metadata.options?.icon || 'file text icon'
+                };
+            });
+        }
+
+        return types;
+    }
+
     getContextMenuItems(node) {
         const self = this;
         const items = {};
@@ -160,10 +174,13 @@ class NavigationBuilder {
 
         // Load item types dynamically
         if (this.itemTypes) {
-            Object.entries(this.itemTypes).forEach(([type, label]) => {
+            Object.entries(this.itemTypes).forEach(([type, metadata]) => {
+                const label = metadata.label || type;
+                const icon = metadata.options?.icon || 'file text icon'; // Use icon from options or default
+
                 items.add.submenu[type] = {
                     'label': label,
-                    'icon': type === 'taxon' ? 'tag icon' : 'file text icon',
+                    'icon': icon,
                     'action': function() {
                         self.showAddItemModal(type, node.id);
                     }
@@ -200,7 +217,7 @@ class NavigationBuilder {
             }
 
             const result = await response.json();
-            // Extract itemTypes from wrapped response
+            // itemTypes now contains {type: {label: 'Label', options: {...}}}
             this.itemTypes = result.itemTypes || result;
             this.populateMainAddDropdown();
         } catch (error) {
@@ -221,12 +238,14 @@ class NavigationBuilder {
 
             menu.innerHTML = '';
 
-            Object.entries(this.itemTypes).forEach(([type, label]) => {
+            Object.entries(this.itemTypes).forEach(([type, metadata]) => {
                 const item = document.createElement('div');
                 item.className = 'item';
                 item.setAttribute('data-value', type);
 
-                const icon = type === 'taxon' ? '<i class="tag icon"></i>' : '<i class="file text icon"></i>';
+                const label = metadata.label || type;
+                const iconClass = metadata.options?.icon || 'file text icon'; // Use icon from options or default
+                const icon = `<i class="${iconClass}"></i>`;
                 item.innerHTML = `${icon} ${this.escapeHtml(label)}`;
 
                 menu.appendChild(item);
@@ -255,7 +274,7 @@ class NavigationBuilder {
 
         // Update modal title based on type
         const titleElement = document.getElementById('add-item-modal-title');
-        const typeLabel = this.itemTypes[type] || type;
+        const typeLabel = this.itemTypes[type]?.label || type;
         titleElement.textContent = `Add ${typeLabel}`;
 
         // Show modal

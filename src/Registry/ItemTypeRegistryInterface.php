@@ -12,8 +12,9 @@ interface ItemTypeRegistryInterface
     /**
      * @param class-string $entity
      * @param class-string<FormTypeInterface<mixed>> $form
+     * @param array<string, mixed> $options
      */
-    public function register(string $name, string $label, string $entity, string $form, string $template, ItemFactoryInterface $factory): void;
+    public function register(string $name, string $label, string $entity, string $form, string $template, ItemFactoryInterface $factory, array $options = []): void;
 
     /**
      * @throws \InvalidArgumentException if the item type is not registered

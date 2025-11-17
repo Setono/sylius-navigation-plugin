@@ -13,6 +13,7 @@ use Sylius\Component\Taxonomy\Model\TaxonInterface;
     formType: TaxonItemType::class,
     template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_taxon_item.html.twig',
     label: 'Taxon Item',
+    options: ['icon' => 'tag icon'],
 )]
 class TaxonItem extends Item implements TaxonItemInterface
 {

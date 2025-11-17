@@ -21,6 +21,7 @@ use Sylius\Component\Resource\Model\TranslatableTrait;
     formType: ItemFormType::class,
     template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_item.html.twig',
     label: 'Text Item',
+    options: ['icon' => 'file text icon'],
 )]
 class Item implements ItemInterface
 {

@@ -34,6 +34,13 @@ final class ItemType
          * If null, will be generated from the name
          */
         public readonly ?string $label = null,
+
+        /**
+         * Additional options for the item type (e.g., ['icon' => 'linkify icon'])
+         *
+         * @var array<string, mixed>
+         */
+        public readonly array $options = [],
     ) {
     }
 }

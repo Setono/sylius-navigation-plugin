@@ -12,6 +12,7 @@ final class ItemType
     /**
      * @param class-string $entity
      * @param class-string<FormTypeInterface<mixed>> $form
+     * @param array<string, mixed> $options
      */
     public function __construct(
         public readonly string $name,
@@ -20,6 +21,7 @@ final class ItemType
         public readonly string $form,
         public readonly string $template,
         public readonly ItemFactoryInterface $factory,
+        public readonly array $options = [],
     ) {
     }
 }

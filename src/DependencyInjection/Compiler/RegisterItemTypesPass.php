@@ -72,6 +72,7 @@ final class RegisterItemTypesPass implements CompilerPassInterface
                 $metadata->formType,
                 $metadata->template ?? '@SetonoSyliusNavigationPlugin/navigation/build/form/_default.html.twig',
                 new Reference($factoryServiceId),
+                $metadata->options,
             ]);
         }
     }

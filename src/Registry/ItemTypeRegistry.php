@@ -11,7 +11,7 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
     /** @var array<string, ItemType> */
     private array $types = [];
 
-    public function register(string $name, string $label, string $entity, string $form, string $template, ItemFactoryInterface $factory): void
+    public function register(string $name, string $label, string $entity, string $form, string $template, ItemFactoryInterface $factory, array $options = []): void
     {
         if (isset($this->types[$name])) {
             throw new \InvalidArgumentException(sprintf(
@@ -21,7 +21,7 @@ final class ItemTypeRegistry implements ItemTypeRegistryInterface
             ));
         }
 
-        $this->types[$name] = new ItemType($name, $label, $entity, $form, $template, $factory);
+        $this->types[$name] = new ItemType($name, $label, $entity, $form, $template, $factory, $options);
     }
 
     public function get(string $name): ItemType

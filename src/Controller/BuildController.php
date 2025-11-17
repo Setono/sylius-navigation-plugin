@@ -130,8 +130,14 @@ final class BuildController extends AbstractController
 
     public function getItemTypesAction(ItemTypeRegistryInterface $itemTypeRegistry): JsonResponse
     {
-        // Get all registered types and extract name => label mapping
-        $itemTypes = array_map(static fn ($itemType) => $itemType->label, $itemTypeRegistry->all());
+        // Get all registered types with label and options
+        $itemTypes = array_map(
+            static fn ($itemType) => [
+                'label' => $itemType->label,
+                'options' => $itemType->options,
+            ],
+            $itemTypeRegistry->all(),
+        );
 
         return new JsonResponse($itemTypes);
     }

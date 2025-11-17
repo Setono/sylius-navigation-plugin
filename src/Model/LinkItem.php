@@ -12,6 +12,7 @@ use Setono\SyliusNavigationPlugin\Form\Type\LinkItemType as LinkItemFormType;
     formType: LinkItemFormType::class,
     template: '@SetonoSyliusNavigationPlugin/navigation/build/form/_link_item.html.twig',
     label: 'Link Item',
+    options: ['icon' => 'linkify icon'],
 )]
 class LinkItem extends Item implements LinkItemInterface
 {
