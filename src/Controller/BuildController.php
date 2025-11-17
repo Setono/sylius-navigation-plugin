@@ -204,8 +204,6 @@ final class BuildController extends AbstractController
         FormFactoryInterface $formFactory,
         RepositoryInterface $taxonRepository,
         ClosureManagerInterface $closureManager,
-        ClosureRepositoryInterface $closureRepository,
-        Environment $twig,
     ): JsonResponse {
         try {
             // Determine item type from form data
@@ -266,15 +264,9 @@ final class BuildController extends AbstractController
 
             $closureManager->createItem($item, $parent);
 
-            // Return rendered tree HTML
-            $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
-            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
-                'items' => $tree,
-            ]);
-
+            // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
                 'success' => true,
-                'html' => $html,
                 'item' => [
                     'id' => $item->getId(),
                     'label' => $this->getItemLabel($item),
@@ -299,8 +291,6 @@ final class BuildController extends AbstractController
         ItemTypeRegistryInterface $itemTypeRegistry,
         FormFactoryInterface $formFactory,
         RepositoryInterface $taxonRepository,
-        ClosureRepositoryInterface $closureRepository,
-        Environment $twig,
     ): JsonResponse {
         try {
             // Get the appropriate form type from registry based on item entity class
@@ -338,15 +328,9 @@ final class BuildController extends AbstractController
 
             $this->getManager($item)->flush();
 
-            // Return rendered tree HTML
-            $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
-            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
-                'items' => $tree,
-            ]);
-
+            // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
                 'success' => true,
-                'html' => $html,
                 'item' => [
                     'id' => $item->getId(),
                     'label' => $this->getItemLabel($item),
@@ -372,21 +356,13 @@ final class BuildController extends AbstractController
         NavigationInterface $navigation,
         ItemInterface $item,
         ClosureManagerInterface $closureManager,
-        ClosureRepositoryInterface $closureRepository,
-        Environment $twig,
     ): JsonResponse {
         try {
             $closureManager->removeTree($item);
 
-            // Return rendered tree HTML
-            $tree = $this->buildTreeStructureEntities($navigation, $closureRepository);
-            $html = $twig->render('@SetonoSyliusNavigationPlugin/navigation/build/_tree.html.twig', [
-                'items' => $tree,
-            ]);
-
+            // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
                 'success' => true,
-                'html' => $html,
             ]);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
@@ -471,42 +447,6 @@ final class BuildController extends AbstractController
         }
 
         return $childrenArray;
-    }
-
-    /**
-     * @return array<int, array{entity: ItemInterface, children: array<int, mixed>}>
-     */
-    private function buildTreeStructureEntities(
-        NavigationInterface $navigation,
-        ClosureRepositoryInterface $closureRepository,
-    ): array {
-        // Get root items (items with no parent)
-        $rootItems = $closureRepository->findRootItems($navigation);
-        $childrenArray = [];
-
-        foreach ($rootItems as $rootItem) {
-            $childrenArray[] = $this->buildItemTreeEntities($rootItem, $closureRepository);
-        }
-
-        return $childrenArray;
-    }
-
-    /**
-     * @return array{entity: ItemInterface, children: array<int, mixed>}
-     */
-    private function buildItemTreeEntities(ItemInterface $item, ClosureRepositoryInterface $closureRepository): array
-    {
-        $children = $this->getDirectChildren($item, $closureRepository);
-        $childrenArray = [];
-
-        foreach ($children as $child) {
-            $childrenArray[] = $this->buildItemTreeEntities($child, $closureRepository);
-        }
-
-        return [
-            'entity' => $item,
-            'children' => $childrenArray,
-        ];
     }
 
     /**
