@@ -25,6 +25,7 @@ final class CachedNavigationRenderer implements NavigationRendererInterface
 
     public function render(
         NavigationInterface|string $navigation,
+        string $template = null,
         ChannelInterface $channel = null,
         string $localeCode = null,
     ): string {
@@ -42,7 +43,7 @@ final class CachedNavigationRenderer implements NavigationRendererInterface
             }
         }
 
-        $result = $this->decorated->render($navigation, $channel, $localeCode);
+        $result = $this->decorated->render($navigation, $template, $channel, $localeCode);
 
         $cacheItem->set($result);
 

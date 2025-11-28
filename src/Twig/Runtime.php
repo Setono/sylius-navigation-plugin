@@ -17,9 +17,9 @@ final class Runtime implements RuntimeExtensionInterface
     ) {
     }
 
-    public function navigation(string $code): string
+    public function navigation(string $code, string $template = null): string
     {
-        return $this->navigationRenderer->render($code);
+        return $this->navigationRenderer->render($code, $template);
     }
 
     /**

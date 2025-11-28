@@ -32,6 +32,7 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
 
     public function render(
         NavigationInterface|string $navigation,
+        string $template = null,
         ChannelInterface $channel = null,
         string $localeCode = null,
     ): string {
@@ -50,13 +51,13 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
             }
         }
 
-        $template = $this->twig->resolveTemplate([
-            sprintf('@SetonoSyliusNavigationPlugin/navigation/navigation.%s.html.twig', (string) $navigation->getCode()),
+        $templateWrapper = $this->twig->resolveTemplate([
+            $template ?? sprintf('@SetonoSyliusNavigationPlugin/navigation/navigation.%s.html.twig', (string) $navigation->getCode()),
             $this->defaultTemplate,
         ]);
 
         /** @phpstan-ignore argument.type */
-        return $this->twig->render($template, [
+        return $this->twig->render($templateWrapper, [
             'navigation' => $navigation,
             'graph' => $this->graphBuilder->build($navigation),
             'channel' => $channel,
