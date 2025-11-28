@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusNavigationPlugin\Model;
 
+use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
@@ -32,4 +33,9 @@ interface NavigationInterface extends
     public function getState(): string;
 
     public function setState(string $state): void;
+
+    /**
+     * @return Collection<array-key, ItemInterface>
+     */
+    public function getItems(): Collection;
 }

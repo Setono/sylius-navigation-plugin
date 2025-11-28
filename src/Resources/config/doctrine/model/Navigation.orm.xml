@@ -34,5 +34,7 @@
                 </inverse-join-columns>
             </join-table>
         </many-to-many>
+
+        <one-to-many field="items" target-entity="Setono\SyliusNavigationPlugin\Model\ItemInterface" mapped-by="navigation" fetch="EXTRA_LAZY"/>
     </mapped-superclass>
 </doctrine-mapping>

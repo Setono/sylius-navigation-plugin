@@ -26,9 +26,13 @@ class Navigation implements NavigationInterface
     /** @var Collection<array-key, ChannelInterface> */
     protected Collection $channels;
 
+    /** @var Collection<array-key, ItemInterface> */
+    protected Collection $items;
+
     public function __construct()
     {
         $this->channels = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -88,5 +92,10 @@ class Navigation implements NavigationInterface
     public function setState(string $state): void
     {
         $this->state = $state;
+    }
+
+    public function getItems(): Collection
+    {
+        return $this->items;
     }
 }
