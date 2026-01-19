@@ -151,10 +151,8 @@ final class NavigationBuilder implements NavigationBuilderInterface
 
     private function createItemFromTaxon(TaxonInterface $taxon, NavigationInterface $navigation): TaxonItemInterface
     {
-        $item = $this->taxonItemFactory->createNew();
+        $item = $this->taxonItemFactory->createFromTaxon($taxon);
         $item->setNavigation($navigation);
-        $item->setTaxon($taxon);
-        $item->setEnabled($taxon->isEnabled());
 
         return $item;
     }
