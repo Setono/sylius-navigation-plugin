@@ -84,7 +84,7 @@ final class CachedNavigationRendererTest extends TestCase
 
         $this->decoratedRenderer->render(Argument::cetera())->shouldNotBeCalled();
 
-        $result = $this->renderer->render($navigation, $channel, 'en_US');
+        $result = $this->renderer->render($navigation, null, $channel, 'en_US');
 
         self::assertSame('<nav>cached</nav>', $result);
     }
@@ -114,12 +114,12 @@ final class CachedNavigationRendererTest extends TestCase
         ;
 
         $this->decoratedRenderer
-            ->render($navigation, $channel, 'en_US')
+            ->render($navigation, null, $channel, 'en_US')
             ->willReturn('<nav>rendered</nav>')
             ->shouldBeCalled()
         ;
 
-        $result = $this->renderer->render($navigation, $channel, 'en_US');
+        $result = $this->renderer->render($navigation, null, $channel, 'en_US');
 
         self::assertSame('<nav>rendered</nav>', $result);
     }
@@ -147,12 +147,12 @@ final class CachedNavigationRendererTest extends TestCase
 
         // Channel context should be used when null is passed
         $this->decoratedRenderer
-            ->render($navigation, $this->channel, 'en_US')
+            ->render($navigation, null, $this->channel, 'en_US')
             ->willReturn('<nav>rendered</nav>')
             ->shouldBeCalled()
         ;
 
-        $result = $this->renderer->render($navigation, null, 'en_US');
+        $result = $this->renderer->render($navigation, null, null, 'en_US');
 
         self::assertSame('<nav>rendered</nav>', $result);
     }
@@ -183,12 +183,12 @@ final class CachedNavigationRendererTest extends TestCase
 
         // Locale context should be used when null is passed
         $this->decoratedRenderer
-            ->render($navigation, $channel, 'en_US')
+            ->render($navigation, null, $channel, 'en_US')
             ->willReturn('<nav>rendered</nav>')
             ->shouldBeCalled()
         ;
 
-        $result = $this->renderer->render($navigation, $channel, null);
+        $result = $this->renderer->render($navigation, null, $channel, null);
 
         self::assertSame('<nav>rendered</nav>', $result);
     }
@@ -264,12 +264,12 @@ final class CachedNavigationRendererTest extends TestCase
         ;
 
         $this->decoratedRenderer
-            ->render('top', $channel, 'en_US')
+            ->render('top', null, $channel, 'en_US')
             ->willReturn('<nav>rendered</nav>')
             ->shouldBeCalled()
         ;
 
-        $result = $this->renderer->render('top', $channel, 'en_US');
+        $result = $this->renderer->render('top', null, $channel, 'en_US');
 
         self::assertSame('<nav>rendered</nav>', $result);
     }
