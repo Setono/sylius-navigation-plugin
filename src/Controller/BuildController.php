@@ -481,6 +481,9 @@ final class BuildController extends AbstractController
                 'opened' => false, // Don't auto-expand for lazy loading
                 'disabled' => !$item->isEnabled(), // Disabled state for jsTree
             ],
+            'li_attr' => [
+                'class' => !$item->isEnabled() ? 'item-disabled' : '', // Add class to <li> for CSS styling of children
+            ],
             'a_attr' => [
                 'data-enabled' => $item->isEnabled() ? 'true' : 'false', // Custom attribute for enabled status
                 'data-item-type' => $itemType->name, // Store actual item type for edit forms

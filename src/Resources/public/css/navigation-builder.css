@@ -46,3 +46,13 @@
     margin-right: 8px;
 }
 
+/* Gray out all descendants of disabled items using CSS descendant selector */
+#navigation-tree .item-disabled .jstree-children .jstree-anchor {
+    opacity: 0.5;
+    color: #999 !important;
+}
+
+#navigation-tree .item-disabled .jstree-children .jstree-anchor::before {
+    opacity: 0.5;
+}
+
