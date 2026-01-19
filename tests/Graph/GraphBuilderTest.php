@@ -15,6 +15,8 @@ use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
+use Sylius\Component\Channel\Model\Channel;
+use Sylius\Component\Channel\Model\ChannelInterface;
 
 final class GraphBuilderTest extends TestCase
 {
@@ -27,11 +29,15 @@ final class GraphBuilderTest extends TestCase
 
     private NavigationInterface $navigation;
 
+    private ChannelInterface $channel;
+
     protected function setUp(): void
     {
         $this->closureRepository = $this->prophesize(ClosureRepositoryInterface::class);
         $this->graphBuilder = new GraphBuilder($this->closureRepository->reveal());
         $this->navigation = new Navigation();
+        $this->channel = new Channel();
+        $this->channel->setCode('WEB');
     }
 
     /**
@@ -41,7 +47,7 @@ final class GraphBuilderTest extends TestCase
     {
         $this->closureRepository->findByNavigation($this->navigation)->willReturn([]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsIterable($nodes);
         self::assertEmpty($nodes);
@@ -60,7 +66,7 @@ final class GraphBuilderTest extends TestCase
 
         $this->closureRepository->findByNavigation($this->navigation)->willReturn([$closure]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         self::assertCount(1, $nodes);
@@ -99,7 +105,7 @@ final class GraphBuilderTest extends TestCase
             $relationshipClosure,
         ]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         self::assertCount(1, $nodes, 'Should return only root nodes');
@@ -135,7 +141,7 @@ final class GraphBuilderTest extends TestCase
             $closure2,
         ]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         self::assertCount(2, $nodes);
@@ -193,7 +199,7 @@ final class GraphBuilderTest extends TestCase
             $rootToGrandchild,
         ]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         self::assertCount(1, $nodes, 'Should return only root node');
@@ -246,7 +252,7 @@ final class GraphBuilderTest extends TestCase
             $transitiveClosure,
         ]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         // All three items should be root nodes since depth 2 closure is ignored
@@ -297,7 +303,7 @@ final class GraphBuilderTest extends TestCase
             $parentToChild2,
         ]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         self::assertCount(1, $nodes, 'Should return only root node');
@@ -333,7 +339,7 @@ final class GraphBuilderTest extends TestCase
             $nullAncestorClosure,
         ]);
 
-        $nodes = $this->graphBuilder->build($this->navigation);
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
         // Should create one node from the valid closure, and it should remain a root node
@@ -343,7 +349,386 @@ final class GraphBuilderTest extends TestCase
         self::assertFalse($nodes[0]->hasParents());
     }
 
-    private function createItem(int $id, string $label): ItemInterface
+    /**
+     * @test
+     */
+    public function it_excludes_children_when_parent_is_disabled(): void
+    {
+        $parent = $this->createItem(1, 'Parent', false); // disabled
+        $child = $this->createItem(2, 'Child', true);
+
+        // Self-referencing closures (depth 0)
+        $parentClosure = new Closure();
+        $parentClosure->setDescendant($parent);
+        $parentClosure->setDepth(0);
+
+        $childClosure = new Closure();
+        $childClosure->setDescendant($child);
+        $childClosure->setDepth(0);
+
+        // Parent-child relationship closure (depth 1)
+        $relationshipClosure = new Closure();
+        $relationshipClosure->setAncestor($parent);
+        $relationshipClosure->setDescendant($child);
+        $relationshipClosure->setDepth(1);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([
+            $parentClosure,
+            $childClosure,
+            $relationshipClosure,
+        ]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertEmpty($nodes, 'Children of disabled parents should not appear in the graph');
+    }
+
+    /**
+     * @test
+     */
+    public function it_excludes_entire_subtree_when_ancestor_is_disabled(): void
+    {
+        $root = $this->createItem(1, 'Root', false); // disabled
+        $child = $this->createItem(2, 'Child', true);
+        $grandchild = $this->createItem(3, 'Grandchild', true);
+
+        // Self-referencing closures
+        $rootClosure = new Closure();
+        $rootClosure->setDescendant($root);
+        $rootClosure->setDepth(0);
+
+        $childClosure = new Closure();
+        $childClosure->setDescendant($child);
+        $childClosure->setDepth(0);
+
+        $grandchildClosure = new Closure();
+        $grandchildClosure->setDescendant($grandchild);
+        $grandchildClosure->setDepth(0);
+
+        // Direct relationships (depth 1)
+        $rootToChild = new Closure();
+        $rootToChild->setAncestor($root);
+        $rootToChild->setDescendant($child);
+        $rootToChild->setDepth(1);
+
+        $childToGrandchild = new Closure();
+        $childToGrandchild->setAncestor($child);
+        $childToGrandchild->setDescendant($grandchild);
+        $childToGrandchild->setDepth(1);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([
+            $rootClosure,
+            $childClosure,
+            $grandchildClosure,
+            $rootToChild,
+            $childToGrandchild,
+        ]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertEmpty($nodes, 'Entire subtree should be excluded when root ancestor is disabled');
+    }
+
+    /**
+     * @test
+     */
+    public function it_excludes_subtree_when_middle_node_is_disabled(): void
+    {
+        $root = $this->createItem(1, 'Root', true);
+        $child = $this->createItem(2, 'Child', false); // disabled
+        $grandchild = $this->createItem(3, 'Grandchild', true);
+
+        // Self-referencing closures
+        $rootClosure = new Closure();
+        $rootClosure->setDescendant($root);
+        $rootClosure->setDepth(0);
+
+        $childClosure = new Closure();
+        $childClosure->setDescendant($child);
+        $childClosure->setDepth(0);
+
+        $grandchildClosure = new Closure();
+        $grandchildClosure->setDescendant($grandchild);
+        $grandchildClosure->setDepth(0);
+
+        // Direct relationships (depth 1)
+        $rootToChild = new Closure();
+        $rootToChild->setAncestor($root);
+        $rootToChild->setDescendant($child);
+        $rootToChild->setDepth(1);
+
+        $childToGrandchild = new Closure();
+        $childToGrandchild->setAncestor($child);
+        $childToGrandchild->setDescendant($grandchild);
+        $childToGrandchild->setDepth(1);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([
+            $rootClosure,
+            $childClosure,
+            $grandchildClosure,
+            $rootToChild,
+            $childToGrandchild,
+        ]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertCount(1, $nodes, 'Should return only enabled root node');
+
+        $rootNode = $nodes[0];
+        self::assertSame($root, $rootNode->item);
+        self::assertEmpty($rootNode->getChildren(), 'Disabled child and its subtree should be excluded');
+    }
+
+    /**
+     * @test
+     */
+    public function it_excludes_items_restricted_to_other_channel(): void
+    {
+        $otherChannel = new Channel();
+        $otherChannel->setCode('OTHER');
+
+        $item = $this->createItem(1, 'Item', true, $otherChannel);
+
+        $closure = new Closure();
+        $closure->setDescendant($item);
+        $closure->setDepth(0);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([$closure]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertEmpty($nodes, 'Items restricted to other channels should be excluded');
+    }
+
+    /**
+     * @test
+     */
+    public function it_includes_items_restricted_to_current_channel(): void
+    {
+        $item = $this->createItem(1, 'Item', true, $this->channel);
+
+        $closure = new Closure();
+        $closure->setDescendant($item);
+        $closure->setDepth(0);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([$closure]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertCount(1, $nodes);
+        self::assertSame($item, $nodes[0]->item);
+    }
+
+    /**
+     * @test
+     */
+    public function it_includes_items_with_no_channel_restriction(): void
+    {
+        $item = $this->createItemWithoutChannel(1, 'Item', true);
+
+        $closure = new Closure();
+        $closure->setDescendant($item);
+        $closure->setDepth(0);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([$closure]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertCount(1, $nodes, 'Items with no channel restriction should appear on all channels');
+        self::assertSame($item, $nodes[0]->item);
+    }
+
+    /**
+     * @test
+     */
+    public function it_excludes_children_when_parent_restricted_to_other_channel(): void
+    {
+        $otherChannel = new Channel();
+        $otherChannel->setCode('OTHER');
+
+        $parent = $this->createItem(1, 'Parent', true, $otherChannel); // restricted to other channel
+        $child = $this->createItem(2, 'Child', true, $this->channel);
+
+        // Self-referencing closures (depth 0)
+        $parentClosure = new Closure();
+        $parentClosure->setDescendant($parent);
+        $parentClosure->setDepth(0);
+
+        $childClosure = new Closure();
+        $childClosure->setDescendant($child);
+        $childClosure->setDepth(0);
+
+        // Parent-child relationship closure (depth 1)
+        $relationshipClosure = new Closure();
+        $relationshipClosure->setAncestor($parent);
+        $relationshipClosure->setDescendant($child);
+        $relationshipClosure->setDepth(1);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([
+            $parentClosure,
+            $childClosure,
+            $relationshipClosure,
+        ]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertEmpty($nodes, 'Children of parents restricted to other channel should be excluded');
+    }
+
+    /**
+     * @test
+     */
+    public function it_includes_items_restricted_to_multiple_channels_including_current(): void
+    {
+        $otherChannel = new Channel();
+        $otherChannel->setCode('OTHER');
+
+        $item = $this->createItemWithoutChannel(1, 'Item', true);
+        $item->addChannel($this->channel);
+        $item->addChannel($otherChannel);
+
+        $closure = new Closure();
+        $closure->setDescendant($item);
+        $closure->setDepth(0);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([$closure]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertCount(1, $nodes, 'Items restricted to multiple channels including current should be included');
+    }
+
+    /**
+     * @test
+     */
+    public function it_excludes_child_restricted_to_other_channel_but_keeps_parent(): void
+    {
+        $otherChannel = new Channel();
+        $otherChannel->setCode('OTHER');
+
+        $parent = $this->createItemWithoutChannel(1, 'Parent', true); // no channel restriction
+        $child = $this->createItem(2, 'Child', true, $otherChannel); // restricted to other channel
+
+        // Self-referencing closures (depth 0)
+        $parentClosure = new Closure();
+        $parentClosure->setDescendant($parent);
+        $parentClosure->setDepth(0);
+
+        $childClosure = new Closure();
+        $childClosure->setDescendant($child);
+        $childClosure->setDepth(0);
+
+        // Parent-child relationship closure (depth 1)
+        $relationshipClosure = new Closure();
+        $relationshipClosure->setAncestor($parent);
+        $relationshipClosure->setDescendant($child);
+        $relationshipClosure->setDepth(1);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([
+            $parentClosure,
+            $childClosure,
+            $relationshipClosure,
+        ]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertCount(1, $nodes, 'Parent with no restriction should be included');
+        self::assertSame($parent, $nodes[0]->item);
+        self::assertEmpty($nodes[0]->getChildren(), 'Child restricted to other channel should be excluded');
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_mixed_channel_restrictions_in_hierarchy(): void
+    {
+        $otherChannel = new Channel();
+        $otherChannel->setCode('OTHER');
+
+        $root = $this->createItemWithoutChannel(1, 'Root', true); // no restriction - visible
+        $child1 = $this->createItem(2, 'Child 1', true, $this->channel); // current channel - visible
+        $child2 = $this->createItem(3, 'Child 2', true, $otherChannel); // other channel - excluded
+        $grandchild = $this->createItem(4, 'Grandchild', true, $this->channel); // current channel but parent excluded
+
+        // Self-referencing closures
+        $rootClosure = new Closure();
+        $rootClosure->setDescendant($root);
+        $rootClosure->setDepth(0);
+
+        $child1Closure = new Closure();
+        $child1Closure->setDescendant($child1);
+        $child1Closure->setDepth(0);
+
+        $child2Closure = new Closure();
+        $child2Closure->setDescendant($child2);
+        $child2Closure->setDepth(0);
+
+        $grandchildClosure = new Closure();
+        $grandchildClosure->setDescendant($grandchild);
+        $grandchildClosure->setDepth(0);
+
+        // Relationships
+        $rootToChild1 = new Closure();
+        $rootToChild1->setAncestor($root);
+        $rootToChild1->setDescendant($child1);
+        $rootToChild1->setDepth(1);
+
+        $rootToChild2 = new Closure();
+        $rootToChild2->setAncestor($root);
+        $rootToChild2->setDescendant($child2);
+        $rootToChild2->setDepth(1);
+
+        $child2ToGrandchild = new Closure();
+        $child2ToGrandchild->setAncestor($child2);
+        $child2ToGrandchild->setDescendant($grandchild);
+        $child2ToGrandchild->setDepth(1);
+
+        $this->closureRepository->findByNavigation($this->navigation)->willReturn([
+            $rootClosure,
+            $child1Closure,
+            $child2Closure,
+            $grandchildClosure,
+            $rootToChild1,
+            $rootToChild2,
+            $child2ToGrandchild,
+        ]);
+
+        $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
+
+        self::assertIsArray($nodes);
+        self::assertCount(1, $nodes);
+
+        $rootNode = $nodes[0];
+        self::assertSame($root, $rootNode->item);
+        self::assertCount(1, $rootNode->getChildren(), 'Only child1 should be visible, child2 excluded');
+
+        $child1Node = $rootNode->getChildren()[0];
+        self::assertSame($child1, $child1Node->item);
+    }
+
+    private function createItem(int $id, string $label, bool $enabled = true, ?ChannelInterface $channel = null): ItemInterface
+    {
+        $item = $this->createItemWithoutChannel($id, $label, $enabled);
+
+        if (null !== $channel) {
+            $item->addChannel($channel);
+        } else {
+            $item->addChannel($this->channel);
+        }
+
+        return $item;
+    }
+
+    private function createItemWithoutChannel(int $id, string $label, bool $enabled = true): ItemInterface
     {
         $item = new class() extends Item {
         };
@@ -356,6 +741,7 @@ final class GraphBuilderTest extends TestCase
         $item->setCurrentLocale('en_US');
         $item->setFallbackLocale('en_US');
         $item->setLabel($label);
+        $item->setEnabled($enabled);
 
         return $item;
     }

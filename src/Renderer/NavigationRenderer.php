@@ -59,7 +59,7 @@ final class NavigationRenderer implements NavigationRendererInterface, LoggerAwa
         /** @phpstan-ignore argument.type */
         return $this->twig->render($templateWrapper, [
             'navigation' => $navigation,
-            'graph' => $this->graphBuilder->build($navigation),
+            'graph' => $this->graphBuilder->build($navigation, $channel),
             'channel' => $channel,
             'localeCode' => $localeCode,
         ]);

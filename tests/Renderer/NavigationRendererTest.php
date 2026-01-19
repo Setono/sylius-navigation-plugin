@@ -42,7 +42,7 @@ final class NavigationRendererTest extends TestCase
         $this->navigationRepository = $this->prophesize(NavigationRepositoryInterface::class);
 
         $this->graphBuilder = $this->prophesize(GraphBuilderInterface::class);
-        $this->graphBuilder->build(Argument::type(Navigation::class))->willReturn([]);
+        $this->graphBuilder->build(Argument::type(Navigation::class), Argument::type(ChannelInterface::class))->willReturn([]);
 
         $channel = new Channel();
         $channel->setCode('WEB');
