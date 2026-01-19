@@ -154,6 +154,7 @@ final class NavigationBuilder implements NavigationBuilderInterface
         $item = $this->taxonItemFactory->createNew();
         $item->setNavigation($navigation);
         $item->setTaxon($taxon);
+        $item->setEnabled($taxon->isEnabled());
 
         return $item;
     }
