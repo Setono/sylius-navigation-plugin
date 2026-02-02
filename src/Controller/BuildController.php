@@ -13,6 +13,7 @@ use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
+use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,30 +34,48 @@ final class BuildController extends AbstractController
 
     /**
      * Main build page - displays the interactive tree builder interface
+     *
+     * @param RepositoryInterface<ChannelInterface> $channelRepository
      */
-    public function buildAction(NavigationInterface $navigation): Response
-    {
+    public function buildAction(
+        NavigationInterface $navigation,
+        RepositoryInterface $channelRepository,
+    ): Response {
         return $this->render('@SetonoSyliusNavigationPlugin/navigation/build.html.twig', [
             'navigation' => $navigation,
+            'channels' => $channelRepository->findAll(),
         ]);
     }
 
     /**
      * Load current tree structure as JSON
      * Supports lazy loading: if node id is provided, returns only children of that node
+     *
+     * @param RepositoryInterface<ChannelInterface> $channelRepository
      */
     public function getTreeAction(
         Request $request,
         NavigationInterface $navigation,
         ClosureRepositoryInterface $closureRepository,
         ItemTypeRegistryInterface $itemTypeRegistry,
+        RepositoryInterface $channelRepository,
     ): JsonResponse {
         // Get node ID from request (for lazy loading)
         $nodeId = $request->query->get('id', '#');
 
+        // Resolve optional channel filter
+        $channel = null;
+        $channelId = $request->query->get('channel');
+        if (\is_string($channelId) && '' !== $channelId) {
+            $channel = $channelRepository->find((int) $channelId);
+            if (!$channel instanceof ChannelInterface) {
+                $channel = null;
+            }
+        }
+
         if ($nodeId === '#') {
             // Load root level (first level items)
-            $tree = $this->buildTreeStructure($navigation, $closureRepository, $itemTypeRegistry, false); // false = don't load children recursively
+            $tree = $this->buildTreeStructure($navigation, $closureRepository, $itemTypeRegistry, false, $channel); // false = don't load children recursively
         } else {
             // Load children of specific node
             $itemManager = $this->getManager($navigation);
@@ -69,7 +88,7 @@ final class BuildController extends AbstractController
             $children = $this->getDirectChildren($parentItem, $closureRepository);
             $tree = [];
             foreach ($children as $child) {
-                $tree[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, false); // false = don't load children recursively
+                $tree[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, false, $channel); // false = don't load children recursively
             }
         }
 
@@ -437,13 +456,14 @@ final class BuildController extends AbstractController
         ClosureRepositoryInterface $closureRepository,
         ItemTypeRegistryInterface $itemTypeRegistry,
         bool $recursive = true,
+        ?ChannelInterface $channel = null,
     ): array {
         // Get root items (items with no parent)
         $rootItems = $closureRepository->findRootItems($navigation);
         $childrenArray = [];
 
         foreach ($rootItems as $rootItem) {
-            $childrenArray[] = $this->buildItemTree($rootItem, $closureRepository, $itemTypeRegistry, $recursive);
+            $childrenArray[] = $this->buildItemTree($rootItem, $closureRepository, $itemTypeRegistry, $recursive, $channel);
         }
 
         return $childrenArray;
@@ -457,6 +477,7 @@ final class BuildController extends AbstractController
         ClosureRepositoryInterface $closureRepository,
         ItemTypeRegistryInterface $itemTypeRegistry,
         bool $recursive = true,
+        ?ChannelInterface $channel = null,
     ): array {
         $children = $this->getDirectChildren($item, $closureRepository);
         $hasChildren = count($children) > 0;
@@ -465,12 +486,22 @@ final class BuildController extends AbstractController
         if ($recursive) {
             // Load all children recursively
             foreach ($children as $child) {
-                $childrenArray[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, true);
+                $childrenArray[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, true, $channel);
             }
         }
 
         // Determine the actual item type for form selection
         $itemType = $itemTypeRegistry->getByEntity($item::class);
+
+        $isChannelHidden = $channel !== null && !$this->isItemVisibleOnChannel($item, $channel);
+
+        $liClasses = [];
+        if (!$item->isEnabled()) {
+            $liClasses[] = 'item-disabled';
+        }
+        if ($isChannelHidden) {
+            $liClasses[] = 'item-channel-hidden';
+        }
 
         // jsTree-compatible format
         $node = [
@@ -479,10 +510,9 @@ final class BuildController extends AbstractController
             'type' => $itemType->name, // jsTree types for icons
             'state' => [
                 'opened' => false, // Don't auto-expand for lazy loading
-                'disabled' => !$item->isEnabled(), // Disabled state for jsTree
             ],
             'li_attr' => [
-                'class' => !$item->isEnabled() ? 'item-disabled' : '', // Add class to <li> for CSS styling of children
+                'class' => implode(' ', $liClasses),
             ],
             'a_attr' => [
                 'data-enabled' => $item->isEnabled() ? 'true' : 'false', // Custom attribute for enabled status
@@ -504,6 +534,16 @@ final class BuildController extends AbstractController
         }
 
         return $node;
+    }
+
+    /**
+     * Check if an item is visible on a given channel.
+     * Empty channels means visible on all channels.
+     * Does NOT check isEnabled() since the builder needs to show disabled items.
+     */
+    private function isItemVisibleOnChannel(ItemInterface $item, ChannelInterface $channel): bool
+    {
+        return $item->getChannels()->isEmpty() || $item->hasChannel($channel);
     }
 
     private function getItemLabel(ItemInterface $item): ?string

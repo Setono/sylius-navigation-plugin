@@ -18,6 +18,8 @@ setono_sylius_navigation:
         add_item: Dodaj element
         add_items: Dodaj elementy
         add_new_item: Dodaj nowy element
+        all_channels: Wszystkie kanały
+        filter_by_channel: Filtruj według kanału
         build_from_taxon: Zbuduj z taksonu
         build_manually: Zbuduj ręcznie
         build_navigation: Zbuduj nawigację

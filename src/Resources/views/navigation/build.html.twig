@@ -34,9 +34,22 @@
             </div>
             <div class="ui divider"></div>
 
-            <div class="ui fluid icon input" style="margin-bottom: 1rem;">
-                <input type="text" id="tree-search" placeholder="{{ 'sylius.ui.search'|trans }}...">
-                <i class="search icon"></i>
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                <div class="ui fluid icon input" style="flex: 1;">
+                    <input type="text" id="tree-search" placeholder="{{ 'sylius.ui.search'|trans }}...">
+                    <i class="search icon"></i>
+                </div>
+                <div id="channel-filter" class="ui selection dropdown" style="min-width: 200px;">
+                    <input type="hidden" name="channel">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">{{ 'setono_sylius_navigation.ui.filter_by_channel'|trans }}</div>
+                    <div class="menu">
+                        <div class="item" data-value="">{{ 'setono_sylius_navigation.ui.all_channels'|trans }}</div>
+                        {% for channel in channels %}
+                            <div class="item" data-value="{{ channel.id }}">{{ channel.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <div id="navigation-tree-container">

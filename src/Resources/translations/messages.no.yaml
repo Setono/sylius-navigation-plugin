@@ -18,6 +18,8 @@ setono_sylius_navigation:
         add_item: Legg til element
         add_items: Legg til elementer
         add_new_item: Legg til nytt element
+        all_channels: Alle kanaler
+        filter_by_channel: Filtrer etter kanal
         build_from_taxon: Bygg fra taksonomi
         build_manually: Bygg manuelt
         build_navigation: Bygg navigasjon

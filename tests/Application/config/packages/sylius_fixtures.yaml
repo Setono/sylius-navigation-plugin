@@ -1,0 +1,16 @@
+sylius_fixtures:
+    suites:
+        default:
+            fixtures:
+                second_channel:
+                    name: channel
+                    options:
+                        custom:
+                            fashion_eu_store:
+                                name: 'Fashion EU Store'
+                                code: 'FASHION_EU'
+                                locales:
+                                    - '%locale%'
+                                currencies:
+                                    - 'USD'
+                                enabled: true

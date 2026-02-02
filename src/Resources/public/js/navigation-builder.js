@@ -10,6 +10,7 @@ class NavigationBuilder {
         this.currentParentId = null;
         this.itemTypes = null;
         this.tree = null; // jsTree instance
+        this.selectedChannel = '';
 
         this.init();
     }
@@ -30,7 +31,7 @@ class NavigationBuilder {
 
     initializeUI() {
         // Initialize Semantic UI components
-        jQuery('.ui.dropdown').dropdown();
+        jQuery('.ui.dropdown').not('#channel-filter').dropdown();
         jQuery('.ui.checkbox').checkbox();
 
         // Initialize modals
@@ -52,6 +53,9 @@ class NavigationBuilder {
 
         // Initialize search
         this.initializeSearch();
+
+        // Initialize channel filter
+        this.initializeChannelFilter();
     }
 
     initializeSearch() {
@@ -72,6 +76,18 @@ class NavigationBuilder {
         });
     }
 
+    initializeChannelFilter() {
+        const self = this;
+        jQuery('#channel-filter').dropdown({
+            onChange: function(value) {
+                self.selectedChannel = value;
+                if (self.tree) {
+                    self.tree.refresh();
+                }
+            }
+        });
+    }
+
     initializeTree() {
         const self = this;
 
@@ -81,7 +97,11 @@ class NavigationBuilder {
                     'url': this.config.routes.getTree,
                     'dataType': 'json',
                     'data': function(node) {
-                        return { 'id': node.id };
+                        const params = { 'id': node.id };
+                        if (self.selectedChannel) {
+                            params.channel = self.selectedChannel;
+                        }
+                        return params;
                     }
                 },
                 'check_callback': true, // Allow modifications

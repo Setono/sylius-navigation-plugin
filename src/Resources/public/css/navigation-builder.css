@@ -46,13 +46,43 @@
     margin-right: 8px;
 }
 
-/* Gray out all descendants of disabled items using CSS descendant selector */
+/* Gray out disabled items */
+#navigation-tree .item-disabled > .jstree-anchor {
+    opacity: 0.5;
+    color: #999 !important;
+}
+
+#navigation-tree .item-disabled > .jstree-anchor::before {
+    opacity: 0.5;
+}
+
+/* Gray out all descendants of disabled items */
 #navigation-tree .item-disabled .jstree-children .jstree-anchor {
     opacity: 0.5;
     color: #999 !important;
 }
 
 #navigation-tree .item-disabled .jstree-children .jstree-anchor::before {
+    opacity: 0.5;
+}
+
+/* Gray out items not visible on the selected channel */
+#navigation-tree .item-channel-hidden > .jstree-anchor {
+    opacity: 0.5;
+    color: #999 !important;
+}
+
+#navigation-tree .item-channel-hidden > .jstree-anchor::before {
+    opacity: 0.5;
+}
+
+/* Gray out all descendants of channel-hidden items */
+#navigation-tree .item-channel-hidden .jstree-children .jstree-anchor {
+    opacity: 0.5;
+    color: #999 !important;
+}
+
+#navigation-tree .item-channel-hidden .jstree-children .jstree-anchor::before {
     opacity: 0.5;
 }
 

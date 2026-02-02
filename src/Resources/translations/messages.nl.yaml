@@ -18,6 +18,8 @@ setono_sylius_navigation:
         add_item: Item toevoegen
         add_items: Items toevoegen
         add_new_item: Nieuw item toevoegen
+        all_channels: Alle kanalen
+        filter_by_channel: Filteren op kanaal
         build_from_taxon: Bouwen van taxon
         build_manually: Handmatig bouwen
         build_navigation: Navigatie bouwen
