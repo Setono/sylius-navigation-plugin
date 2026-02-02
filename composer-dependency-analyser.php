@@ -8,4 +8,5 @@ use Twig\Runtime\EscaperRuntime;
 return (new Configuration())
     ->addPathToExclude(__DIR__ . '/tests')
     ->ignoreUnknownClasses([EscaperRuntime::class])
+    ->disableReportingUnmatchedIgnores()
 ;
