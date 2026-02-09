@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -89,12 +90,16 @@ final class TaxonBasedNavigationCacheInvalidatorListenerTest extends TestCase
         $taxonItem = $this->createTaxonItem($taxon, $navigation);
 
         $entityManager = $this->prophesize(EntityManagerInterface::class)->reveal();
-        $eventArgs = new PostRemoveEventArgs($taxon, $entityManager);
+        $preRemoveArgs = new PreRemoveEventArgs($taxon, $entityManager);
+        $postRemoveArgs = new PostRemoveEventArgs($taxon, $entityManager);
 
         $this->taxonItemRepository->findByTaxon($taxon)->willReturn([$taxonItem]);
         $this->cachePool->invalidateTags(['setono_navigation_main-menu'])->shouldBeCalledOnce();
 
-        $this->listener->postRemove($eventArgs);
+        // preRemove captures affected navigations while the entity still has its identifier
+        $this->listener->preRemove($preRemoveArgs);
+        // postRemove uses captured data to invalidate cache
+        $this->listener->postRemove($postRemoveArgs);
     }
 
     /**
