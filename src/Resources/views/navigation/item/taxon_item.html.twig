@@ -1,3 +1,7 @@
 {# @var item \Setono\SyliusNavigationPlugin\Model\TaxonItemInterface #}
 {# @var attributes \Setono\SyliusNavigationPlugin\Renderer\Item\ItemAttributes #}
-<a href="{{ path('sylius_shop_product_index', { 'slug': item.taxon.slug }) }}"{{ attributes }}>{{ item.label }}</a>
+{% if item.taxon is not null %}
+    <a href="{{ path('sylius_shop_product_index', { 'slug': item.taxon.slug }) }}"{{ attributes }}>{{ item.label }}</a>
+{% else %}
+    <span{{ attributes }}>{{ item.label }}</span>
+{% endif %}

@@ -7,5 +7,11 @@
 
             <tag name="doctrine.event_listener" event="loadClassMetadata"/>
         </service>
+
+        <service id="Setono\SyliusNavigationPlugin\EventListener\Doctrine\PreserveTaxonItemLabelListener">
+            <argument type="service" id="setono_sylius_navigation.repository.taxon_item"/>
+
+            <tag name="doctrine.event_listener" event="preRemove"/>
+        </service>
     </services>
 </container>

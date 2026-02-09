@@ -55,5 +55,6 @@ setono_sylius_navigation:
         select_item_type: Wybierz typ elementu
         select_taxon: Wybierz takson
         simple_item: Prosty element
+        orphaned_taxon_description: Takson powiązany z tym elementem został usunięty.
         taxon: Takson
         taxon_item: Element taksonu

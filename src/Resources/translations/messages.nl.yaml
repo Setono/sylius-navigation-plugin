@@ -55,5 +55,6 @@ setono_sylius_navigation:
         select_item_type: Selecteer itemtype
         select_taxon: Selecteer een taxon
         simple_item: Eenvoudig item
+        orphaned_taxon_description: Het taxon dat aan dit item is gekoppeld, is verwijderd.
         taxon: Taxon
         taxon_item: Taxon-item

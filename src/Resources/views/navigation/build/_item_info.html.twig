@@ -47,6 +47,21 @@
         </div>
     {% endif %}
 
+    {# Orphaned Taxon Warning #}
+    {% if item.taxon is defined and item.taxon is null %}
+        <div class="item">
+            <i class="yellow warning sign icon"></i>
+            <div class="content">
+                <div class="header">{{ 'setono_sylius_navigation.ui.linked_taxon'|trans }}</div>
+                <div class="description">
+                    <div class="ui small yellow message" style="margin-top: 0.25rem;">
+                        {{ 'setono_sylius_navigation.ui.orphaned_taxon_description'|trans }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {# Link details (if LinkItem) #}
     {% if item.url is defined and item.url is not null %}
         <div class="item">

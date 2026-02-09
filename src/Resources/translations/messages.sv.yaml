@@ -55,5 +55,6 @@ setono_sylius_navigation:
         select_item_type: Välj objekttyp
         select_taxon: Välj ett taxon
         simple_item: Enkelt objekt
+        orphaned_taxon_description: Taxonet som är kopplat till detta objekt har tagits bort.
         taxon: Taxon
         taxon_item: Taxon-objekt

@@ -83,5 +83,6 @@ setono_sylius_navigation:
             building: Building...
             completed: Completed
             failed: Failed
+        orphaned_taxon_description: The taxon linked to this item has been deleted.
         taxon: Taxon
         taxon_item: Taxon item

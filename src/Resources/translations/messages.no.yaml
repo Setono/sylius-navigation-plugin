@@ -55,5 +55,6 @@ setono_sylius_navigation:
         select_item_type: Velg elementtype
         select_taxon: Velg en taksonomi
         simple_item: Enkelt element
+        orphaned_taxon_description: Taksonomien knyttet til dette elementet har blitt slettet.
         taxon: Taksonomi
         taxon_item: Taksonomi-element
