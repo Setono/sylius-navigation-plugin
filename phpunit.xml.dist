@@ -8,8 +8,12 @@
         </include>
     </coverage>
     <testsuites>
-        <testsuite name="SetonoSyliusNavigationPlugin Test Suite">
+        <testsuite name="unit">
             <directory>tests</directory>
+            <exclude>tests/Functional</exclude>
+        </testsuite>
+        <testsuite name="functional">
+            <directory>tests/Functional</directory>
         </testsuite>
     </testsuites>
     <php>

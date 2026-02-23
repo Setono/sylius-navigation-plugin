@@ -12,5 +12,10 @@
         }
     },
     "minMsi": 20.73,
-    "minCoveredMsi": 100.00
+    "minCoveredMsi": 100.00,
+    "phpUnit": {
+        "configDir": ".",
+        "customPath": "vendor/bin/phpunit"
+    },
+    "testFrameworkOptions": "--testsuite=unit"
 }
