@@ -62,10 +62,6 @@ final class NavigationBuilder implements NavigationBuilderInterface
             // Create items in order (parents before children)
             foreach ($taxons as $currentTaxon) {
                 $item = $this->createItemFromTaxon($currentTaxon, $navigation);
-                $manager->persist($item);
-                $manager->flush(); // Flush immediately to get ID for closure queries
-
-                $taxonToItemStorage->attach($currentTaxon, $item);
 
                 // Determine parent item
                 $parent = $currentTaxon->getParent();
@@ -77,6 +73,13 @@ final class NavigationBuilder implements NavigationBuilderInterface
                     // If we're not including root and the parent is the root, this should be a root item (no parent)
                     $parentItem = null;
                 }
+
+                $item->setPosition($currentTaxon->getPosition() ?? 0);
+
+                $manager->persist($item);
+                $manager->flush(); // Flush immediately to get ID for closure queries
+
+                $taxonToItemStorage->attach($currentTaxon, $item);
 
                 $this->closureManager->createItem($item, $parentItem, flush: true);
             }
@@ -140,8 +143,10 @@ final class NavigationBuilder implements NavigationBuilderInterface
             }
         }
 
-        // Order by left to ensure parents come before children
-        $qb->orderBy('t.left', 'ASC');
+        // Order by level first to ensure parents come before children,
+        // then by position to preserve taxon sibling order
+        $qb->orderBy('t.level', 'ASC')
+            ->addOrderBy('t.position', 'ASC');
 
         /** @var list<TaxonInterface> $result */
         $result = $qb->getQuery()->getResult();

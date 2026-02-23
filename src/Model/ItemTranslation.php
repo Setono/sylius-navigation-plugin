@@ -24,6 +24,6 @@ class ItemTranslation extends AbstractTranslation implements ItemTranslationInte
 
     public function setLabel(?string $label): void
     {
-        $this->label = $label;
+        $this->label = '' === $label ? null : $label;
     }
 }

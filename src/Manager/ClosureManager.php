@@ -118,6 +118,11 @@ final class ClosureManager implements ClosureManagerInterface
             }
         }
 
+        // Flush removals before creating new relationships to avoid
+        // unique constraint violations when an item is moved back to
+        // the same parent (or shares ancestor paths with the old position)
+        $manager->flush();
+
         // Create new relationships with the new parent
         if (null !== $newParent) {
             $ancestorClosures = $this->closureRepository->findAncestors($newParent);
