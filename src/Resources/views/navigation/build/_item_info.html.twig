@@ -119,7 +119,30 @@
             <div class="header">{{ 'setono_sylius_navigation.ui.labels_by_locale'|trans }}</div>
             <div class="description">
                 <div class="ui small divided list" style="margin-top: 0.5rem;">
-                    {% if item.translations is not empty %}
+                    {% if item.taxon is defined and item.taxon is not null %}
+                        {% for taxonTranslation in item.taxon.translations %}
+                            {% set locale = taxonTranslation.locale %}
+                            {% set itemLabel = null %}
+                            {% for itemTranslation in item.translations %}
+                                {% if itemTranslation.locale == locale and itemTranslation.label %}
+                                    {% set itemLabel = itemTranslation.label %}
+                                {% endif %}
+                            {% endfor %}
+                            <div class="item">
+                                <div class="content">
+                                    {{ flags.fromLocaleCode(locale) }}
+                                    <strong>{{ locale|sylius_locale_name }}:</strong>
+                                    {% if itemLabel %}
+                                        {{ itemLabel }}
+                                    {% else %}
+                                        <span class="ui tiny grey label">
+                                            {{ taxonTranslation.name }} <i>({{ 'setono_sylius_navigation.ui.from_taxon'|trans }})</i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% elseif item.translations is not empty %}
                         {% for translation in item.translations %}
                             <div class="item">
                                 <div class="content">
@@ -129,25 +152,9 @@
                                         {{ translation.label }}
                                     {% else %}
                                         <span class="ui tiny grey label">
-                                            {% if item.taxon is defined and item.taxon is not null %}
-                                                {{ item.taxon.translation(translation.locale).name ?? item.taxon.name }} <i>({{ 'setono_sylius_navigation.ui.from_taxon'|trans }})</i>
-                                            {% else %}
-                                                <i>{{ 'setono_sylius_navigation.ui.no_label'|trans }}</i>
-                                            {% endif %}
+                                            <i>{{ 'setono_sylius_navigation.ui.no_label'|trans }}</i>
                                         </span>
                                     {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% elseif item.taxon is defined and item.taxon is not null %}
-                        {% for translation in item.taxon.translations %}
-                            <div class="item">
-                                <div class="content">
-                                    {{ flags.fromLocaleCode(translation.locale) }}
-                                    <strong>{{ translation.locale|sylius_locale_name }}:</strong>
-                                    <span class="ui tiny grey label">
-                                        {{ translation.name }} <i>({{ 'setono_sylius_navigation.ui.from_taxon'|trans }})</i>
-                                    </span>
                                 </div>
                             </div>
                         {% endfor %}
