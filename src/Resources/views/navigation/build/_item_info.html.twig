@@ -120,12 +120,24 @@
             <div class="description">
                 <div class="ui small divided list" style="margin-top: 0.5rem;">
                     {% if item.taxon is defined and item.taxon is not null %}
+                        {% set locales = {} %}
                         {% for taxonTranslation in item.taxon.translations %}
-                            {% set locale = taxonTranslation.locale %}
+                            {% set locales = locales|merge({ (taxonTranslation.locale): true }) %}
+                        {% endfor %}
+                        {% for itemTranslation in item.translations %}
+                            {% set locales = locales|merge({ (itemTranslation.locale): true }) %}
+                        {% endfor %}
+                        {% for locale, _ in locales %}
                             {% set itemLabel = null %}
                             {% for itemTranslation in item.translations %}
                                 {% if itemTranslation.locale == locale and itemTranslation.label %}
                                     {% set itemLabel = itemTranslation.label %}
+                                {% endif %}
+                            {% endfor %}
+                            {% set taxonName = null %}
+                            {% for taxonTranslation in item.taxon.translations %}
+                                {% if taxonTranslation.locale == locale and taxonTranslation.name %}
+                                    {% set taxonName = taxonTranslation.name %}
                                 {% endif %}
                             {% endfor %}
                             <div class="item">
@@ -134,9 +146,13 @@
                                     <strong>{{ locale|sylius_locale_name }}:</strong>
                                     {% if itemLabel %}
                                         {{ itemLabel }}
+                                    {% elseif taxonName %}
+                                        <span class="ui tiny grey label">
+                                            {{ taxonName }} <i>({{ 'setono_sylius_navigation.ui.from_taxon'|trans }})</i>
+                                        </span>
                                     {% else %}
                                         <span class="ui tiny grey label">
-                                            {{ taxonTranslation.name }} <i>({{ 'setono_sylius_navigation.ui.from_taxon'|trans }})</i>
+                                            <i>{{ 'setono_sylius_navigation.ui.no_label'|trans }}</i>
                                         </span>
                                     {% endif %}
                                 </div>
