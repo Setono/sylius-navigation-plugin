@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
+use Setono\SyliusNavigationPlugin\Model\ItemTranslationInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
@@ -503,10 +504,15 @@ final class BuildController extends AbstractController
             $liClasses[] = 'item-channel-hidden';
         }
 
+        $locale = null;
+        if ($channel instanceof \Sylius\Component\Core\Model\ChannelInterface) {
+            $locale = $channel->getDefaultLocale()?->getCode();
+        }
+
         // jsTree-compatible format
         $node = [
             'id' => (string) $item->getId(), // jsTree expects string IDs
-            'text' => $this->getItemLabel($item), // jsTree uses 'text' instead of 'label'
+            'text' => $this->getItemLabel($item, $locale), // jsTree uses 'text' instead of 'label'
             'type' => $itemType->name, // jsTree types for icons
             'state' => [
                 'opened' => false, // Don't auto-expand for lazy loading
@@ -546,9 +552,29 @@ final class BuildController extends AbstractController
         return $item->getChannels()->isEmpty() || $item->hasChannel($channel);
     }
 
-    private function getItemLabel(ItemInterface $item): ?string
+    private function getItemLabel(ItemInterface $item, ?string $locale = null): ?string
     {
-        return $item->getLabel();
+        if (null === $locale) {
+            return $item->getLabel();
+        }
+
+        $translation = $item->getTranslation($locale);
+        $label = $translation instanceof ItemTranslationInterface ? $translation->getLabel() : null;
+
+        if ((null === $label || '' === $label) && $item instanceof TaxonItemInterface) {
+            $taxon = $item->getTaxon();
+            if (null === $taxon) {
+                return null;
+            }
+
+            $taxonTranslation = $taxon->getTranslation($locale);
+
+            return $taxonTranslation instanceof \Sylius\Component\Taxonomy\Model\TaxonTranslationInterface
+                ? $taxonTranslation->getName()
+                : $taxon->getName();
+        }
+
+        return $label;
     }
 
     /**
