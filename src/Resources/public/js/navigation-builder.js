@@ -424,7 +424,13 @@ class NavigationBuilder {
                 // Close modal
                 jQuery('#add-item-modal').modal('hide');
 
-                // Refresh the tree
+                // Refresh the tree and expand the parent node
+                const parentId = this.currentParentId;
+                if (parentId) {
+                    jQuery('#navigation-tree').one('refresh.jstree', () => {
+                        this.tree.open_node(parentId);
+                    });
+                }
                 this.tree.refresh();
 
                 this.showSuccess('Item added successfully');
