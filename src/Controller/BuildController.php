@@ -224,6 +224,7 @@ final class BuildController extends AbstractController
         FormFactoryInterface $formFactory,
         RepositoryInterface $taxonRepository,
         ClosureManagerInterface $closureManager,
+        ClosureRepositoryInterface $closureRepository,
     ): JsonResponse {
         try {
             // Determine item type from form data
@@ -278,6 +279,14 @@ final class BuildController extends AbstractController
             if ($parentId !== null) {
                 $parent = $this->getManager($item)->getRepository(ItemInterface::class)->find($parentId);
             }
+
+            // Set position to the end of the sibling list
+            if ($parent !== null) {
+                $siblings = $this->getDirectChildren($parent, $closureRepository);
+            } else {
+                $siblings = $closureRepository->findRootItems($navigation);
+            }
+            $item->setPosition(count($siblings));
 
             $this->getManager($item)->persist($item);
             $this->getManager($item)->flush();
