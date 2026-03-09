@@ -427,7 +427,8 @@ class NavigationBuilder {
                 // Refresh the tree and expand the parent node
                 const parentId = this.currentParentId;
                 if (parentId) {
-                    this.tree.refresh_node(parentId);
+                    const node = this.tree.get_node(parentId);
+                    node.state.loaded = false;
                     this.tree.open_node(parentId);
                 } else {
                     this.tree.refresh();
