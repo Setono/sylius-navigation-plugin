@@ -93,7 +93,15 @@ final class GraphBuilder implements GraphBuilderInterface
             }
         }
 
-        // Return all root nodes (nodes without parents)
-        return array_values(array_filter($nodes, static fn (Node $node) => !$node->hasParents()));
+        // Sort children of each node by position
+        foreach ($nodes as $node) {
+            $node->sortChildren();
+        }
+
+        // Return all root nodes (nodes without parents), sorted by position
+        $roots = array_filter($nodes, static fn (Node $node) => !$node->hasParents());
+        usort($roots, static fn (Node $a, Node $b) => ($a->item?->getPosition() ?? 0) <=> ($b->item?->getPosition() ?? 0));
+
+        return $roots;
     }
 }

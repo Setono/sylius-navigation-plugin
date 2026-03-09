@@ -56,6 +56,11 @@ final class Node implements \Stringable, \Countable, \IteratorAggregate
         $this->children[] = $child;
     }
 
+    public function sortChildren(): void
+    {
+        usort($this->children, static fn (self $a, self $b) => ($a->item?->getPosition() ?? 0) <=> ($b->item?->getPosition() ?? 0));
+    }
+
     public function getDepth(): int
     {
         if (!$this->hasParents()) {
