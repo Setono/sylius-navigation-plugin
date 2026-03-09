@@ -427,11 +427,11 @@ class NavigationBuilder {
                 // Refresh the tree and expand the parent node
                 const parentId = this.currentParentId;
                 if (parentId) {
-                    jQuery('#navigation-tree').one('refresh.jstree', () => {
-                        this.tree.open_node(parentId);
-                    });
+                    this.tree.refresh_node(parentId);
+                    this.tree.open_node(parentId);
+                } else {
+                    this.tree.refresh();
                 }
-                this.tree.refresh();
 
                 this.showSuccess('Item added successfully');
             } else {
