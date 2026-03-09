@@ -108,9 +108,14 @@ final class ClosureManager implements ClosureManagerInterface
 
     public function moveItem(ItemInterface $item, ItemInterface $newParent = null, int $position = 0): void
     {
+        $manager = $this->getManager($item);
+
+        // Capture old position and parent BEFORE making any changes
+        $oldPosition = $item->getPosition();
+        $oldParent = $this->findParent($item);
+
         // Remove existing closure relationships for this item
         $existingClosures = $this->closureRepository->findAncestors($item);
-        $manager = $this->getManager($item);
 
         foreach ($existingClosures as $closure) {
             if ($closure->getDepth() > 0) { // Don't remove self-reference
@@ -136,21 +141,67 @@ final class ClosureManager implements ClosureManagerInterface
             }
         }
 
-        // Update position of the moved item
-        $item->setPosition($position);
+        // Step 1: Close the gap at the old position (decrement old siblings after old position)
+        $this->decrementSiblingPositions($item, $oldParent, $oldPosition);
 
-        // Optimize: Only update positions for affected siblings using bulk SQL update
-        // This is much faster than loading all siblings into memory
-        $this->updateSiblingPositions($item, $newParent, $position);
+        // Step 2: Make space at the new position (increment new siblings at/after new position)
+        $this->incrementSiblingPositions($item, $newParent, $position);
+
+        // Step 3: Set the item's new position
+        $item->setPosition($position);
 
         $manager->flush();
     }
 
     /**
-     * Update sibling positions efficiently using bulk SQL update
-     * Only updates items at or after the target position
+     * Find the direct parent of an item using the closure table.
+     * Must be called BEFORE removing closures.
      */
-    private function updateSiblingPositions(
+    private function findParent(ItemInterface $item): ?ItemInterface
+    {
+        $parentClosure = $this->closureRepository->findOneBy([
+            'descendant' => $item,
+            'depth' => 1,
+        ]);
+
+        return $parentClosure?->getAncestor();
+    }
+
+    /**
+     * Close the gap left by removing an item from its old position.
+     * Decrements positions of siblings that were after the old position.
+     */
+    private function decrementSiblingPositions(
+        ItemInterface $item,
+        ?ItemInterface $oldParent,
+        int $oldPosition,
+    ): void {
+        $navigation = $item->getNavigation();
+        if (null === $navigation) {
+            return;
+        }
+
+        $manager = $this->getManager($item);
+        $qb = $manager->createQueryBuilder();
+        $qb->update(ItemInterface::class, 'i')
+            ->set('i.position', 'i.position - 1')
+            ->where('i.navigation = :navigation')
+            ->andWhere('i.position > :position')
+            ->andWhere('i.id != :itemId')
+            ->setParameter('navigation', $navigation)
+            ->setParameter('position', $oldPosition)
+            ->setParameter('itemId', $item->getId());
+
+        $this->addParentConstraint($qb, $oldParent);
+
+        $qb->getQuery()->execute();
+    }
+
+    /**
+     * Make space for an item at the new position.
+     * Increments positions of siblings at or after the new position.
+     */
+    private function incrementSiblingPositions(
         ItemInterface $item,
         ?ItemInterface $newParent,
         int $position,
@@ -171,8 +222,19 @@ final class ClosureManager implements ClosureManagerInterface
             ->setParameter('position', $position)
             ->setParameter('itemId', $item->getId());
 
-        // Add parent constraint
-        if (null === $newParent) {
+        $this->addParentConstraint($qb, $newParent);
+
+        $qb->getQuery()->execute();
+    }
+
+    /**
+     * Add parent constraint to a query builder for filtering siblings.
+     */
+    private function addParentConstraint(
+        \Doctrine\ORM\QueryBuilder $qb,
+        ?ItemInterface $parent,
+    ): void {
+        if (null === $parent) {
             // Root items: items that don't have parent closure relationships (depth > 0)
             $qb->andWhere('NOT EXISTS (
                 SELECT 1 FROM ' . $this->closureRepository->getClassName() . ' c
@@ -186,9 +248,7 @@ final class ClosureManager implements ClosureManagerInterface
                 AND c.ancestor = :parentId
                 AND c.depth = 1
             )')
-                ->setParameter('parentId', $newParent->getId());
+                ->setParameter('parentId', $parent->getId());
         }
-
-        $qb->getQuery()->execute();
     }
 }
