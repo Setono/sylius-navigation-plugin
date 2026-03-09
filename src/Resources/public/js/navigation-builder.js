@@ -105,6 +105,7 @@ class NavigationBuilder {
                     }
                 },
                 'check_callback': true, // Allow modifications
+                'multiple': false, // Disable multi-select to prevent undefined behavior on drag/delete
                 'themes': {
                     'name': 'default',
                     'responsive': true,
