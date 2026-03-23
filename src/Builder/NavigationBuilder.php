@@ -159,6 +159,10 @@ final class NavigationBuilder implements NavigationBuilderInterface
         $item = $this->taxonItemFactory->createFromTaxon($taxon);
         $item->setNavigation($navigation);
 
+        foreach ($navigation->getChannels() as $channel) {
+            $item->addChannel($channel);
+        }
+
         return $item;
     }
 }
