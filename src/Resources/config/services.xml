@@ -12,6 +12,7 @@
         <import resource="services/manager.xml"/>
         <import resource="services/menu.xml"/>
         <import resource="services/messenger.xml"/>
+        <import resource="services/provider.xml"/>
         <import resource="services/registry.xml"/>
         <import resource="services/renderer.xml"/>
         <import resource="services/twig.xml"/>

@@ -26,6 +26,8 @@
 
         <service id="Setono\SyliusNavigationPlugin\Controller\BuildController">
             <argument type="service" id="doctrine"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Provider\NavigationTreeProviderInterface"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Provider\ItemLabelProviderInterface"/>
             <tag name="controller.service_arguments"/>
 
             <call method="setContainer">

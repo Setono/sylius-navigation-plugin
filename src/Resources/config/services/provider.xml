@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <defaults public="true"/>
+
+        <service id="Setono\SyliusNavigationPlugin\Provider\ItemLabelProvider">
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Setono\SyliusNavigationPlugin\Provider\ItemLabelProviderInterface" alias="Setono\SyliusNavigationPlugin\Provider\ItemLabelProvider"/>
+
+        <service id="Setono\SyliusNavigationPlugin\Provider\NavigationTreeProvider">
+            <argument type="service" id="setono_sylius_navigation.repository.closure"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface"/>
+            <argument type="service" id="Setono\SyliusNavigationPlugin\Provider\ItemLabelProviderInterface"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Setono\SyliusNavigationPlugin\Provider\NavigationTreeProviderInterface" alias="Setono\SyliusNavigationPlugin\Provider\NavigationTreeProvider"/>
+    </services>
+</container>

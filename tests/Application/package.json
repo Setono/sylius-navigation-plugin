@@ -8,6 +8,7 @@
         "slick-carousel": "^1.8"
     },
     "devDependencies": {
+        "@playwright/test": "^1.58.2",
         "@symfony/webpack-encore": "^1.8",
         "eslint": "^8.18",
         "eslint-config-airbnb-base": "^15.0",
@@ -19,7 +20,10 @@
     "scripts": {
         "dev": "encore dev",
         "build": "encore production",
-        "watch": "encore dev --watch"
+        "watch": "encore dev --watch",
+        "e2e": "playwright test",
+        "e2e:headed": "playwright test --headed",
+        "e2e:ui": "playwright test --ui"
     },
     "repository": {
         "type": "git",

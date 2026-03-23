@@ -7,6 +7,13 @@
 
 /.phpunit.result.cache
 
+# Playwright
+/tests/e2e/.auth/*.json
+/test-results/
+/tests/Application/test-results/
+/playwright-report/
+/tests/Application/playwright-report/
+
 # Symfony CLI https://symfony.com/doc/current/setup/symfony_server.html#different-php-settings-per-project
 /.php-version
 /php.ini

@@ -16,6 +16,8 @@ use Setono\SyliusNavigationPlugin\Model\Item;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
 use Setono\SyliusNavigationPlugin\Model\Navigation;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
+use Setono\SyliusNavigationPlugin\Provider\ItemLabelProviderInterface;
+use Setono\SyliusNavigationPlugin\Provider\NavigationTreeProviderInterface;
 use Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer;
 use Setono\SyliusNavigationPlugin\Renderer\NavigationRendererInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -45,7 +47,7 @@ final class BuildControllerCacheInvalidationTest extends TestCase
         $cachedRenderer = $this->createCachedRenderer($cachePool->reveal());
 
         $managerRegistry = $this->prophesize(ManagerRegistry::class);
-        $controller = new BuildController($managerRegistry->reveal());
+        $controller = new BuildController($managerRegistry->reveal(), $this->prophesize(NavigationTreeProviderInterface::class)->reveal(), $this->prophesize(ItemLabelProviderInterface::class)->reveal());
 
         $response = $controller->deleteItemAction(
             $navigation,
@@ -69,7 +71,7 @@ final class BuildControllerCacheInvalidationTest extends TestCase
         $closureManager->removeTree($item)->shouldBeCalledOnce();
 
         $managerRegistry = $this->prophesize(ManagerRegistry::class);
-        $controller = new BuildController($managerRegistry->reveal());
+        $controller = new BuildController($managerRegistry->reveal(), $this->prophesize(NavigationTreeProviderInterface::class)->reveal(), $this->prophesize(ItemLabelProviderInterface::class)->reveal());
 
         $response = $controller->deleteItemAction(
             $navigation,
@@ -107,7 +109,7 @@ final class BuildControllerCacheInvalidationTest extends TestCase
         $managerRegistry = $this->prophesize(ManagerRegistry::class);
         $managerRegistry->getManagerForClass($navigation::class)->willReturn($entityManager->reveal());
 
-        $controller = new BuildController($managerRegistry->reveal());
+        $controller = new BuildController($managerRegistry->reveal(), $this->prophesize(NavigationTreeProviderInterface::class)->reveal(), $this->prophesize(ItemLabelProviderInterface::class)->reveal());
 
         $request = new Request(
             content: json_encode([
@@ -147,7 +149,7 @@ final class BuildControllerCacheInvalidationTest extends TestCase
         $managerRegistry = $this->prophesize(ManagerRegistry::class);
         $managerRegistry->getManagerForClass($navigation::class)->willReturn($entityManager->reveal());
 
-        $controller = new BuildController($managerRegistry->reveal());
+        $controller = new BuildController($managerRegistry->reveal(), $this->prophesize(NavigationTreeProviderInterface::class)->reveal(), $this->prophesize(ItemLabelProviderInterface::class)->reveal());
 
         $request = new Request(
             content: json_encode([

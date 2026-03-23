@@ -83,4 +83,25 @@ class ClosureRepository extends EntityRepository implements ClosureRepositoryInt
 
         return $objs;
     }
+
+    public function findDirectChildren(ItemInterface $item): array
+    {
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('item')
+            ->from(ItemInterface::class, 'item')
+            ->join($this->getClassName(), 'c', 'WITH', 'c.descendant = item')
+            ->where('c.ancestor = :parent')
+            ->andWhere('c.depth = 1')
+            ->orderBy('item.position', 'ASC')
+            ->setParameter('parent', $item)
+        ;
+
+        $objs = $qb->getQuery()->getResult();
+
+        Assert::isArray($objs);
+        Assert::isList($objs);
+        Assert::allIsInstanceOf($objs, ItemInterface::class);
+
+        return $objs;
+    }
 }

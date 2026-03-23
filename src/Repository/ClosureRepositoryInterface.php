@@ -41,4 +41,11 @@ interface ClosureRepositoryInterface extends RepositoryInterface
      * @return list<ItemInterface>
      */
     public function findRootItems(NavigationInterface $navigation): array;
+
+    /**
+     * Will return direct children (depth = 1) of the given item, ordered by position
+     *
+     * @return list<ItemInterface>
+     */
+    public function findDirectChildren(ItemInterface $item): array;
 }

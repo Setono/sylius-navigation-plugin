@@ -8,9 +8,10 @@ use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusNavigationPlugin\Manager\ClosureManagerInterface;
 use Setono\SyliusNavigationPlugin\Model\ItemInterface;
-use Setono\SyliusNavigationPlugin\Model\ItemTranslationInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
+use Setono\SyliusNavigationPlugin\Provider\ItemLabelProviderInterface;
+use Setono\SyliusNavigationPlugin\Provider\NavigationTreeProviderInterface;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
 use Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
@@ -29,8 +30,11 @@ final class BuildController extends AbstractController
 {
     use ORMTrait;
 
-    public function __construct(ManagerRegistry $managerRegistry)
-    {
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        private readonly NavigationTreeProviderInterface $navigationTreeProvider,
+        private readonly ItemLabelProviderInterface $itemLabelProvider,
+    ) {
         $this->managerRegistry = $managerRegistry;
     }
 
@@ -58,14 +62,10 @@ final class BuildController extends AbstractController
     public function getTreeAction(
         Request $request,
         NavigationInterface $navigation,
-        ClosureRepositoryInterface $closureRepository,
-        ItemTypeRegistryInterface $itemTypeRegistry,
         RepositoryInterface $channelRepository,
     ): JsonResponse {
-        // Get node ID from request (for lazy loading)
         $nodeId = $request->query->get('id', '#');
 
-        // Resolve optional channel filter
         $channel = null;
         $channelId = $request->query->get('channel');
         if (\is_string($channelId) && '' !== $channelId) {
@@ -76,10 +76,8 @@ final class BuildController extends AbstractController
         }
 
         if ($nodeId === '#') {
-            // Load root level (first level items)
-            $tree = $this->buildTreeStructure($navigation, $closureRepository, $itemTypeRegistry, false, $channel); // false = don't load children recursively
+            $tree = $this->navigationTreeProvider->getTree($navigation, false, $channel);
         } else {
-            // Load children of specific node
             $itemManager = $this->getManager($navigation);
             $parentItem = $itemManager->getRepository(ItemInterface::class)->find((int) $nodeId);
 
@@ -87,11 +85,7 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => 'Parent item not found'], Response::HTTP_NOT_FOUND);
             }
 
-            $children = $this->getDirectChildren($parentItem, $closureRepository);
-            $tree = [];
-            foreach ($children as $child) {
-                $tree[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, false, $channel); // false = don't load children recursively
-            }
+            $tree = $this->navigationTreeProvider->getChildren($parentItem, false, $channel);
         }
 
         return new JsonResponse($tree);
@@ -104,54 +98,17 @@ final class BuildController extends AbstractController
     public function searchItemsAction(
         Request $request,
         NavigationInterface $navigation,
-        ClosureRepositoryInterface $closureRepository,
     ): JsonResponse {
-        // jsTree sends 'str' by default, but also support 'q' for compatibility
         $searchTerm = $request->query->get('str', $request->query->get('q', ''));
         if (!is_string($searchTerm) || '' === $searchTerm) {
             return new JsonResponse([]);
         }
 
-        // Get all root items and search through them
-        $rootItems = $closureRepository->findRootItems($navigation);
-        $matchingItems = [];
-
-        foreach ($rootItems as $rootItem) {
-            $matchingItems = array_merge($matchingItems, $this->searchItemsRecursive($rootItem, $searchTerm, $closureRepository));
-        }
-
-        // jsTree expects an array of node IDs (as strings)
-        // We need to include both the matched nodes AND all their parent nodes
-        // so jsTree can load and expand the tree to show the results
-        $nodeIds = [];
-        foreach ($matchingItems as $item) {
-            // Add the matched node
-            $nodeIds[] = (string) $item->getId();
-
-            // Add all parent nodes up to the root using closure table
-            // Find closures where this item is the descendant (these give us ancestors/parents)
-            $parentClosures = $closureRepository->findBy([
-                'descendant' => $item,
-            ]);
-
-            foreach ($parentClosures as $closure) {
-                $ancestor = $closure->getAncestor();
-                // Don't include the item itself (self-reference)
-                if ($ancestor && $ancestor !== $item) {
-                    $parentId = (string) $ancestor->getId();
-                    if (!in_array($parentId, $nodeIds, true)) {
-                        $nodeIds[] = $parentId;
-                    }
-                }
-            }
-        }
-
-        return new JsonResponse($nodeIds);
+        return new JsonResponse($this->navigationTreeProvider->searchItems($navigation, $searchTerm));
     }
 
     public function getItemTypesAction(ItemTypeRegistryInterface $itemTypeRegistry): JsonResponse
     {
-        // Get all registered types with label and options
         $itemTypes = array_map(
             static fn ($itemType) => [
                 'label' => $itemType->label,
@@ -182,11 +139,8 @@ final class BuildController extends AbstractController
             $itemType = $itemTypeRegistry->get($type);
             $formClass = $itemType->form;
 
-            // Check if we're editing an existing item
             $itemId = $request->query->get('itemId');
             if ($itemId !== null) {
-                // Load existing item for editing
-                // We need a navigation to get the manager, so get any navigation (they all share the same manager)
                 $anyNavigation = $navigationRepository->findOneBy([]);
                 if (!$anyNavigation instanceof NavigationInterface) {
                     return new JsonResponse(['error' => 'No navigation found in the system'], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -228,7 +182,6 @@ final class BuildController extends AbstractController
         ClosureRepositoryInterface $closureRepository,
     ): JsonResponse {
         try {
-            // Determine item type from form data
             $type = $request->request->get('type');
 
             if (!\is_string($type)) {
@@ -243,7 +196,6 @@ final class BuildController extends AbstractController
             $item = $itemType->factory->createNew();
             $form = $formFactory->create($itemType->form, $item);
 
-            // Process the form data using handleRequest
             $form->handleRequest($request);
 
             if (!$form->isValid()) {
@@ -255,18 +207,13 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => 'Form validation failed', 'details' => $errors], Response::HTTP_BAD_REQUEST);
             }
 
-            // The form automatically maps data to the entity when using handleRequest
-
-            // Handle label (unmapped field)
             $label = $request->request->get('label');
             if (\is_string($label)) {
                 $item->setLabel($label);
             }
 
-            // Set navigation on the item
             $item->setNavigation($navigation);
 
-            // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
                 $taxon = $taxonRepository->find($request->request->get('taxon_id'));
                 if ($taxon instanceof TaxonInterface) {
@@ -281,9 +228,8 @@ final class BuildController extends AbstractController
                 $parent = $this->getManager($item)->getRepository(ItemInterface::class)->find($parentId);
             }
 
-            // Set position to the end of the sibling list
             if ($parent !== null) {
-                $siblings = $this->getDirectChildren($parent, $closureRepository);
+                $siblings = $closureRepository->findDirectChildren($parent);
             } else {
                 $siblings = $closureRepository->findRootItems($navigation);
             }
@@ -294,12 +240,11 @@ final class BuildController extends AbstractController
 
             $closureManager->createItem($item, $parent);
 
-            // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
                 'success' => true,
                 'item' => [
                     'id' => $item->getId(),
-                    'label' => $this->getItemLabel($item),
+                    'label' => $this->itemLabelProvider->getLabel($item),
                     'type' => $itemTypeRegistry->getByEntity($item::class)->name,
                     'enabled' => $item->isEnabled(),
                 ],
@@ -323,12 +268,10 @@ final class BuildController extends AbstractController
         RepositoryInterface $taxonRepository,
     ): JsonResponse {
         try {
-            // Get the appropriate form type from registry based on item entity class
             $itemType = $itemTypeRegistry->getByEntity($item::class);
             $formClass = $itemType->form;
             $form = $formFactory->create($formClass, $item);
 
-            // Process the form data using handleRequest
             $form->handleRequest($request);
 
             if (!$form->isValid()) {
@@ -340,15 +283,11 @@ final class BuildController extends AbstractController
                 return new JsonResponse(['error' => 'Form validation failed', 'details' => $errors], Response::HTTP_BAD_REQUEST);
             }
 
-            // The form automatically maps data to the entity when using handleRequest
-
-            // Handle label (unmapped field)
             $label = $request->request->get('label');
             if (\is_string($label)) {
                 $item->setLabel($label);
             }
 
-            // Handle taxon_id for TaxonItem (since it's unmapped)
             if ($item instanceof TaxonItemInterface && $request->request->get('taxon_id')) {
                 $taxon = $taxonRepository->find($request->request->get('taxon_id'));
                 if ($taxon instanceof TaxonInterface) {
@@ -358,12 +297,11 @@ final class BuildController extends AbstractController
 
             $this->getManager($item)->flush();
 
-            // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
                 'success' => true,
                 'item' => [
                     'id' => $item->getId(),
-                    'label' => $this->getItemLabel($item),
+                    'label' => $this->itemLabelProvider->getLabel($item),
                     'type' => $itemTypeRegistry->getByEntity($item::class)->name,
                     'enabled' => $item->isEnabled(),
                 ],
@@ -393,7 +331,6 @@ final class BuildController extends AbstractController
 
             $cachedRenderer?->invalidate($navigation);
 
-            // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
                 'success' => true,
             ]);
@@ -463,185 +400,5 @@ final class BuildController extends AbstractController
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    /**
-     * @return array<int, mixed>
-     */
-    private function buildTreeStructure(
-        NavigationInterface $navigation,
-        ClosureRepositoryInterface $closureRepository,
-        ItemTypeRegistryInterface $itemTypeRegistry,
-        bool $recursive = true,
-        ?ChannelInterface $channel = null,
-    ): array {
-        // Get root items (items with no parent)
-        $rootItems = $closureRepository->findRootItems($navigation);
-        $childrenArray = [];
-
-        foreach ($rootItems as $rootItem) {
-            $childrenArray[] = $this->buildItemTree($rootItem, $closureRepository, $itemTypeRegistry, $recursive, $channel);
-        }
-
-        return $childrenArray;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildItemTree(
-        ItemInterface $item,
-        ClosureRepositoryInterface $closureRepository,
-        ItemTypeRegistryInterface $itemTypeRegistry,
-        bool $recursive = true,
-        ?ChannelInterface $channel = null,
-    ): array {
-        $children = $this->getDirectChildren($item, $closureRepository);
-        $hasChildren = count($children) > 0;
-        $childrenArray = [];
-
-        if ($recursive) {
-            // Load all children recursively
-            foreach ($children as $child) {
-                $childrenArray[] = $this->buildItemTree($child, $closureRepository, $itemTypeRegistry, true, $channel);
-            }
-        }
-
-        // Determine the actual item type for form selection
-        $itemType = $itemTypeRegistry->getByEntity($item::class);
-
-        $isChannelHidden = $channel !== null && !$this->isItemVisibleOnChannel($item, $channel);
-
-        $liClasses = [];
-        if (!$item->isEnabled()) {
-            $liClasses[] = 'item-disabled';
-        }
-        if ($isChannelHidden) {
-            $liClasses[] = 'item-channel-hidden';
-        }
-
-        $locale = null;
-        if ($channel instanceof \Sylius\Component\Core\Model\ChannelInterface) {
-            $locale = $channel->getDefaultLocale()?->getCode();
-        }
-
-        // jsTree-compatible format
-        $node = [
-            'id' => (string) $item->getId(), // jsTree expects string IDs
-            'text' => $this->getItemLabel($item, $locale), // jsTree uses 'text' instead of 'label'
-            'type' => $itemType->name, // jsTree types for icons
-            'state' => [
-                'opened' => false, // Don't auto-expand for lazy loading
-            ],
-            'li_attr' => [
-                'class' => implode(' ', $liClasses),
-            ],
-            'a_attr' => [
-                'data-enabled' => $item->isEnabled() ? 'true' : 'false', // Custom attribute for enabled status
-                'data-item-type' => $itemType->name, // Store actual item type for edit forms
-            ],
-            'data' => [ // Custom data for our application
-                'enabled' => $item->isEnabled(),
-                'taxon_id' => $item instanceof TaxonItemInterface ? $item->getTaxon()?->getId() : null,
-                'item_type' => $itemType->name, // Store actual item type
-            ],
-        ];
-
-        if ($recursive) {
-            // Include loaded children
-            $node['children'] = $childrenArray;
-        } else {
-            // Mark that this node has children for lazy loading
-            $node['children'] = $hasChildren;
-        }
-
-        return $node;
-    }
-
-    /**
-     * Does NOT check isEnabled() since the builder needs to show disabled items.
-     */
-    private function isItemVisibleOnChannel(ItemInterface $item, ChannelInterface $channel): bool
-    {
-        return $item->hasChannel($channel);
-    }
-
-    private function getItemLabel(ItemInterface $item, ?string $locale = null): ?string
-    {
-        if (null === $locale) {
-            return $item->getLabel();
-        }
-
-        $translation = $item->getTranslation($locale);
-        $label = $translation instanceof ItemTranslationInterface ? $translation->getLabel() : null;
-
-        if ((null === $label || '' === $label) && $item instanceof TaxonItemInterface) {
-            $taxon = $item->getTaxon();
-            if (null === $taxon) {
-                return null;
-            }
-
-            $taxonTranslation = $taxon->getTranslation($locale);
-
-            return $taxonTranslation instanceof \Sylius\Component\Taxonomy\Model\TaxonTranslationInterface
-                ? $taxonTranslation->getName()
-                : $taxon->getName();
-        }
-
-        return $label;
-    }
-
-    /**
-     * Get direct children (depth = 1) of the given item
-     *
-     * @return ItemInterface[]
-     */
-    private function getDirectChildren(ItemInterface $item, ClosureRepositoryInterface $closureRepository): array
-    {
-        // Find all closures where this item is the ancestor with depth = 1 (direct children)
-        $childClosures = $closureRepository->findBy([
-            'ancestor' => $item,
-            'depth' => 1,
-        ]);
-
-        $children = [];
-        foreach ($childClosures as $closure) {
-            $descendant = $closure->getDescendant();
-            if ($descendant !== null) {
-                $children[] = $descendant;
-            }
-        }
-
-        // Sort children by position
-        usort($children, static fn (ItemInterface $a, ItemInterface $b) => $a->getPosition() <=> $b->getPosition());
-
-        return $children;
-    }
-
-    /**
-     * Search items recursively by label
-     *
-     * @return ItemInterface[]
-     */
-    private function searchItemsRecursive(
-        ItemInterface $item,
-        string $searchTerm,
-        ClosureRepositoryInterface $closureRepository,
-    ): array {
-        $matches = [];
-        $children = $this->getDirectChildren($item, $closureRepository);
-
-        foreach ($children as $child) {
-            $label = $this->getItemLabel($child);
-            if ($label && stripos($label, $searchTerm) !== false) {
-                $matches[] = $child;
-            }
-
-            // Search in children recursively
-            $childMatches = $this->searchItemsRecursive($child, $searchTerm, $closureRepository);
-            $matches = array_merge($matches, $childMatches);
-        }
-
-        return $matches;
     }
 }
