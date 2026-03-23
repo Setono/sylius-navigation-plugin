@@ -49,8 +49,8 @@ final class GraphBuilder implements GraphBuilderInterface
                 continue;
             }
 
-            // Skip items that are restricted to specific channels and the current channel is not one of them
-            if (!$descendant->getChannels()->isEmpty() && !$descendant->hasChannel($channel)) {
+            // Skip items not assigned to the current channel
+            if (!$descendant->hasChannel($channel)) {
                 continue;
             }
 

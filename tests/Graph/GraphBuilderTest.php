@@ -527,7 +527,7 @@ final class GraphBuilderTest extends TestCase
     /**
      * @test
      */
-    public function it_includes_items_with_no_channel_restriction(): void
+    public function it_excludes_items_with_no_channels_assigned(): void
     {
         $item = $this->createItemWithoutChannel(1, 'Item', true);
 
@@ -540,8 +540,7 @@ final class GraphBuilderTest extends TestCase
         $nodes = $this->graphBuilder->build($this->navigation, $this->channel);
 
         self::assertIsArray($nodes);
-        self::assertCount(1, $nodes, 'Items with no channel restriction should appear on all channels');
-        self::assertSame($item, $nodes[0]->item);
+        self::assertEmpty($nodes, 'Items with no channels assigned should be excluded');
     }
 
     /**
@@ -590,8 +589,7 @@ final class GraphBuilderTest extends TestCase
         $otherChannel = new Channel();
         $otherChannel->setCode('OTHER');
 
-        $item = $this->createItemWithoutChannel(1, 'Item', true);
-        $item->addChannel($this->channel);
+        $item = $this->createItem(1, 'Item', true, $this->channel);
         $item->addChannel($otherChannel);
 
         $closure = new Closure();
@@ -614,7 +612,7 @@ final class GraphBuilderTest extends TestCase
         $otherChannel = new Channel();
         $otherChannel->setCode('OTHER');
 
-        $parent = $this->createItemWithoutChannel(1, 'Parent', true); // no channel restriction
+        $parent = $this->createItem(1, 'Parent', true, $this->channel); // assigned to current channel
         $child = $this->createItem(2, 'Child', true, $otherChannel); // restricted to other channel
 
         // Self-referencing closures (depth 0)
@@ -654,7 +652,7 @@ final class GraphBuilderTest extends TestCase
         $otherChannel = new Channel();
         $otherChannel->setCode('OTHER');
 
-        $root = $this->createItemWithoutChannel(1, 'Root', true); // no restriction - visible
+        $root = $this->createItem(1, 'Root', true, $this->channel); // current channel - visible
         $child1 = $this->createItem(2, 'Child 1', true, $this->channel); // current channel - visible
         $child2 = $this->createItem(3, 'Child 2', true, $otherChannel); // other channel - excluded
         $grandchild = $this->createItem(4, 'Grandchild', true, $this->channel); // current channel but parent excluded

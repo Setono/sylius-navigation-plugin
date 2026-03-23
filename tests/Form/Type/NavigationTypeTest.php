@@ -50,6 +50,7 @@ final class NavigationTypeTest extends TypeTestCase
         self::assertArrayHasKey('enabled', $view->children);
         self::assertArrayHasKey('description', $view->children);
         self::assertArrayHasKey('channels', $view->children);
+        self::assertTrue($view->children['channels']->vars['required'], 'Channels field should be required');
     }
 
     /**

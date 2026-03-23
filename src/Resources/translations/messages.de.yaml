@@ -6,12 +6,10 @@ setono_sylius_navigation:
             max_depth_help: Begrenzen Sie die Tiefenbauebenen (leer lassen für unbegrenzt)
             taxon: Stamm-Taxon
         item:
-            channels: Auf Kanäle beschränken
             label: Bezeichnung
             taxon: Taxon
             translations: Übersetzungen
         navigation:
-            channels: Auf Kanäle beschränken
             description: Beschreibung (nur intern verwendet)
     ui:
         add_first_item: Erstes Element hinzufügen

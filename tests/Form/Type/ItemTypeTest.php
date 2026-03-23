@@ -58,6 +58,7 @@ final class ItemTypeTest extends TypeTestCase
         self::assertArrayHasKey('translations', $view->children);
         self::assertArrayHasKey('enabled', $view->children);
         self::assertArrayHasKey('channels', $view->children);
+        self::assertFalse($view->children['channels']->vars['required'], 'Channels field should not be required so items can be drafted without channels');
     }
 
     /**

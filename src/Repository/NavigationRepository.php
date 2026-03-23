@@ -11,21 +11,15 @@ use Webmozart\Assert\Assert;
 
 class NavigationRepository extends EntityRepository implements NavigationRepositoryInterface
 {
-    public function findOneEnabledByCode(string $code, ChannelInterface $channel = null): ?NavigationInterface
+    public function findOneEnabledByCode(string $code, ChannelInterface $channel): ?NavigationInterface
     {
         $qb = $this->createQueryBuilder('o')
             ->andWhere('o.enabled = true')
             ->andWhere('o.code = :code')
+            ->andWhere(':channel MEMBER OF o.channels')
             ->setParameter('code', $code)
+            ->setParameter('channel', $channel)
         ;
-
-        if (null === $channel) {
-            $qb->andWhere('o.channels IS EMPTY');
-        } else {
-            $qb->andWhere('o.channels IS EMPTY OR :channel MEMBER OF o.channels')
-                ->setParameter('channel', $channel)
-            ;
-        }
 
         $obj = $qb->getQuery()->getOneOrNullResult();
 

@@ -6,7 +6,6 @@ setono_sylius_navigation:
             max_depth_help: Limit how many levels deep to build (leave empty for unlimited)
             taxon: Root taxon
         item:
-            channels: Restrict to channels
             label: Label
             taxon: Taxon
             translations: Translations
@@ -20,7 +19,6 @@ setono_sylius_navigation:
             noreferrer: Noreferrer
             noreferrer_help: 'Prevents passing referrer information to the target site'
         navigation:
-            channels: Restrict to channels
             description: Description (only used internally)
     ui:
         add_first_item: Add first item

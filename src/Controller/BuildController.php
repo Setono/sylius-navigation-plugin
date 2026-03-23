@@ -552,13 +552,11 @@ final class BuildController extends AbstractController
     }
 
     /**
-     * Check if an item is visible on a given channel.
-     * Empty channels means visible on all channels.
      * Does NOT check isEnabled() since the builder needs to show disabled items.
      */
     private function isItemVisibleOnChannel(ItemInterface $item, ChannelInterface $channel): bool
     {
-        return $item->getChannels()->isEmpty() || $item->hasChannel($channel);
+        return $item->hasChannel($channel);
     }
 
     private function getItemLabel(ItemInterface $item, ?string $locale = null): ?string

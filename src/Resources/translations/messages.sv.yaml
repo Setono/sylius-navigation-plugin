@@ -6,12 +6,10 @@ setono_sylius_navigation:
             max_depth_help: Begränsa hur många nivåer djupt att bygga (lämna tomt för obegränsat)
             taxon: Rot-taxon
         item:
-            channels: Begränsa till kanaler
             label: Etikett
             taxon: Taxon
             translations: Översättningar
         navigation:
-            channels: Begränsa till kanaler
             description: Beskrivning (endast för internt bruk)
     ui:
         add_first_item: Lägg till första objekt

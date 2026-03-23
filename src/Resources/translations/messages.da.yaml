@@ -6,12 +6,10 @@ setono_sylius_navigation:
             max_depth_help: Begræns hvor mange niveauer dybt der skal bygges (lad tom for ubegrænset)
             taxon: Taksonomi
         item:
-            channels: Begræns til kanaler
             label: Etiket
             taxon: Taksonomi
             translations: Oversættelser
         navigation:
-            channels: Begræns til kanaler
             description: Beskrivelse (kun brugt internt)
     ui:
         add_first_item: Tilføj første element

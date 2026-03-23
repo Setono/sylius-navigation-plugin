@@ -26,7 +26,7 @@ class ItemType extends AbstractResourceType
             ->add('channels', ChannelChoiceType::class, [
                 'multiple' => true,
                 'expanded' => true,
-                'label' => 'setono_sylius_navigation.form.item.channels',
+                'label' => 'sylius.ui.channels',
                 'required' => false,
             ])
         ;
