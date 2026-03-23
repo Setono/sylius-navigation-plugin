@@ -1,5 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
+const baseURL = process.env.BASE_URL || 'http://127.0.0.1:8000';
+
 export default defineConfig({
     testDir: '../e2e',
     fullyParallel: false,
@@ -8,7 +10,7 @@ export default defineConfig({
     workers: 1,
     reporter: process.env.CI ? 'github' : 'list',
     use: {
-        baseURL: process.env.BASE_URL || 'https://127.0.0.1:8000',
+        baseURL,
         ignoreHTTPSErrors: true,
         screenshot: 'only-on-failure',
         trace: 'on-first-retry',
@@ -27,10 +29,12 @@ export default defineConfig({
             dependencies: ['setup'],
         },
     ],
-    webServer: (process.env.CI || process.env.BASE_URL) ? undefined : {
-        command: 'php -S 127.0.0.1:8000 -t public',
-        url: 'http://127.0.0.1:8000',
+    webServer: process.env.CI ? undefined : {
+        command: 'symfony serve --no-tls --port=8000',
+        url: `${baseURL}/admin/login`,
         reuseExistingServer: true,
-        timeout: 30000,
+        timeout: 60000,
+        stdout: 'ignore',
+        stderr: 'ignore',
     },
 });
