@@ -11,8 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Positive;
 
 /**
  * @extends AbstractType<BuildFromTaxonCommand>
@@ -24,22 +22,15 @@ final class BuildFromTaxonType extends AbstractType
         $builder
             ->add('taxon', TaxonAutocompleteChoiceType::class, [
                 'label' => 'setono_sylius_navigation.form.build_from_taxon.taxon',
-                'constraints' => [
-                    new NotBlank(),
-                ],
             ])
             ->add('includeRoot', CheckboxType::class, [
                 'label' => 'setono_sylius_navigation.form.build_from_taxon.include_root',
                 'required' => false,
-                'data' => false,
             ])
             ->add('maxDepth', IntegerType::class, [
                 'label' => 'setono_sylius_navigation.form.build_from_taxon.max_depth',
                 'help' => 'setono_sylius_navigation.form.build_from_taxon.max_depth_help',
                 'required' => false,
-                'constraints' => [
-                    new Positive(),
-                ],
             ])
         ;
     }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<constraint-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns="http://symfony.com/schema/dic/constraint-mapping"
+                    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping
+        https://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd">
+    <class name="Setono\SyliusNavigationPlugin\Controller\Command\BuildFromTaxonCommand">
+        <property name="taxon">
+            <constraint name="NotBlank"/>
+        </property>
+        <property name="maxDepth">
+            <constraint name="Positive"/>
+        </property>
+    </class>
+</constraint-mapping>
