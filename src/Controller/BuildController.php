@@ -12,6 +12,7 @@ use Setono\SyliusNavigationPlugin\Model\ItemTranslationInterface;
 use Setono\SyliusNavigationPlugin\Model\NavigationInterface;
 use Setono\SyliusNavigationPlugin\Model\TaxonItemInterface;
 use Setono\SyliusNavigationPlugin\Registry\ItemTypeRegistryInterface;
+use Setono\SyliusNavigationPlugin\Renderer\CachedNavigationRenderer;
 use Setono\SyliusNavigationPlugin\Repository\ClosureRepositoryInterface;
 use Setono\SyliusNavigationPlugin\Repository\NavigationRepositoryInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
@@ -385,9 +386,12 @@ final class BuildController extends AbstractController
         NavigationInterface $navigation,
         ItemInterface $item,
         ClosureManagerInterface $closureManager,
+        ?CachedNavigationRenderer $cachedRenderer = null,
     ): JsonResponse {
         try {
             $closureManager->removeTree($item);
+
+            $cachedRenderer?->invalidate($navigation);
 
             // Return minimal data - let jsTree refresh itself
             return new JsonResponse([
@@ -405,6 +409,7 @@ final class BuildController extends AbstractController
         Request $request,
         NavigationInterface $navigation,
         ClosureManagerInterface $closureManager,
+        ?CachedNavigationRenderer $cachedRenderer = null,
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
         if (!is_array($data)) {
@@ -431,6 +436,8 @@ final class BuildController extends AbstractController
             }
 
             $closureManager->moveItem($item, $newParent, $position);
+
+            $cachedRenderer?->invalidate($navigation);
 
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
