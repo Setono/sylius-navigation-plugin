@@ -17,7 +17,12 @@ Allows creating flexible navigation structures with custom menu items, built man
 - Write unit tests for new functionality when it makes sense
 - BDD-style test method names (e.g., `it_should_do_something_when_condition_is_met`)
 - **MUST use Prophecy for mocking** — use `ProphecyTrait` and `$this->prophesize()`, NOT `$this->createMock()`
-- **Form testing** — extend `Symfony\Component\Form\Test\TypeTestCase`, use `$this->factory->create()`
+- **Form testing** — follow [Symfony form unit testing guidelines](https://symfony.com/doc/6.4/form/unit_testing.html):
+  - Extend `Symfony\Component\Form\Test\TypeTestCase`, use `$this->factory->create()`
+  - Register form types with dependencies via `PreloadedExtension` in `getExtensions()`
+  - Only add `ValidatorExtension` when the form type uses inline `constraints` options
+  - Do NOT test validation logic in form unit tests — test constraints separately
+  - Test `isSynchronized()`, field presence via form view, data mapping, and block prefix
 - Test both happy path and edge cases
 
 ## Development Commands

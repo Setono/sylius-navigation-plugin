@@ -16,10 +16,8 @@ use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface;
 use Sylius\Resource\Doctrine\Persistence\RepositoryInterface as SyliusRepositoryInterface;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
-use Symfony\Component\Validator\Validation;
 
 final class TaxonItemTypeTest extends TypeTestCase
 {
@@ -143,7 +141,6 @@ final class TaxonItemTypeTest extends TypeTestCase
                 \Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType::class => $parentType,
                 TaxonAutocompleteChoiceType::class => $taxonType,
             ], []),
-            new ValidatorExtension(Validation::createValidator()),
         ];
     }
 }

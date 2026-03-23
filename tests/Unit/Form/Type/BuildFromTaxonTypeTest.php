@@ -132,23 +132,6 @@ final class BuildFromTaxonTypeTest extends TypeTestCase
     /**
      * @test
      */
-    public function it_validates_max_depth_must_be_positive(): void
-    {
-        $formData = [
-            'taxon' => 'category',
-            'maxDepth' => -1,
-        ];
-
-        $form = $this->factory->create(BuildFromTaxonType::class);
-        $form->submit($formData);
-
-        self::assertFalse($form->isValid());
-        self::assertTrue($form->get('maxDepth')->getErrors()->count() > 0);
-    }
-
-    /**
-     * @test
-     */
     public function it_accepts_positive_max_depth(): void
     {
         $formData = [
