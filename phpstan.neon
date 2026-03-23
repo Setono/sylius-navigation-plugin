@@ -13,12 +13,12 @@ parameters:
 
     # Symfony Configuration
     symfony:
-        consoleApplicationLoader: tests/console_application.php
+        consoleApplicationLoader: tests/PHPStan/console_application.php
 
     # Doctrine Configuration
     doctrine:
         repositoryClass: Doctrine\ORM\EntityRepository
-        objectManagerLoader: tests/object_manager.php
+        objectManagerLoader: tests/PHPStan/object_manager.php
 
     # Report unmatched ignored errors
     reportUnmatchedIgnoredErrors: false

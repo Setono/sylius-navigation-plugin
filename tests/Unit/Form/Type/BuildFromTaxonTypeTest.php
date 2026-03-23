@@ -1,0 +1,187 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Setono\SyliusNavigationPlugin\Tests\Unit\Form\Type;
+
+use Prophecy\PhpUnit\ProphecyTrait;
+use Setono\SyliusNavigationPlugin\Controller\Command\BuildFromTaxonCommand;
+use Setono\SyliusNavigationPlugin\Form\Type\BuildFromTaxonType;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
+use Sylius\Component\Registry\ServiceRegistryInterface;
+use Sylius\Resource\Doctrine\Persistence\RepositoryInterface as SyliusRepositoryInterface;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\PreloadedExtension;
+use Symfony\Component\Form\Test\TypeTestCase;
+use Symfony\Component\Validator\Validation;
+
+final class BuildFromTaxonTypeTest extends TypeTestCase
+{
+    use ProphecyTrait;
+
+    /**
+     * @test
+     */
+    public function it_submits_valid_data(): void
+    {
+        $formData = [
+            'taxon' => 'test_taxon',
+            'includeRoot' => true,
+            'maxDepth' => 3,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertTrue($data->includeRoot);
+        self::assertSame(3, $data->maxDepth);
+
+        // Note: taxon field is a ResourceAutocompleteChoiceType which expects entity objects
+        // In unit tests we can only verify the field exists, not test actual taxon selection
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_include_root_defaulting_to_false(): void
+    {
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $view = $form->createView();
+
+        self::assertArrayHasKey('includeRoot', $view->children);
+        self::assertFalse($view->children['includeRoot']->vars['data']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_all_required_fields(): void
+    {
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $view = $form->createView();
+
+        self::assertArrayHasKey('taxon', $view->children);
+        self::assertArrayHasKey('includeRoot', $view->children);
+        self::assertArrayHasKey('maxDepth', $view->children);
+    }
+
+    /**
+     * @test
+     */
+    public function it_transforms_data_correctly_when_include_root_is_not_provided(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertFalse($data->includeRoot);
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_null_max_depth(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => null,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertNull($data->maxDepth);
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_empty_max_depth(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => '',
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertNull($data->maxDepth);
+    }
+
+    /**
+     * @test
+     */
+    public function it_validates_max_depth_must_be_positive(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => -1,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertFalse($form->isValid());
+        self::assertTrue($form->get('maxDepth')->getErrors()->count() > 0);
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_positive_max_depth(): void
+    {
+        $formData = [
+            'taxon' => 'category',
+            'maxDepth' => 5,
+        ];
+
+        $form = $this->factory->create(BuildFromTaxonType::class);
+        $form->submit($formData);
+
+        self::assertTrue($form->isSynchronized());
+
+        $data = $form->getData();
+        self::assertInstanceOf(BuildFromTaxonCommand::class, $data);
+        self::assertSame(5, $data->maxDepth);
+    }
+
+    protected function getExtensions(): array
+    {
+        // Create mock repository for ResourceAutocompleteChoiceType
+        $taxonRepository = $this->prophesize(SyliusRepositoryInterface::class);
+
+        // Create mock service registry
+        $resourceRepositoryRegistry = $this->prophesize(ServiceRegistryInterface::class);
+        $resourceRepositoryRegistry->get('sylius.taxon')->willReturn($taxonRepository->reveal());
+
+        return [
+            new PreloadedExtension([
+                // Register both parent and child types
+                ResourceAutocompleteChoiceType::class => new ResourceAutocompleteChoiceType($resourceRepositoryRegistry->reveal()),
+                TaxonAutocompleteChoiceType::class => new TaxonAutocompleteChoiceType(),
+            ], []),
+            new ValidatorExtension(Validation::createValidator()),
+        ];
+    }
+}
