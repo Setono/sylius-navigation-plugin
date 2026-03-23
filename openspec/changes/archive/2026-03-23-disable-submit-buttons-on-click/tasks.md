@@ -14,6 +14,6 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Manually verify build-from-taxon button disables and shows spinner on click
-- [ ] 4.2 Manually verify tree builder Add/Edit/Delete modal buttons disable and show spinner during requests
+- [x] 4.1 Manually verify build-from-taxon button disables and shows spinner on click
+- [x] 4.2 Manually verify tree builder Add/Edit/Delete modal buttons disable and show spinner during requests
 - [x] 4.3 Run `composer analyse` and `composer check-style` to ensure no regressions
