@@ -282,8 +282,6 @@ jobs:
                 uses: "actions/setup-node@v4"
                 with:
                     node-version: "18"
-                    cache: "yarn"
-                    cache-dependency-path: "tests/Application/yarn.lock"
 
             -   name: "Install composer dependencies"
                 uses: "ramsey/composer-install@v3"
