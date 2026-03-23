@@ -132,12 +132,12 @@
         </div>
     </div>
     <div class="actions">
-        <div class="ui cancel button">
+        <button type="button" class="ui cancel button">
             {{ 'sylius.ui.cancel'|trans }}
-        </div>
-        <div class="ui primary button" onclick="NavigationBuilder.addItem()">
+        </button>
+        <button type="button" class="ui primary button" onclick="NavigationBuilder.addItem()">
             {{ 'sylius.ui.create'|trans }}
-        </div>
+        </button>
     </div>
 </div>
 
@@ -153,12 +153,12 @@
         </div>
     </div>
     <div class="actions">
-        <div class="ui cancel button">
+        <button type="button" class="ui cancel button">
             {{ 'sylius.ui.cancel'|trans }}
-        </div>
-        <div class="ui primary button" onclick="NavigationBuilder.updateItem()">
+        </button>
+        <button type="button" class="ui primary button" onclick="NavigationBuilder.updateItem()">
             {{ 'sylius.ui.save'|trans }}
-        </div>
+        </button>
     </div>
 </div>
 
@@ -173,14 +173,14 @@
         <input type="hidden" id="delete-item-id">
     </div>
     <div class="actions">
-        <div class="ui red basic cancel inverted button">
+        <button type="button" class="ui red basic cancel inverted button">
             <i class="remove icon"></i>
             {{ 'sylius.ui.no_label'|trans }}
-        </div>
-        <div class="ui green ok inverted button" onclick="NavigationBuilder.deleteItem()">
+        </button>
+        <button type="button" class="ui green ok inverted button" onclick="NavigationBuilder.deleteItem()">
             <i class="checkmark icon"></i>
             {{ 'sylius.ui.yes_label'|trans }}
-        </div>
+        </button>
     </div>
 </div>
 {% endblock %}

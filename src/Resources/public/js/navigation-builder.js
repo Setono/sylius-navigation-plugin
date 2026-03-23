@@ -394,9 +394,15 @@ class NavigationBuilder {
         }
     }
 
+    setButtonLoading(button, loading) {
+        if (!button) return;
+        button.disabled = loading;
+        button.classList.toggle('loading', loading);
+    }
+
     async addItem() {
-        const container = document.getElementById('add-item-form-fields');
-        const form = container.querySelector('form');
+        const modal = document.getElementById('add-item-modal');
+        const form = modal.querySelector('#add-item-form-fields form');
         if (!form) {
             this.showError('Form not found');
             return;
@@ -408,6 +414,9 @@ class NavigationBuilder {
             formData.append('parent_id', this.currentParentId);
         }
         formData.append('type', this.currentSelectedType);
+
+        const button = modal.querySelector('.actions .primary.button');
+        this.setButtonLoading(button, true);
 
         try {
             const response = await fetch(this.config.routes.addItem, {
@@ -443,18 +452,23 @@ class NavigationBuilder {
         } catch (error) {
             console.error('Failed to add item:', error);
             this.showError('Failed to add item');
+        } finally {
+            this.setButtonLoading(button, false);
         }
     }
 
     async updateItem() {
         const itemId = this.currentEditItemId;
-        const container = document.getElementById('edit-item-form-fields');
-        const form = container.querySelector('form');
+        const modal = document.getElementById('edit-item-modal');
+        const form = modal.querySelector('#edit-item-form-fields form');
         if (!form) {
             this.showError('Form not found');
             return;
         }
         const formData = new FormData(form);
+
+        const button = modal.querySelector('.actions .primary.button');
+        this.setButtonLoading(button, true);
 
         try {
             const url = this.config.routes.updateItem.replace('__ITEM_ID__', itemId);
@@ -484,11 +498,17 @@ class NavigationBuilder {
         } catch (error) {
             console.error('Failed to update item:', error);
             this.showError('Failed to update item');
+        } finally {
+            this.setButtonLoading(button, false);
         }
     }
 
     async deleteItem() {
-        const itemId = document.getElementById('delete-item-id').value;
+        const modal = document.getElementById('delete-item-modal');
+        const itemId = modal.querySelector('#delete-item-id').value;
+
+        const button = modal.querySelector('.actions .ok.button');
+        this.setButtonLoading(button, true);
 
         try {
             const url = this.config.routes.deleteItem.replace('__ITEM_ID__', itemId);
@@ -517,6 +537,8 @@ class NavigationBuilder {
         } catch (error) {
             console.error('Failed to delete item:', error);
             this.showError('Failed to delete item');
+        } finally {
+            this.setButtonLoading(button, false);
         }
     }
 
