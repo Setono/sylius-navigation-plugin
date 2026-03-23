@@ -265,6 +265,7 @@ jobs:
                     coverage: "none"
                     extensions: "${{ env.PHP_EXTENSIONS }}"
                     php-version: "8.2"
+                    tools: "symfony"
 
             -   name: "Setup Node.js"
                 uses: "actions/setup-node@v4"
