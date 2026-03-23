@@ -115,9 +115,9 @@ final class BuildNavigationFromTaxonHandlerTest extends TestCase
         $this->navigationBuilder->buildFromTaxon($navigation, $taxon, true, null)->willThrow($exception);
 
         $this->logger->error('Failed to build navigation from taxon', Argument::that(function (array $context): bool {
-            return $context['navigationId'] === 1
-                && $context['taxonId'] === 2
-                && $context['exception'] === 'Build failed';
+            return $context['navigationId'] === 1 &&
+                $context['taxonId'] === 2 &&
+                $context['exception'] === 'Build failed';
         }))->shouldBeCalled();
 
         $handler = $this->createHandler($this->logger->reveal());
