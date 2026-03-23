@@ -33,8 +33,6 @@ export default defineConfig({
         command: 'symfony serve --no-tls --port=8000',
         url: `${baseURL}/admin/login`,
         reuseExistingServer: true,
-        timeout: 60000,
-        stdout: 'ignore',
-        stderr: 'ignore',
+        timeout: 120000,
     },
 });
